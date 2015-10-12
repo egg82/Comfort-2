@@ -33,8 +33,10 @@ package egg82.engines.interfaces {
 		//public
 		function initialize():void;
 		
-		function isKeyDown(keyCode:uint):Boolean;
-		function isButtonDown(controller:uint, buttonCode:uint):Boolean;
+		function isKeysDown(keyCodes:Array):Boolean;
+		function isButtonsDown(controller:uint, buttonCodes:Array):Boolean;
+		
+		function isMouseDown(mouseCodes:Array):Boolean;
 		
 		function get isLeftMouseDown():Boolean;
 		function get isMiddleMouseDown():Boolean;

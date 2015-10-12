@@ -78,6 +78,13 @@ package egg82.engines.nulls {
 			return null;
 		}
 		
+		public function get speed():Number {
+			return 0;
+		}
+		public function set speed(val:Number):void {
+			
+		}
+		
 		//private
 		
 	}

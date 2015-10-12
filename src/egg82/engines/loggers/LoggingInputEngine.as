@@ -45,13 +45,17 @@ package egg82.engines.loggers {
 			super.initialize();
 		}
 		
-		override public function isKeyDown(keyCode:uint):Boolean {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([keyCode]), LogLevel.INFO);
-			return super.isKeyDown(keyCode);
+		override public function isKeysDown(keyCodes:Array):Boolean {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([keyCodes]), LogLevel.INFO);
+			return super.isKeysDown(keyCodes);
 		}
-		override public function isButtonDown(controller:uint, buttonCode:uint):Boolean {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([controller, buttonCode]), LogLevel.INFO);
-			return super.isButtonDown(controller, buttonCode);
+		override public function isButtonsDown(controller:uint, buttonCodes:Array):Boolean {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([controller, buttonCodes]), LogLevel.INFO);
+			return super.isButtonsDown(controller, buttonCodes);
+		}
+		override public function isMouseDown(mouseCodes:Array):Boolean {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([mouseCodes]), LogLevel.INFO);
+			return super.isMouseDown(mouseCodes);
 		}
 		
 		override public function getTrigger(controller:uint, trigger:uint):Number {

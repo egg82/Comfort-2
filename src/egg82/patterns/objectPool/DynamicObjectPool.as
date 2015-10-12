@@ -36,8 +36,8 @@ package egg82.patterns.objectPool {
 		private var prototypeFactory:IPrototypeFactory = ServiceLocator.getService("prototypeFactory") as IPrototypeFactory;
 		private var prototypeName:String = null;
 		
-		private var usedPool:Vector.<IPrototype> = new Vector.<IPrototype>();
-		private var freePool:Vector.<IPrototype> = new Vector.<IPrototype>();
+		private var _usedPool:Vector.<IPrototype> = new Vector.<IPrototype>();
+		private var _freePool:Vector.<IPrototype> = new Vector.<IPrototype>();
 		
 		//constructor
 		public function DynamicObjectPool(prototypeName:String, prototype:IPrototype) {
@@ -55,51 +55,74 @@ package egg82.patterns.objectPool {
 		//public
 		public function initialize(numObjects:uint = 1):void {
 			for (var i:uint = 0; i < numObjects; i++) {
-				freePool.push(prototypeFactory.createInstance(prototypeName));
+				_freePool.push(prototypeFactory.createInstance(prototypeName));
 			}
 		}
 		
 		public function getObject():IPrototype {
-			usedPool.push((freePool.length == 0) ? prototypeFactory.createInstance(prototypeName) : freePool.splice(0, 1)[0]);
-			return usedPool[usedPool.length - 1];
+			_usedPool.push((_freePool.length == 0) ? prototypeFactory.createInstance(prototypeName) : _freePool.splice(0, 1)[0]);
+			return _usedPool[_usedPool.length - 1];
 		}
 		public function returnObject(obj:IPrototype):void {
-			for (var i:uint = 0; i < usedPool.length; i++) {
-				if (obj === usedPool[i]) {
-					freePool.push(usedPool.splice(i, 1)[0]);
+			for (var i:uint = 0; i < _usedPool.length; i++) {
+				if (obj === _usedPool[i]) {
+					_freePool.push(_usedPool.splice(i, 1)[0]);
 					return;
 				}
 			}
 		}
 		
-		public function get size():uint {
-			return usedPool.length + freePool.length;
+		public function get usedPool():Vector.<IPrototype> {
+			return _usedPool;
+		}
+		public function get freePool():Vector.<IPrototype> {
+			return _freePool;
 		}
 		
+		public function get size():uint {
+			return _usedPool.length + _freePool.length;
+		}
+		
+		public function clear():void {
+			for (var i:uint = 0; i < _usedPool.length; i++) {
+				if ("destroy" in _usedPool[i] && _usedPool[i]["destroy"] is Function) {
+					(_usedPool[i]["destroy"] as Function).call();
+				}
+			}
+			
+			_usedPool = new Vector.<IPrototype>();
+			gc();
+		}
 		public function gc():void {
-			freePool = new Vector.<IPrototype>();
+			for (var i:uint = 0; i < _freePool.length; i++) {
+				if ("destroy" in _freePool[i] && _freePool[i]["destroy"] is Function) {
+					(_freePool[i]["destroy"] as Function).call();
+				}
+			}
+			
+			_freePool = new Vector.<IPrototype>();
 			System.pauseForGCIfCollectionImminent();
 		}
 		public function resize(to:uint, hard:Boolean = false):void {
 			var i:int;
 			
-			if (to == usedPool.length + freePool.length) {
+			if (to == _usedPool.length + _freePool.length) {
 				return;
-			} else if (to > usedPool.length + freePool.length) {
-				for (i = usedPool.length + freePool.length; i < to; i++) {
-					freePool.push(prototypeFactory.createInstance(prototypeName));
+			} else if (to > _usedPool.length + _freePool.length) {
+				for (i = _usedPool.length + _freePool.length; i < to; i++) {
+					_freePool.push(prototypeFactory.createInstance(prototypeName));
 				}
 				
 				return;
 			} else if (to == 0 && hard) {
-				freePool = new Vector.<IPrototype>();
-				usedPool = new Vector.<IPrototype>();
+				_freePool = new Vector.<IPrototype>();
+				_usedPool = new Vector.<IPrototype>();
 			}
 			
-			for (i = freePool.length - 1; i >= 0; i--) {
-				freePool.splice(i, 1);
+			for (i = _freePool.length - 1; i >= 0; i--) {
+				_freePool.splice(i, 1);
 				
-				if (usedPool.length + freePool.length == to) {
+				if (_usedPool.length + _freePool.length == to) {
 					return;
 				}
 			}
@@ -108,10 +131,10 @@ package egg82.patterns.objectPool {
 				return;
 			}
 			
-			for (i = usedPool.length - 1; i >= 0; i--) {
-				usedPool.splice(i, 1);
+			for (i = _usedPool.length - 1; i >= 0; i--) {
+				_usedPool.splice(i, 1);
 				
-				if (usedPool.length == to) {
+				if (_usedPool.length == to) {
 					return;
 				}
 			}

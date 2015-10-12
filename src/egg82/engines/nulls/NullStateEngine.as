@@ -65,6 +65,12 @@ package egg82.engines.nulls {
 		public function set skipMultiplePhysicsUpdate(val:Boolean):void {
 			
 		}
+		public function get vsync():Boolean {
+			return false;
+		}
+		public function set vsync(val:Boolean):void {
+			
+		}
 		
 		public function initialize(initState:Class):void {
 			

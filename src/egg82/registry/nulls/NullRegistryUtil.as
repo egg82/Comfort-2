@@ -22,6 +22,9 @@
 
 package egg82.registry.nulls {
 	import egg82.registry.interfaces.IRegistryUtil;
+	import flash.display.BitmapData;
+	import starling.textures.Texture;
+	import starling.textures.TextureAtlas;
 	
 	/**
 	 * ...
@@ -70,6 +73,50 @@ package egg82.registry.nulls {
 		/*public function removeOption(type:String, name:String):void {
 			
 		}*/
+		
+		public function addBitmapData(url:String, data:BitmapData):void {
+			
+		}
+		public function getBitmapData(url:String):BitmapData {
+			return null;
+		}
+		/*public function removeBitmapData(url:String):void {
+			
+		}*/
+		
+		public function addTexture(url:String, texture:Texture):void {
+			
+		}
+		public function getTexture(url:String):Texture {
+			return null;
+		}
+		/*public function removeTexture(url:String):void {
+			
+		}*/
+		
+		public function addAtlas(url:String, atlas:TextureAtlas):void {
+			
+		}
+		public function getAtlas(url:String):TextureAtlas {
+			return null;
+		}
+		/*public function removeAtlas(url:String):void {
+			
+		}*/
+		
+		public function addXML(url:String, xml:XML):void {
+			
+		}
+		public function getXML(url:String):XML {
+			return null;
+		}
+		/*public function removeXML(url:String):void {
+			
+		}*/
+		
+		public function stripURL(url:String):String {
+			return null;
+		}
 		
 		//private
 		

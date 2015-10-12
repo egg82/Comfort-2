@@ -1,9 +1,16 @@
 package egg82.engines {
 	import egg82.engines.interfaces.IPhysicsEngine;
 	import egg82.enums.OptionsRegistryType;
+	import egg82.events.engines.PhysicsEngineEvent;
+	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.utils.AtkinSieve;
+	import nape.callbacks.CbEvent;
+	import nape.callbacks.CbType;
+	import nape.callbacks.InteractionCallback;
+	import nape.callbacks.InteractionListener;
+	import nape.callbacks.InteractionType;
 	import nape.geom.Vec2;
 	import nape.phys.Body;
 	import nape.shape.Polygon;
@@ -19,18 +26,23 @@ package egg82.engines {
 	
 	public class PhysicsEngine implements IPhysicsEngine {
 		//vars
+		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
+		
 		private var _velocityAccuracy:Number = 1;
 		private var _positionAccuracy:Number = 1;
+		private var _speed:Number = 1;
 		
 		private var _space:Space = null;
 		private var factor:uint = 0;
 		private var primes:Vector.<uint> = null;
-		private var debug:ShapeDebug = new ShapeDebug(0, 0, 0x00000000);
+		private var debug:ShapeDebug = new ShapeDebug(1, 1, 0x00000000);
 		
 		private static var _initialized:Boolean = false;
 		
 		private var initRegistry:IRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
 		private var optionsRegistry:IRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
+		
+		private var collisionListener:InteractionListener = new InteractionListener(CbEvent.BEGIN, InteractionType.COLLISION, CbType.ANY_BODY, CbType.ANY_BODY, onCollision);
 		
 		//constructor
 		public function PhysicsEngine() {
@@ -50,6 +62,7 @@ package egg82.engines {
 			_space = new Space(Vec2.get());
 			_space.worldLinearDrag = 0;
 			_space.worldAngularDrag = 0;
+			_space.listeners.add(collisionListener);
 			
 			if (initRegistry.getRegister("debug") as Boolean) {
 				Starling.all[0].nativeOverlay.addChild(debug.display);
@@ -121,11 +134,15 @@ package egg82.engines {
 		}
 		
 		public function update(deltaTime:Number):void {
+			if (!_initialized) {
+				return;
+			}
+			
 			if (deltaTime <= 0) {
 				deltaTime = 0.001;
 			}
 			
-			_space.step(deltaTime, 20 * _velocityAccuracy, 20 * _positionAccuracy);
+			_space.step(deltaTime * _speed, 20 * _velocityAccuracy, 20 * _positionAccuracy);
 		}
 		public function draw():void {
 			debug.clear();
@@ -133,7 +150,7 @@ package egg82.engines {
 			debug.flush();
 		}
 		public function resize():void {
-			if (initRegistry.getRegister("debug") as Boolean) {
+			if (_initialized && initRegistry.getRegister("debug") as Boolean) {
 				Starling.all[0].nativeOverlay.removeChild(debug.display);
 				debug = new ShapeDebug(Starling.all[0].stage.stageWidth, Starling.all[0].stage.stageHeight, 0x00000000);
 				Starling.all[0].nativeOverlay.addChild(debug.display);
@@ -142,6 +159,17 @@ package egg82.engines {
 		
 		public function get space():Space {
 			return _space;
+		}
+		
+		public function get speed():Number {
+			return _speed;
+		}
+		public function set speed(val:Number):void {
+			if (isNaN(val)) {
+				return;
+			}
+			
+			_speed = val;
 		}
 		
 		//private
@@ -163,6 +191,20 @@ package egg82.engines {
 					poly.localVerts.remove(poly.localVerts.at(i));
 				}
 			}
+		}
+		
+		private function onCollision(callback:InteractionCallback):void {
+			var body1:Body = callback.int1.castBody;
+			var body2:Body = callback.int2.castBody;
+			
+			dispatch(PhysicsEngineEvent.COLLIDE, {
+				"body1": body1,
+				"body2": body2
+			});
+		}
+		
+		protected function dispatch(event:String, data:Object = null):void {
+			Observer.dispatch(OBSERVERS, this, event, data);
 		}
 	}
 }

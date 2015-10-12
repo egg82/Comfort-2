@@ -116,7 +116,7 @@ package egg82.net {
 		}
 		
 		protected function dispatch(event:String, data:Object = null):void {
-			trace("[" + event + "] " + JSON.stringify(data));
+			//trace("[" + event + "] (" + _file + ") " + JSON.stringify(data));
 			Observer.dispatch(OBSERVERS, this, event, data);
 		}
 	}

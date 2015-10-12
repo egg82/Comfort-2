@@ -52,7 +52,8 @@ package egg82.startup.reg {
 				"filterQuality": 1,
 				"mipmap": true,
 				"textureFiltering": TextureSmoothing.TRILINEAR,
-				"fullscreen": false
+				"fullscreen": false,
+				"vsync": true
 			});
 			setRegister(OptionsRegistryType.AUDIO, {
 				"masterVolume": 1,

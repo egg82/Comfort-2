@@ -1,35 +1,39 @@
 package objects {
 	import egg82.custom.CustomAtlasImage;
 	import egg82.enums.FileRegistryType;
+	import egg82.enums.OptionsRegistryType;
 	import egg82.events.custom.CustomAtlasImageEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
+	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.interfaces.IRegistryUtil;
-	import nape.phys.Body;
+	import nape.geom.Vec2;
 	import nape.phys.BodyType;
-	import nape.shape.Circle;
-	import objects.base.BasePhysicsObject;
+	import objects.base.BasePolyPhysicsObject;
+	import physics.IPhysicsData;
 	
 	/**
 	 * ...
 	 * @author Alex
 	 */
 	
-	public class CorePhysicsObject extends BasePhysicsObject {
+	public class Sentry extends BasePolyPhysicsObject {
 		//vars
 		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
+		private var physicsRegistry:IRegistry = ServiceLocator.getService("physicsRegistry") as IRegistry;
 		
 		private var customAtlasImageObserver:Observer = new Observer();
 		
 		//constructor
-		public function CorePhysicsObject(gameType:String) {
+		public function Sentry(gameType:String) {
 			customAtlasImageObserver.add(onCustomAtlasImageObserverNotify);
 			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
 			
-			var body:Body = new Body(BodyType.STATIC);
-			body.shapes.add(new Circle(166));
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("sentry_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0, BodyType.KINEMATIC);
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body);
+			body.translateShapes(Vec2.weak(0, -120));
+			body.allowRotation = true;
+			body.allowMovement = false;
 		}
 		
 		//public
@@ -40,15 +44,16 @@ package objects {
 				return;
 			}
 			
+			Observer.remove(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
+			
 			if (event == CustomAtlasImageEvent.COMPLETE) {
-				setTextureFromName("core");
+				setTextureFromName("paddle");
 			} else if (event == CustomAtlasImageEvent.ERROR) {
 				
 			}
 			
 			alignPivot();
-			pivotX += 1;
-			pivotY += 1;
+			this.pivotY = 163;
 		}
 	}
 }

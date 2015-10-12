@@ -44,22 +44,23 @@ package egg82.startup.reg {
 		
 		//public
 		override public function initialize():void {
-			var str:String = "";
-			var len:int = (20971520 - 24) / 2;
-			
-			for (var i:uint = 0; i < len; i++) {
-				str += "0";
-			}
-			
 			setRegister("preInitState", null);
 			setRegister("postInitState", null);
 			setRegister("logging", false);
-			setRegister("memoryHandicap", str);
-			setRegister("cpuHandicap", new Timer(17));
-			setRegister("debug", Capabilities.isDebugger);
+			setRegister("debug", true);
 			
-			(getRegister("cpuHandicap") as Timer).addEventListener(TimerEvent.TIMER, onCPUTimer, false, 0, true);
-			(getRegister("cpuHandicap") as Timer).start();
+			if (Capabilities.isDebugger) {
+				var str:String = "";
+				var len:int = (20971520 - 24) / 2;
+				for (var i:uint = 0; i < len; i++) {
+					str += "0";
+				}
+				setRegister("memoryHandicap", str);
+				
+				setRegister("cpuHandicap", new Timer(17));
+				(getRegister("cpuHandicap") as Timer).addEventListener(TimerEvent.TIMER, onCPUTimer, false, 0, true);
+				(getRegister("cpuHandicap") as Timer).start();
+			}
 		}
 		
 		//private

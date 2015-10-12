@@ -54,9 +54,13 @@ package egg82.utils {
 		}
 		
 		//public
-		public function decode(bytes:ByteArray):void {
+		public function decode(bytes:ByteArray, file:String = ""):void {
 			loader = new Loader();
-			_file = "";
+			_file = file;
+			
+			if (!_file) {
+				_file = "";
+			}
 			
 			context = new LoaderContext();
 			context.imageDecodingPolicy = ImageDecodingPolicy.ON_LOAD;
@@ -136,6 +140,7 @@ package egg82.utils {
 		}
 		
 		protected function dispatch(event:String, data:Object = null):void {
+			//trace("[" + event + "] (" + _file + ") " + JSON.stringify(data));
 			Observer.dispatch(OBSERVERS, this, event, data);
 		}
 	}

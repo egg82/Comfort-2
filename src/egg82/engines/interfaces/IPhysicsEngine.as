@@ -52,6 +52,9 @@ package egg82.engines.interfaces {
 		
 		function get space():Space;
 		
+		function get speed():Number;
+		function set speed(val:Number):void;
+		
 		//private
 		
 	}

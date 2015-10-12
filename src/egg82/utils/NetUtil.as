@@ -63,6 +63,17 @@ package egg82.utils {
 			}
 		}
 		
+		public static function loadExactPolicyFile(url:String):void {
+			try {
+				Security.allowDomain(url);
+				Security.allowInsecureDomain(url);
+			} catch (ex:Error) {
+				
+			}
+			
+			Security.loadPolicyFile(url);
+		}
+		
 		//private
 		
 	}

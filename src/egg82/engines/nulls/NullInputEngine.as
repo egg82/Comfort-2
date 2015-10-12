@@ -38,10 +38,14 @@ package egg82.engines.nulls {
 		public function initialize():void {
 			
 		}
-		public function isKeyDown(keyCode:uint):Boolean {
+		public function isKeysDown(keyCodes:Array):Boolean {
 			return false;
 		}
-		public function isButtonDown(controller:uint, buttonCode:uint):Boolean {
+		public function isButtonsDown(controller:uint, buttonCodes:Array):Boolean {
+			return false;
+		}
+		
+		public function isMouseDown(mouseCodes:Array):Boolean {
 			return false;
 		}
 		

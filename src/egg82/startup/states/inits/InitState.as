@@ -62,8 +62,6 @@ package egg82.startup.states.inits {
 			
 			_nextState = TextureInitState;
 			
-			textureRegistry.initialize();
-			
 			//CookieUtil.deleteCookie("options");
 			if (!initRegistry.getRegister("debug")) {
 				settingsLoader.loadSave("options", optionsRegistry);

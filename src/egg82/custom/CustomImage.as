@@ -26,8 +26,8 @@ package egg82.custom {
 	import egg82.events.ImageDecoderEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
+	import egg82.registry.interfaces.IRegistryUtil;
 	import egg82.utils.ImageDecoder;
-	import egg82.registry.interfaces.IRegistry;
 	import egg82.utils.TextureUtil;
 	import flash.display.BitmapData;
 	import starling.display.Image;
@@ -49,51 +49,59 @@ package egg82.custom {
 		
 		private var imageDecoderObserver:Observer = new Observer();
 		
-		private var _textureRegistry:IRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
-		private var _optionsRegistry:IRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
+		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 		
 		//constructor
 		public function CustomImage(url:String) {
-			path2 = url.replace(/\W|_/g, "_");
-			var texture:Texture = _textureRegistry.getRegister("null_tex");
+			var texture:Texture = registryUtil.getTexture("null");
+			super(texture);
+			
+			if (!url || url == "") {
+				throw new Error("url cannot be null.");
+			}
+			
+			path2 = registryUtil.stripURL(url);
 			
 			imageDecoderObserver.add(onImageDecoderObserverNotify);
 			Observer.add(ImageDecoder.OBSERVERS, imageDecoderObserver);
 			
-			if (_textureRegistry.getRegister(path2 + "_tex")) {
-				texture = _textureRegistry.getRegister(path2 + "_tex");
+			if (registryUtil.getTexture(url)) {
+				texture = registryUtil.getTexture(url);
 				_isLoaded = true;
-				dispatch(CustomImageEvent.COMPLETE);
-			} else if (_textureRegistry.getRegister(path2 + "_bmd")) {
-				_textureRegistry.setRegister(path2 + "_tex", TextureUtil.getTexture(_textureRegistry.getRegister(path2 + "_bmd")));
-				texture = _textureRegistry.getRegister(path2 + "_tex");
+			} else if (registryUtil.getBitmapData(url)) {
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				texture = registryUtil.getTexture(url);
 				_isLoaded = true;
-				dispatch(CustomImageEvent.COMPLETE);
 			} else {
 				loader.load(url);
 			}
 			
-			super(texture);
+			this.texture = texture;
 			
-			smoothing = _optionsRegistry.getRegister(OptionsRegistryType.VIDEO).textureFiltering;
+			smoothing = registryUtil.getOption(OptionsRegistryType.VIDEO, "textureFiltering") as String;
 			touchable = false;
 		}
 		
 		//public
+		public function create():void {
+			if (_isLoaded) {
+				dispatch(CustomImageEvent.COMPLETE);
+			}
+		}
+		
 		public function destroy():void {
-			var name:String;
+			var url:String;
 			
 			Observer.remove(ImageDecoder.OBSERVERS, imageDecoderObserver);
 			
 			if (loader.file) {
-				name = loader.file;
-				name = name.replace(/\W|_/g, "_");
+				name = registryUtil.stripURL(loader.file);
 			} else {
 				name = path2;
 			}
 			
 			dispose();
-			_textureRegistry.setRegister(path2 + "_tex", null);
+			//registryUtil.addTexture(url, null);
 			//RegTextures.disposeBMD(name);
 		}
 		
@@ -119,14 +127,13 @@ package egg82.custom {
 		private function onLoadError(error:String):void {
 			dispatch(CustomImageEvent.ERROR, error);
 			
-			var name:String = loader.file;
-			name = name.replace(/\W|_/g, "_");
+			var url:String = loader.file;
 			
-			if (_textureRegistry.getRegister(name + "_tex")) {
-				texture = _textureRegistry.getRegister(name + "_tex");
-			} else if (_textureRegistry.getRegister(name + "_bmd")) {
-				_textureRegistry.setRegister(name + "_tex", TextureUtil.getTexture(_textureRegistry.getRegister(name + "_bmd")));
-				texture = _textureRegistry.getRegister(name + "_tex");
+			if (registryUtil.getTexture(url)) {
+				texture = registryUtil.getTexture(url);
+			} else if (registryUtil.getBitmapData(url)) {
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				texture = registryUtil.getTexture(url);
 			} else {
 				return;
 			}
@@ -140,28 +147,25 @@ package egg82.custom {
 			dispatch(CustomImageEvent.COMPLETE);
 		}
 		private function onLoadComplete(bmd:BitmapData):void {
-			var name:String = loader.file;
-			name = name.replace(/\W|_/g, "_");
+			var url:String = loader.file;
 			
-			if (_textureRegistry.getRegister(name + "_tex")) {
+			if (registryUtil.getTexture(url)) {
 				bmd.dispose();
-				texture = _textureRegistry.getRegister(name + "_tex");
-			} else if (_textureRegistry.getRegister(name + "_bmd")) {
+				texture = registryUtil.getTexture(url);
+			} else if (registryUtil.getBitmapData(url)) {
 				bmd.dispose();
-				_textureRegistry.setRegister(name + "_tex", TextureUtil.getTexture(_textureRegistry.getRegister(name + "_bmd")));
-				texture = _textureRegistry.getRegister(name + "_tex");
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				texture = registryUtil.getTexture(url);
 			} else {
-				_textureRegistry.setRegister(name + "_bmd", bmd);
-				_textureRegistry.setRegister(name + "_tex", TextureUtil.getTexture(_textureRegistry.getRegister(name + "_bmd")));
-				texture = _textureRegistry.getRegister(name + "_tex");
+				registryUtil.addBitmapData(url, bmd);
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				texture = registryUtil.getTexture(url);
 			}
 			
 			if (width == 1 && height == 1) {
 				width = texture.width;
 				height = texture.height;
 			}
-			
-			scaleX = scaleY = 1;
 			
 			_isLoaded = true;
 			dispatch(CustomImageEvent.COMPLETE);

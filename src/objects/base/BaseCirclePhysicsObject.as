@@ -1,4 +1,6 @@
 package objects.base {
+	import com.greensock.easing.Elastic;
+	import com.greensock.TweenMax;
 	import egg82.custom.CustomAtlasImage;
 	import egg82.enums.FileRegistryType;
 	import egg82.events.custom.CustomAtlasImageEvent;
@@ -23,7 +25,7 @@ package objects.base {
 		private var customAtlasImageObserver:Observer = new Observer();
 		
 		//constructor
-		public function BaseCirclePhysicsObject(gameType:String, imageName:String, radius:Number) {
+		public function BaseCirclePhysicsObject(gameType:String, imageName:String, radius:Number, damage:Number) {
 			customAtlasImageObserver.add(onCustomAtlasImageObserverNotify);
 			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
 			
@@ -32,12 +34,21 @@ package objects.base {
 			var body:Body = new Body(BodyType.DYNAMIC);
 			body.shapes.add(new Circle(radius));
 			body.allowMovement = true;
-			body.allowRotation = true;
+			body.allowRotation = false;
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body);
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body, damage);
 		}
 		
 		//public
+		override public function create():void {
+			super.create();
+			
+			TweenMax.from(this, 0.75, {
+				"scaleX": 0,
+				"scaleY": 0,
+				"ease": Elastic.easeOut
+			});
+		}
 		
 		//private
 		private function onCustomAtlasImageObserverNotify(sender:Object, event:String, data:Object):void {
@@ -45,11 +56,17 @@ package objects.base {
 				return;
 			}
 			
+			Observer.remove(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
+			
 			if (event == CustomAtlasImageEvent.COMPLETE) {
 				setTextureFromName(imageName);
 			} else if (event == CustomAtlasImageEvent.ERROR) {
 				
 			}
+			
+			scaleX = scaleY = 0.6;
+			
+			alignPivot();
 		}
 	}
 }

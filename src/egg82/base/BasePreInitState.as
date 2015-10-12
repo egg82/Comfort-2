@@ -23,7 +23,6 @@
 package egg82.base {
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
-	import egg82.registry.interfaces.IRegistryUtil;
 	import egg82.startup.states.inits.InitState;
 	
 	/**
@@ -33,7 +32,6 @@ package egg82.base {
 	
 	public class BasePreInitState extends BaseState {
 		//vars
-		protected var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 		protected var initRegistry:IRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
 		
 		//constructor

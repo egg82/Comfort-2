@@ -21,6 +21,9 @@
  */
 
 package egg82.registry.interfaces {
+	import flash.display.BitmapData;
+	import starling.textures.Texture;
+	import starling.textures.TextureAtlas;
 	
 	/**
 	 * ...
@@ -41,6 +44,16 @@ package egg82.registry.interfaces {
 		function getFont(name:String):Class;
 		function addOption(type:String, name:String, value:*):void;
 		function getOption(type:String, name:String):*;
+		function addBitmapData(url:String, data:BitmapData):void;
+		function getBitmapData(url:String):BitmapData;
+		function addTexture(url:String, texture:Texture):void;
+		function getTexture(url:String):Texture;
+		function addAtlas(url:String, atlas:TextureAtlas):void;
+		function getAtlas(url:String):TextureAtlas;
+		function addXML(url:String, xml:XML):void;
+		function getXML(url:String):XML;
+		
+		function stripURL(url:String):String;
 		
 		//private
 		

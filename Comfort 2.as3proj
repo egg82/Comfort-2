@@ -6,8 +6,8 @@
     <movie input="" />
     <movie path="bin\Comfort2.swf" />
     <movie fps="30" />
-    <movie width="1280" />
-    <movie height="720" />
+    <movie width="1024" />
+    <movie height="576" />
     <movie version="18" />
     <movie minorVersion="0" />
     <movie platform="Flash Player" />
@@ -54,9 +54,10 @@
   <libraryPaths>
     <element path="lib\as3crypto.swc" />
     <element path="lib\asSQL-Beta2.8.swc" />
-    <element path="lib\nape-release.swc" />
     <element path="lib\starling.swc" />
     <element path="lib\Starling-Extension-Graphics.swc" />
+    <element path="lib\greensock.swc" />
+    <element path="lib\nape-dev.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>
@@ -72,7 +73,8 @@
   </intrinsics>
   <!-- Assets to embed into the output SWF -->
   <library>
-    <!-- example: <asset path="..." id="..." update="..." glyphs="..." mode="..." place="..." sharepoint="..." /> -->
+    <asset path="res\font\note.ttf" />
+    <asset path="res\font\speech.ttf" />
   </library>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>

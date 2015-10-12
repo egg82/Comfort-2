@@ -25,10 +25,14 @@ package egg82.engines {
 	import egg82.engines.interfaces.IInputEngine;
 	import egg82.engines.interfaces.IPhysicsEngine;
 	import egg82.engines.interfaces.IStateEngine;
+	import egg82.enums.OptionsRegistryType;
 	import egg82.events.engines.StateEngineEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
+	import egg82.registry.interfaces.IRegistry;
+	import egg82.registry.interfaces.IRegistryUtil;
 	import flash.events.TimerEvent;
+	import flash.system.System;
 	import flash.utils.getTimer;
 	import flash.utils.Timer;
 	import starling.core.Starling;
@@ -65,6 +69,9 @@ package egg82.engines {
 		
 		private var inputEngine:IInputEngine;
 		private var physicsEngine:IPhysicsEngine;
+		
+		private var initRegistry:IRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
+		private var registryUtil:IRegistryUtil;
 		
 		//constructor
 		public function StateEngine() {
@@ -107,8 +114,11 @@ package egg82.engines {
 				throw new Error("initState cannot be null");
 			}
 			
+			registryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 			inputEngine = ServiceLocator.getService("inputEngine") as IInputEngine;
 			physicsEngine = ServiceLocator.getService("physicsEngine") as IPhysicsEngine;
+			
+			drawTimer.addEventListener(TimerEvent.TIMER, onDraw);
 			
 			Starling.all[0].stage.addEventListener(ResizeEvent.RESIZE, onResize);
 			
@@ -151,6 +161,9 @@ package egg82.engines {
 			
 			ns.create();
 			
+			Starling.all[0].showStats = false;
+			Starling.all[0].showStats = initRegistry.getRegister("debug");
+			
 			if (Starling.all[0].context) {
 				updateTimer.start();
 				drawTimer.start();
@@ -179,12 +192,17 @@ package egg82.engines {
 			
 			oldState = states.splice(swapAt, 1)[0];
 			oldState.destroy();
-			
 			Starling.all[0].stage.removeChild(oldState);
+			
+			System.pauseForGCIfCollectionImminent(0.5);
+			
 			states.splice(swapAt, 0, ns);
 			Starling.all[0].stage.addChild(ns);
 			
 			ns.create();
+			
+			Starling.all[0].showStats = false;
+			Starling.all[0].showStats = initRegistry.getRegister("debug");
 			
 			if (Starling.all[0].context) {
 				updateTimer.start();
@@ -201,6 +219,8 @@ package egg82.engines {
 			state = states.splice(index, 1)[0];
 			state.destroy();
 			Starling.all[0].stage.removeChild(state);
+			
+			System.pauseForGCIfCollectionImminent(0.5);
 			
 			if (states.length > 0) {
 				states[0].touchable = true;
@@ -300,7 +320,7 @@ package egg82.engines {
 				}
 			}
 		}
-		private function onDraw(e:TimerEvent):void {
+		private function onDraw(e:*):void {
 			if (!_drawFps) {
 				return;
 			}
@@ -367,9 +387,13 @@ package egg82.engines {
 			resize();
 			
 			updateTimer.addEventListener(TimerEvent.TIMER, onUpdate);
-			drawTimer.addEventListener(TimerEvent.TIMER, onDraw);
 			updateTimer.start();
-			drawTimer.start();
+			
+			if (registryUtil.getOption(OptionsRegistryType.VIDEO, "vsync") as Boolean) {
+				Starling.all[0].stage.addEventListener(Event.ENTER_FRAME, onDraw);
+			} else {
+				drawTimer.start();
+			}
 		}
 		
 		protected function dispatch(event:String, data:Object = null):void {

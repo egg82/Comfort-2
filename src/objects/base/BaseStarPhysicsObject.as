@@ -1,4 +1,6 @@
 package objects.base {
+	import com.greensock.easing.Elastic;
+	import com.greensock.TweenMax;
 	import egg82.custom.CustomAtlasImage;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
@@ -24,18 +26,30 @@ package objects.base {
 		private var starType:String;
 		
 		//constructor
-		public function BaseStarPhysicsObject(gameType:String, starType:String) {
+		public function BaseStarPhysicsObject(gameType:String, starType:String, damage:Number) {
 			customAtlasImageObserver.add(onCustomAtlasImageObserverNotify);
 			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
 			
 			this.starType = starType;
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("star_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData);
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("star_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, damage);
 			body.allowRotation = true;
 			body.allowMovement = true;
+			body.scaleShapes(0.6, 0.6);
+			
+			body.applyAngularImpulse(500);
 		}
 		
 		//public
+		override public function create():void {
+			super.create();
+			
+			TweenMax.from(this, 0.75, {
+				"scaleX": 0,
+				"scaleY": 0,
+				"ease": Elastic.easeOut
+			});
+		}
 		
 		//private
 		private function onCustomAtlasImageObserverNotify(sender:Object, event:String, data:Object):void {
@@ -43,15 +57,18 @@ package objects.base {
 				return;
 			}
 			
+			Observer.remove(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
+			
 			if (event == CustomAtlasImageEvent.COMPLETE) {
 				setTextureFromName("star_" + starType);
 			} else if (event == CustomAtlasImageEvent.ERROR) {
 				
 			}
 			
+			scaleX = scaleY = 0.6;
+			
 			alignPivot();
-			pivotX += 1;
-			pivotY += 1;
+			pivotY += 3;
 		}
 	}
 }

@@ -13,15 +13,15 @@ package objects.base {
 		//vars
 		
 		//constructor
-		public function BasePolyPhysicsObject(atlasUrl:String, atlasXMLUrl:String, physicsData:IPhysicsData) {
-			var body:Body = new Body(BodyType.DYNAMIC);
+		public function BasePolyPhysicsObject(atlasUrl:String, atlasXMLUrl:String, physicsData:IPhysicsData, damage:Number, bodyType:BodyType = null) {
+			var body:Body = new Body((bodyType) ? bodyType : BodyType.DYNAMIC);
 			
 			var polygons:Vector.<Polygon> = physicsData.getPolygons();
 			for (var i:uint = 0; i < polygons.length; i++) {
 				body.shapes.add(polygons[i]);
 			}
 			
-			super(atlasUrl, atlasXMLUrl, body);
+			super(atlasUrl, atlasXMLUrl, body, damage);
 		}
 		
 		//public

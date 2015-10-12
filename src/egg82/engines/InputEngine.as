@@ -22,7 +22,7 @@
 
 package egg82.engines {
 	import egg82.engines.interfaces.IInputEngine;
-	import egg82.enums.MouseEventType;
+	import egg82.enums.MouseCodes;
 	import egg82.enums.OptionsRegistryType;
 	import egg82.enums.XboxButtonCodes;
 	import egg82.events.engines.InputEngineEvent;
@@ -94,46 +94,70 @@ package egg82.engines {
 			dispatch(InputEngineEvent.INITIALIZE);
 		}
 		
-		public function isKeyDown(keyCode:uint):Boolean {
-			if (keyCode < keys.length) {
-				return keys[keyCode];
-			} else {
-				return false;
+		public function isKeysDown(keyCodes:Array):Boolean {
+			keyCodes = cleanArray(keyCodes);
+			
+			for (var i:uint = 0; i < keyCodes.length; i++) {
+				if (keyCodes[i] < keys.length && keys[keyCodes[i]]) {
+					return true;
+				}
 			}
+			
+			return false;
 		}
-		public function isButtonDown(controller:uint, buttonCode:uint):Boolean {
+		public function isButtonsDown(controller:uint, buttonCodes:Array):Boolean {
+			buttonCodes = cleanArray(buttonCodes);
+			
 			if (controller >= xboxControllers.length) {
 				return false;
 			}
 			
-			if (buttonCode == 0) {
-				return xboxControllers[controller].a.held;
-			} else if (buttonCode == 1) {
-				return xboxControllers[controller].b.held;
-			} else if (buttonCode == 2) {
-				return xboxControllers[controller].y.held;
-			} else if (buttonCode == 3) {
-				return xboxControllers[controller].x.held;
-			} else if (buttonCode == 4) {
-				return xboxControllers[controller].lb.held;
-			} else if (buttonCode == 5) {
-				return xboxControllers[controller].rb.held;
-			} else if (buttonCode == 6) {
-				return xboxControllers[controller].leftStick.held;
-			} else if (buttonCode == 7) {
-				return xboxControllers[controller].rightStick.held;
-			} else if (buttonCode == 8) {
-				return xboxControllers[controller].start.held;
-			} else if (buttonCode == 9) {
-				return xboxControllers[controller].back.held;
-			} else if (buttonCode == 10) {
-				return xboxControllers[controller].dpad.up.held;
-			} else if (buttonCode == 11) {
-				return xboxControllers[controller].dpad.left.held;
-			} else if (buttonCode == 12) {
-				return xboxControllers[controller].dpad.down.held;
-			} else if (buttonCode == 13) {
-				return xboxControllers[controller].dpad.right.held;
+			for (var i:uint = 0; i < buttonCodes.length; i++) {
+				if (buttonCodes[i] == XboxButtonCodes.A && xboxControllers[controller].a.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.B && xboxControllers[controller].b.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.Y && xboxControllers[controller].y.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.X && xboxControllers[controller].x.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.LEFT_BUMPER && xboxControllers[controller].lb.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.RIGHT_BUMPER && xboxControllers[controller].rb.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.LEFT_STICK && xboxControllers[controller].leftStick.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.RIGHT_STICK && xboxControllers[controller].rightStick.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.START && xboxControllers[controller].start.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.BACK && xboxControllers[controller].back.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.UP && xboxControllers[controller].dpad.up.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.LEFT && xboxControllers[controller].dpad.left.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.DOWN && xboxControllers[controller].dpad.down.held) {
+					return true;
+				} else if (buttonCodes[i] == XboxButtonCodes.RIGHT && xboxControllers[controller].dpad.right.held) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		public function isMouseDown(mouseCodes:Array):Boolean {
+			mouseCodes = cleanArray(mouseCodes);
+			
+			for (var i:uint = 0; i < mouseCodes.length; i++) {
+				if (mouseCodes[i] == MouseCodes.LEFT && _leftDown) {
+					return true;
+				} else if (mouseCodes[i] == MouseCodes.MIDDLE && _middleDown) {
+					return true;
+				} else if (mouseCodes[i] == MouseCodes.RIGHT && _rightDown) {
+					return true;
+				}
 			}
 			
 			return false;
@@ -266,13 +290,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.A
+						"code": XboxButtonCodes.A
 					});
 				} else if (xboxControllers[i].a.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.A
+						"code": XboxButtonCodes.A
 					});
 				}
 				
@@ -280,13 +304,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.B
+						"code": XboxButtonCodes.B
 					});
 				} else if (xboxControllers[i].b.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.B
+						"code": XboxButtonCodes.B
 					});
 				}
 				
@@ -294,13 +318,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.Y
+						"code": XboxButtonCodes.Y
 					});
 				} else if (xboxControllers[i].y.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.Y
+						"code": XboxButtonCodes.Y
 					});
 				}
 				
@@ -308,13 +332,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.X
+						"code": XboxButtonCodes.X
 					});
 				} else if (xboxControllers[i].x.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.X
+						"code": XboxButtonCodes.X
 					});
 				}
 				
@@ -322,13 +346,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.LEFT_BUMPER
+						"code": XboxButtonCodes.LEFT_BUMPER
 					});
 				} else if (xboxControllers[i].lb.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.LEFT_BUMPER
+						"code": XboxButtonCodes.LEFT_BUMPER
 					});
 				}
 				
@@ -336,13 +360,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.RIGHT_BUMPER
+						"code": XboxButtonCodes.RIGHT_BUMPER
 					});
 				} else if (xboxControllers[i].rb.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.RIGHT_BUMPER
+						"code": XboxButtonCodes.RIGHT_BUMPER
 					});
 				}
 				
@@ -350,13 +374,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.LEFT_STICK
+						"code": XboxButtonCodes.LEFT_STICK
 					});
 				} else if (xboxControllers[i].leftStick.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.LEFT_STICK
+						"code": XboxButtonCodes.LEFT_STICK
 					});
 				}
 				
@@ -364,13 +388,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.RIGHT_STICK
+						"code": XboxButtonCodes.RIGHT_STICK
 					});
 				} else if (xboxControllers[i].rightStick.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.RIGHT_STICK
+						"code": XboxButtonCodes.RIGHT_STICK
 					});
 				}
 				
@@ -378,13 +402,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.START
+						"code": XboxButtonCodes.START
 					});
 				} else if (xboxControllers[i].start.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.START
+						"code": XboxButtonCodes.START
 					});
 				}
 				
@@ -392,13 +416,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.BACK
+						"code": XboxButtonCodes.BACK
 					});
 				} else if (xboxControllers[i].back.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.BACK
+						"code": XboxButtonCodes.BACK
 					});
 				}
 				
@@ -406,13 +430,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.UP
+						"code": XboxButtonCodes.UP
 					});
 				} else if (xboxControllers[i].dpad.up.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.UP
+						"code": XboxButtonCodes.UP
 					});
 				}
 				
@@ -420,13 +444,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.LEFT
+						"code": XboxButtonCodes.LEFT
 					});
 				} else if (xboxControllers[i].dpad.left.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.LEFT
+						"code": XboxButtonCodes.LEFT
 					});
 				}
 				
@@ -434,13 +458,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.DOWN
+						"code": XboxButtonCodes.DOWN
 					});
 				} else if (xboxControllers[i].dpad.down.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.DOWN
+						"code": XboxButtonCodes.DOWN
 					});
 				}
 				
@@ -448,13 +472,13 @@ package egg82.engines {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_DOWN, {
 						"controller": i,
-						"button": XboxButtonCodes.RIGHT
+						"code": XboxButtonCodes.RIGHT
 					});
 				} else if (xboxControllers[i].dpad.right.released) {
 					_lastUsingController = true;
 					dispatch(InputEngineEvent.BUTTON_UP, {
 						"controller": i,
-						"button": XboxButtonCodes.RIGHT
+						"code": XboxButtonCodes.RIGHT
 					});
 				}
 			}
@@ -470,7 +494,7 @@ package egg82.engines {
 			keys[e.keyCode] = true;
 			dispatch(InputEngineEvent.KEY_DOWN, {
 				"stage": Starling.all[0].nativeStage,
-				"keyCode": e.keyCode
+				"code": e.keyCode
 			});
 		}
 		private function onKeyUp(e:KeyboardEvent):void {
@@ -479,7 +503,7 @@ package egg82.engines {
 			
 			dispatch(InputEngineEvent.KEY_UP, {
 				"stage": Starling.all[0].nativeStage,
-				"keyCode": e.keyCode
+				"code": e.keyCode
 			});
 		}
 		
@@ -513,7 +537,7 @@ package egg82.engines {
 			
 			dispatch(InputEngineEvent.MOUSE_DOWN, {
 				"stage": Starling.all[0].nativeStage,
-				"type": MouseEventType.LEFT
+				"code": MouseCodes.LEFT
 			});
 		}
 		private function onMiddleMouseDown(e:MouseEvent):void {
@@ -522,7 +546,7 @@ package egg82.engines {
 			
 			dispatch(InputEngineEvent.MOUSE_DOWN, {
 				"stage": Starling.all[0].nativeStage,
-				"type": MouseEventType.MIDDLE
+				"code": MouseCodes.MIDDLE
 			});
 		}
 		private function onRightMouseDown(e:MouseEvent):void {
@@ -531,7 +555,7 @@ package egg82.engines {
 			
 			dispatch(InputEngineEvent.MOUSE_DOWN, {
 				"stage": Starling.all[0].nativeStage,
-				"type": MouseEventType.RIGHT
+				"code": MouseCodes.RIGHT
 			});
 		}
 		
@@ -541,7 +565,7 @@ package egg82.engines {
 			
 			dispatch(InputEngineEvent.MOUSE_UP, {
 				"stage": Starling.all[0].nativeStage,
-				"type": MouseEventType.LEFT
+				"code": MouseCodes.LEFT
 			});
 		}
 		private function onMiddleMouseUp(e:MouseEvent):void {
@@ -550,7 +574,7 @@ package egg82.engines {
 			
 			dispatch(InputEngineEvent.MOUSE_UP, {
 				"stage": Starling.all[0].nativeStage,
-				"type": MouseEventType.MIDDLE
+				"code": MouseCodes.MIDDLE
 			});
 		}
 		private function onRightMouseUp(e:MouseEvent):void {
@@ -559,8 +583,20 @@ package egg82.engines {
 			
 			dispatch(InputEngineEvent.MOUSE_UP, {
 				"stage": Starling.all[0].nativeStage,
-				"type": MouseEventType.RIGHT
+				"code": MouseCodes.RIGHT
 			});
+		}
+		
+		private function cleanArray(arr:Array):Array {
+			var newArr:Array = new Array();
+			
+			for (var key:* in arr) {
+				if (arr[key] is uint) {
+					newArr.push(arr[key] as uint);
+				}
+			}
+			
+			return newArr;
 		}
 		
 		protected function dispatch(event:String, data:Object = null):void {

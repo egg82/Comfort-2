@@ -25,6 +25,7 @@ package egg82.base {
 	import egg82.events.base.BaseStateEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
+	import egg82.registry.interfaces.IRegistryUtil;
 	import starling.core.Starling;
 	
 	/**
@@ -41,6 +42,7 @@ package egg82.base {
 		
 		protected var _prevState:Class;
 		protected var _nextState:Class;
+		protected var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 		
 		private var _stateEngine:IStateEngine = ServiceLocator.getService("stateEngine") as IStateEngine;
 		

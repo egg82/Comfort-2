@@ -29,6 +29,7 @@ package egg82.custom {
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
+	import egg82.registry.interfaces.IRegistryUtil;
 	import egg82.utils.ImageDecoder;
 	import egg82.utils.MathUtil;
 	import egg82.utils.TextureUtil;
@@ -51,12 +52,14 @@ package egg82.custom {
 		private var xmlLoader:SimpleURLLoader = new SimpleURLLoader();
 		
 		private var atlas:TextureAtlas;
-		private var path2:String;
 		private var atlasRows:uint;
 		private var atlasCols:uint;
 		
 		private var texRow:uint = 0;
 		private var texCol:uint = 0;
+		
+		private var path2:String;
+		private var xmlUrl:String;
 		
 		private var _isLoaded:Boolean = false;
 		private var _xmlLoaded:Boolean = false;
@@ -65,47 +68,56 @@ package egg82.custom {
 		private var imageDecoderObserver:Observer = new Observer();
 		private var simpleURLLoaderObserver:Observer = new Observer();
 		
-		private var optionsRegistry:IRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
-		private var textureRegistry:IRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
+		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 		
 		//constructor
 		public function CustomAtlasImage(url:String, xmlUrl:String = null, atlasRows:uint = 0, atlasCols:uint = 0) {
-			path2 = url.replace(/\W|_/g, "_");
+			var texture:Texture = registryUtil.getTexture("null");
+			super(texture);
+			
+			if (!url || url == "") {
+				throw new Error("url cannot be null.");
+			}
+			
+			path2 = registryUtil.stripURL(url);
+			this.xmlUrl = xmlUrl;
+			
 			this.atlasRows = atlasRows;
 			this.atlasCols = atlasCols;
-			var texture:Texture = textureRegistry.getRegister("null_tex");
+			
+			if (url == "null") {
+				_isLoaded = true;
+				return;
+			}
 			
 			imageDecoderObserver.add(onImageDecoderObserverNotify);
 			Observer.add(ImageDecoder.OBSERVERS, imageDecoderObserver);
 			simpleURLLoaderObserver.add(onSimpleURLLoaderObserverNotify);
 			Observer.add(SimpleURLLoader.OBSERVERS, simpleURLLoaderObserver);
 			
-			if (textureRegistry.getRegister(path2 + "_atlas")) {
-				atlas = textureRegistry.getRegister(path2 + "_atlas");
+			if (registryUtil.getAtlas(url)) {
+				atlas = registryUtil.getAtlas(url);
 				texture = atlas.getTexture(atlas.getNames()[0]);
 				_isLoaded = true;
-				dispatch(CustomAtlasImageEvent.COMPLETE);
-			} else if (textureRegistry.getRegister(path2 + "_tex")) {
-				if (textureRegistry.getRegister(path2 + "_xml")) {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlasXML(textureRegistry.getRegister(path2 + "_tex"), textureRegistry.getRegister(path2 + "_xml")));
+			} else if (registryUtil.getTexture(url)) {
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlas(textureRegistry.getRegister(path2 + "_tex"), atlasRows, atlasCols));
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
-				atlas = textureRegistry.getRegister(path2 + "_atlas");
+				atlas = registryUtil.getAtlas(url);
 				texture = atlas.getTexture(atlas.getNames()[0]);
 				_isLoaded = true;
-				dispatch(CustomAtlasImageEvent.COMPLETE);
-			} else if (textureRegistry.getRegister(path2 + "_bmd")) {
-				textureRegistry.setRegister(path2 + "_tex", TextureUtil.getTexture(textureRegistry.getRegister(path2 + "_bmd")));
-				if (textureRegistry.getRegister(path2 + "_xml")) {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlasXML(textureRegistry.getRegister(path2 + "_tex"), textureRegistry.getRegister(path2 + "_xml")));
+			} else if (registryUtil.getBitmapData(url)) {
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlas(textureRegistry.getRegister(path2 + "_tex"), atlasRows, atlasCols));
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
-				atlas = textureRegistry.getRegister(path2 + "_atlas");
+				atlas = registryUtil.getAtlas(url);
 				texture = atlas.getTexture(atlas.getNames()[0]);
 				_isLoaded = true;
-				dispatch(CustomAtlasImageEvent.COMPLETE);
 			} else {
 				loader.load(url);
 				if (xmlUrl) {
@@ -115,29 +127,34 @@ package egg82.custom {
 				}
 			}
 			
-			super(texture);
+			this.texture = texture;
 			
-			smoothing = optionsRegistry.getRegister(OptionsRegistryType.VIDEO).textureFiltering;
+			smoothing = registryUtil.getOption(OptionsRegistryType.VIDEO, "textureFiltering") as String;
 			touchable = false;
 		}
 		
 		//public
+		public function create():void {
+			if (_isLoaded) {
+				dispatch(CustomAtlasImageEvent.COMPLETE);
+			}
+		}
+		
 		public function destroy():void {
-			var name:String;
+			var url:String;
 			
 			Observer.remove(ImageDecoder.OBSERVERS, imageDecoderObserver);
 			Observer.remove(SimpleURLLoader.OBSERVERS, simpleURLLoaderObserver);
 			
 			if (loader.file) {
-				name = loader.file;
-				name = name.replace(/\W|_/g, "_");
+				url = registryUtil.stripURL(loader.file);
 			} else {
-				name = path2;
+				url = path2;
 			}
 			
 			dispose();
-			textureRegistry.setRegister(name + "_atlas", null);
-			textureRegistry.setRegister(name + "_xml", null);
+			//registryUtil.addAtlas(url, null);
+			//registryUtil.addXML(xmlUrl, null);
 			//RegTextures.disposeBMD(name);
 		}
 		
@@ -150,7 +167,7 @@ package egg82.custom {
 			texCol = col;
 			
 			if (!atlas.getTexture(col + "_" + row)) {
-				texture = textureRegistry.getRegister("null_tex");
+				texture = registryUtil.getTexture("null");
 			} else {
 				texture = atlas.getTexture(col + "_" + row);
 			}
@@ -163,7 +180,7 @@ package egg82.custom {
 			}
 			
 			if (!atlas.getTexture(name)) {
-				texture = textureRegistry.getRegister("null_tex");
+				texture = registryUtil.getTexture("null");
 			} else {
 				texture = atlas.getTexture(name);
 			}
@@ -215,26 +232,25 @@ package egg82.custom {
 		private function onLoadError(error:String):void {
 			dispatch(CustomAtlasImageEvent.ERROR, error);
 			
-			var name:String = loader.file;
-			name = name.replace(/\W|_/g, "_");
+			var url:String = loader.file;
 			
-			if (textureRegistry.getRegister(name + "_atlas")) {
-				atlas = textureRegistry.getRegister(name + "_atlas");
-			} else if (textureRegistry.getRegister(name + "_tex")) {
-				if (textureRegistry.getRegister(path2 + "_xml")) {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlasXML(textureRegistry.getRegister(path2 + "_tex"), textureRegistry.getRegister(path2 + "_xml")));
+			if (registryUtil.getAtlas(url)) {
+				atlas = registryUtil.getAtlas(url);
+			} else if (registryUtil.getTexture(url)) {
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlas(textureRegistry.getRegister(path2 + "_tex"), atlasRows, atlasCols));
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
-				atlas = textureRegistry.getRegister(name + "_atlas");
-			} else if (textureRegistry.getRegister(name + "_bmd")) {
-				textureRegistry.setRegister(name + "_tex", TextureUtil.getTexture(textureRegistry.getRegister(name + "_bmd")));
-				if (textureRegistry.getRegister(path2 + "_xml")) {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlasXML(textureRegistry.getRegister(path2 + "_tex"), textureRegistry.getRegister(path2 + "_xml")));
+				atlas = registryUtil.getAtlas(url);
+			} else if (registryUtil.getBitmapData(url)) {
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlas(textureRegistry.getRegister(path2 + "_tex"), atlasRows, atlasCols));
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
-				atlas = textureRegistry.getRegister(name + "_atlas");
+				atlas = registryUtil.getAtlas(url);
 			} else {
 				return;
 			}
@@ -261,10 +277,9 @@ package egg82.custom {
 			onLoadError(error);
 		}
 		private function onXMLLoadComplete(data:ByteArray):void {
-			var name:String = loader.file;
-			name = name.replace(/\W|_/g, "_");
+			var url:String = loader.file;
 			
-			textureRegistry.setRegister(name + "_xml", new XML(data.readUTFBytes(data.length)));
+			registryUtil.addXML(url, new XML(data.readUTFBytes(data.length)));
 			_xmlLoaded = true;
 			
 			if (_bmd) {
@@ -273,38 +288,37 @@ package egg82.custom {
 		}
 		
 		private function complete():void {
-			var name:String = loader.file;
-			name = name.replace(/\W|_/g, "_");
+			var url:String = loader.file;
 			
-			if (textureRegistry.getRegister(name + "_atlas")) {
+			if (registryUtil.getAtlas(url)) {
 				_bmd.dispose();
-				atlas = textureRegistry.getRegister(name + "_atlas");
-			} else if (textureRegistry.getRegister(name + "_tex")) {
+				atlas = registryUtil.getAtlas(url);
+			} else if (registryUtil.getTexture(url)) {
 				_bmd.dispose();
-				if (textureRegistry.getRegister(path2 + "_xml")) {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlasXML(textureRegistry.getRegister(path2 + "_tex"), textureRegistry.getRegister(path2 + "_xml")));
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlas(textureRegistry.getRegister(path2 + "_tex"), atlasRows, atlasCols));
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
-				atlas = textureRegistry.getRegister(name + "_atlas");
-			} else if (textureRegistry.getRegister(name + "_bmd")) {
+				atlas = registryUtil.getAtlas(url);
+			} else if (registryUtil.getBitmapData(url)) {
 				_bmd.dispose();
-				textureRegistry.setRegister(name + "_tex", TextureUtil.getTexture(textureRegistry.getRegister(name + "_bmd")));
-				if (textureRegistry.getRegister(path2 + "_xml")) {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlasXML(textureRegistry.getRegister(path2 + "_tex"), textureRegistry.getRegister(path2 + "_xml")));
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlas(textureRegistry.getRegister(path2 + "_tex"), atlasRows, atlasCols));
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
-				atlas = textureRegistry.getRegister(name + "_atlas");
+				atlas = registryUtil.getAtlas(url);
 			} else {
-				textureRegistry.setRegister(name + "_bmd", _bmd);
-				textureRegistry.setRegister(name + "_tex", TextureUtil.getTexture(textureRegistry.getRegister(name + "_bmd")));
-				if (textureRegistry.getRegister(path2 + "_xml")) {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlasXML(textureRegistry.getRegister(path2 + "_tex"), textureRegistry.getRegister(path2 + "_xml")));
+				registryUtil.addBitmapData(url, _bmd);
+				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					textureRegistry.setRegister(path2 + "_atlas", TextureUtil.getTextureAtlas(textureRegistry.getRegister(path2 + "_tex"), atlasRows, atlasCols));
+					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
-				atlas = textureRegistry.getRegister(name + "_atlas");
+				atlas = registryUtil.getAtlas(url);
 			}
 			
 			texture = atlas.getTexture(atlas.getNames()[0]);

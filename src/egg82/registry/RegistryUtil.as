@@ -24,7 +24,10 @@ package egg82.registry {
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.interfaces.IRegistryUtil;
+	import flash.display.BitmapData;
 	import flash.text.Font;
+	import starling.textures.Texture;
+	import starling.textures.TextureAtlas;
 	
 	/**
 	 * ...
@@ -36,6 +39,7 @@ package egg82.registry {
 		private var fileRegistry:IRegistry;
 		private var fontRegistry:IRegistry;
 		private var optionsRegistry:IRegistry;
+		private var textureRegistry:IRegistry;
 		
 		//constructor
 		public function RegistryUtil() {
@@ -47,10 +51,12 @@ package egg82.registry {
 			fileRegistry = ServiceLocator.getService("fileRegistry") as IRegistry;
 			fontRegistry = ServiceLocator.getService("fontRegistry") as IRegistry;
 			optionsRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
+			textureRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
 			
 			fileRegistry.initialize();
 			fontRegistry.initialize();
 			optionsRegistry.initialize();
+			textureRegistry.initialize();
 		}
 		
 		public function addFile(type:String, name:String, url:String):void {
@@ -110,6 +116,50 @@ package egg82.registry {
 		/*public function removeOption(type:String, name:String):void {
 			
 		}*/
+		
+		public function addBitmapData(url:String, data:BitmapData):void {
+			textureRegistry.setRegister(stripURL(url) + "_bmd", data);
+		}
+		public function getBitmapData(url:String):BitmapData {
+			return textureRegistry.getRegister(stripURL(url) + "_bmd") as BitmapData;
+		}
+		/*public function removeBitmapData(url:String):void {
+			
+		}*/
+		
+		public function addTexture(url:String, texture:Texture):void {
+			textureRegistry.setRegister(stripURL(url) + "_tex", texture);
+		}
+		public function getTexture(url:String):Texture {
+			return textureRegistry.getRegister(stripURL(url) + "_tex") as Texture;
+		}
+		/*public function removeTexture(url:String):void {
+			
+		}*/
+		
+		public function addAtlas(url:String, atlas:TextureAtlas):void {
+			textureRegistry.setRegister(stripURL(url) + "_atlas", atlas);
+		}
+		public function getAtlas(url:String):TextureAtlas {
+			return textureRegistry.getRegister(stripURL(url) + "_atlas") as TextureAtlas;
+		}
+		/*public function removeAtlas(url:String):void {
+			
+		}*/
+		
+		public function addXML(url:String, xml:XML):void {
+			textureRegistry.setRegister(stripURL(url) + "_xml", xml);
+		}
+		public function getXML(url:String):XML {
+			return textureRegistry.getRegister(stripURL(url) + "_xml") as XML;
+		}
+		/*public function removeXML(url:String):void {
+			
+		}*/
+		
+		public function stripURL(url:String):String {
+			return url.replace(/\W|_/g, "_");
+		}
 		
 		//private
 		
