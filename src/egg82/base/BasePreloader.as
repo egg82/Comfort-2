@@ -41,10 +41,12 @@ package egg82.base {
 		private var _total:Number = 0;
 		
 		private var _preInitState:Class = null;
+		private var _preInitStateArgs:Array = null;
 		private var _postInitState:Class = null;
+		private var _postInitStateArgs:Array = null;
 		
 		//constructor
-		public function BasePreloader(preInitState:Class, postInitState:Class) {
+		public function BasePreloader(preInitState:Class, postInitState:Class, preInitStateArgs:Array = null, postInitStateArgs:Array = null) {
 			if (!preInitState) {
 				throw new Error("preInitState cannot be null");
 			}
@@ -53,7 +55,9 @@ package egg82.base {
 			}
 			
 			_preInitState = preInitState;
+			_preInitStateArgs = preInitStateArgs;
 			_postInitState = postInitState;
+			_postInitStateArgs = postInitStateArgs;
 			
 			loaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			loaderInfo.addEventListener(Event.COMPLETE, onComplete);
@@ -68,7 +72,7 @@ package egg82.base {
 		}
 		
 		public function start():void {
-			addChild(new Start(_preInitState, _postInitState));
+			addChild(new Start(_preInitState, _preInitStateArgs, _postInitState, _postInitStateArgs));
 		}
 		
 		//private

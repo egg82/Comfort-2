@@ -200,6 +200,20 @@ package egg82.utils {
 			return "{Function name not found}";
 		}
 		
+		public static function getEnums(c:Class):Array {
+			var retArr:Array = new Array();
+			
+			var xml:XML = describeType(c);
+			var xmlList:XMLList = xml.child("constant");
+			
+			for each (var child:XML in xmlList) {
+				var name:String = child.attribute("name").toString();
+				retArr[name] = c[name];
+			}
+			
+			return retArr;
+		}
+		
 		//private
 		private static function onTimer(e:TimerEvent):void {
 			for (var i:uint = 0; i < timers.length; i++) {

@@ -22,9 +22,9 @@ package states {
 		//vars
 		private var baseLoadingStateObserver:Observer = new Observer();
 		
-		private var gameType:String = GameType.HORDE;
-		
 		private var background:CustomImage;
+		
+		private var gameType:String;
 		
 		//constructor
 		public function LoadingState() {
@@ -32,8 +32,14 @@ package states {
 		}
 		
 		//public
-		override public function create():void {
-			font = "note";
+		override public function create(...args):void {
+			throwErrorOnArgsNull(args);
+			
+			gameType = getArg(args, "gameType") as String;
+			if (!gameType) {
+				throw new Error("gameType cannot be null.");
+			}
+			
 			if (gameType == GameType.HORDE) {
 				_nextState = HordeGameState;
 			} else if (gameType == GameType.MASK) {
@@ -44,7 +50,7 @@ package states {
 				_nextState = UnityGameState;
 			}
 			
-			background = new CustomImage(registryUtil.getFile(FileRegistryType.TEXTURE, gameType + "_background"));
+			background = new CustomImage(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType + "_background"));
 			background.create();
 			background.width = stage.stageWidth;
 			background.height = stage.stageHeight;
@@ -53,17 +59,22 @@ package states {
 			baseLoadingStateObserver.add(onBaseLoadingStateObserverNotify);
 			Observer.add(BaseLoadingState.OBSERVERS, baseLoadingStateObserver);
 			
-			if (!registryUtil.getBitmapData(registryUtil.getFile(FileRegistryType.TEXTURE, gameType + "_background"))) {
-				fileArr.push(registryUtil.getFile(FileRegistryType.TEXTURE, gameType + "_background"));
+			var fileArr:Array = new Array();
+			
+			if (!REGISTRY_UTIL.getBitmapData(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType + "_background"))) {
+				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType + "_background"));
 			}
-			if (!registryUtil.getBitmapData(registryUtil.getFile(FileRegistryType.TEXTURE, gameType))) {
-				fileArr.push(registryUtil.getFile(FileRegistryType.TEXTURE, gameType));
+			if (!REGISTRY_UTIL.getBitmapData(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType))) {
+				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType));
 			}
-			if (!registryUtil.getXML(registryUtil.getFile(FileRegistryType.XML, gameType))) {
-				fileArr.push(registryUtil.getFile(FileRegistryType.XML, gameType));
+			if (!REGISTRY_UTIL.getXML(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType))) {
+				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType));
 			}
 			
-			super.create();
+			super.create({
+				"fileArr": fileArr,
+				"font": "note"
+			});
 		}
 		
 		//private
@@ -82,23 +93,23 @@ package states {
 		}
 		
 		private function onDownloadComplete(name:String, data:ByteArray):void {
-			if (name == registryUtil.stripURL(registryUtil.getFile(FileRegistryType.TEXTURE, gameType))) {
+			if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType))) {
 				decodeImage(name, data);
-			} else if (name == registryUtil.stripURL(registryUtil.getFile(FileRegistryType.XML, gameType))) {
-				registryUtil.addXML(name, new XML(data.readUTFBytes(data.length)));
+			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType))) {
+				REGISTRY_UTIL.addXML(name, new XML(data.readUTFBytes(data.length)));
 			}
 		}
 		private function onDecodeComplete(name:String, data:BitmapData):void {
-			if (name == registryUtil.stripURL(registryUtil.getFile(FileRegistryType.TEXTURE, gameType))) {
-				registryUtil.addBitmapData(name, data);
-				registryUtil.addTexture(name, TextureUtil.getTexture(data));
+			if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType))) {
+				REGISTRY_UTIL.addBitmapData(name, data);
+				REGISTRY_UTIL.addTexture(name, TextureUtil.getTexture(data));
 			}
 		}
 		private function onComplete():void {
-			var url:String = registryUtil.getFile(FileRegistryType.TEXTURE, gameType);
-			var xmlURL:String = registryUtil.getFile(FileRegistryType.XML, gameType);
+			var url:String = REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType);
+			var xmlURL:String = REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType);
 			
-			registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlURL)));
+			REGISTRY_UTIL.addAtlas(url, TextureUtil.getTextureAtlasXML(REGISTRY_UTIL.getTexture(url), REGISTRY_UTIL.getXML(xmlURL)));
 		}
 	}
 }

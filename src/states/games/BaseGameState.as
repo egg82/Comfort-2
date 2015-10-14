@@ -7,6 +7,7 @@ package states.games {
 	import egg82.engines.PhysicsEngine;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.enums.XboxButtonCodes;
 	import egg82.events.engines.PhysicsEngineEvent;
 	import egg82.math.FastMath;
@@ -14,6 +15,7 @@ package states.games {
 	import egg82.patterns.objectPool.ObjectPool;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
+	import egg82.registry.RegistryUtil;
 	import enums.CustomOptionsRegistryType;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
@@ -28,6 +30,7 @@ package states.games {
 	import objects.Core;
 	import objects.ExplosiveStressBall;
 	import objects.interfaces.ITriggerable;
+	import objects.Paddle;
 	import objects.ReinforcementStar;
 	import objects.ReliefStar;
 	import objects.RemedyStar;
@@ -60,18 +63,24 @@ package states.games {
 		
 		private var bulletPool:ObjectPool;
 		
-		//protected var paddle1:Paddle;
-		//protected var paddle2:Paddle;
+		protected var paddle1:Paddle;
+		protected var paddle2:Paddle;
 		protected var sentry:Sentry;
 		
-		protected var physicsEngine:IPhysicsEngine = ServiceLocator.getService("physicsEngine") as IPhysicsEngine;
-		private var inputEngine:IInputEngine = ServiceLocator.getService("inputEngine") as IInputEngine;
+		protected var physicsEngine:IPhysicsEngine = ServiceLocator.getService(ServiceType.PHYSICS_ENGINE) as IPhysicsEngine;
+		private var inputEngine:IInputEngine = ServiceLocator.getService(ServiceType.INPUT_ENGINE) as IInputEngine;
 		
 		private var physicsEngineObserver:Observer = new Observer();
+		private var registryUtilObserver:Observer = new Observer();
 		
 		private var impulseTimer:Timer = new Timer(100);
 		private var unstuckTimer:Timer = new Timer(1000);
 		private var speedTimer:Timer = new Timer(250);
+		
+		private var fireKeys:Array;
+		private var fireButtons:Array;
+		private var autoFire:Boolean;
+		private var controllerDeadZone:Number;
 		
 		protected var fireTimer:Timer = new Timer(750, 1);
 		private var _canFire:Boolean = false;
@@ -84,18 +93,20 @@ package states.games {
 		}
 		
 		//public
-		override public function create():void {
+		override public function create(...args):void {
 			_nextState = LoseState;
 			
 			super.create();
 			
+			throwErrorOnArgsNull(args);
+			gameType = getArg(args, "gameType");
 			if (!gameType || gameType == "") {
 				throw new Error("gameType cannot be null.");
 			}
 			
 			physicsEngine.resize();
 			
-			background = new CustomImage(registryUtil.getFile(FileRegistryType.TEXTURE, gameType + "_background"));
+			background = new CustomImage(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType + "_background"));
 			background.create();
 			background.width = stage.stageWidth;
 			background.height = stage.stageHeight;
@@ -151,7 +162,7 @@ package states.games {
 				
 				physicsEngine.addBody(testStar2.body);
 				addChild(testStar2);
-			}*/
+			}
 			for (i = 1; i <= 3; i++) {
 				var testStar3:ReliefStar = reliefStarPool.getObject() as ReliefStar;
 				testStar3.body.position.setxy(20 * i, 60);
@@ -163,7 +174,7 @@ package states.games {
 				addChild(testStar3);
 			}
 			
-			/*for (i = 1; i <= 1; i++) {
+			for (i = 1; i <= 1; i++) {
 				var testBall:ShieldedStressBall = shieldedStressBallPool.getObject() as ShieldedStressBall;
 				testBall.body.position.setxy(20 * i, 80);
 				var impulse:Vec2 = Vec2.get(stage.stageWidth - testBall.body.position.x, stage.stageHeight - testBall.body.position.y);
@@ -182,7 +193,7 @@ package states.games {
 				
 				physicsEngine.addBody(testBall2.body);
 				addChild(testBall2);
-			}*/
+			}
 			for (i = 1; i <= 1; i++) {
 				var testBall3:ExplosiveStressBall = explosiveStressBallPool.getObject() as ExplosiveStressBall;
 				testBall3.body.position.setxy(20 * i, 120);
@@ -193,7 +204,7 @@ package states.games {
 				physicsEngine.addBody(testBall3.body);
 				addChild(testBall3);
 			}
-			/*for (i = 1; i <= 2; i++) {
+			for (i = 1; i <= 2; i++) {
 				var testBall4:ClusterStressBall = clusterStressBallPool.getObject() as ClusterStressBall;
 				testBall4.body.position.setxy(10 * i, 130);
 				var impulse4:Vec2 = Vec2.get(stage.stageWidth - testBall4.body.position.x, stage.stageHeight - testBall4.body.position.y);
@@ -204,13 +215,26 @@ package states.games {
 				addChild(testBall4);
 			}*/
 			
-			//paddle1 = new Paddle(gameType);
-			//paddle1.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
-			//paddle2 = new Paddle2(gameType, true);
-			//paddle2.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
+			paddle1 = new Paddle(gameType, false);
+			paddle1.create();
+			paddle1.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
+			paddle2 = new Paddle(gameType, true);
+			paddle2.create();
+			paddle2.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
 			sentry = new Sentry(gameType);
 			sentry.create();
 			sentry.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
+			
+			physicsEngineObserver.add(onPhysicsEngineObserverNotify);
+			Observer.add(PhysicsEngine.OBSERVERS, physicsEngineObserver);
+			
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
+			
+			fireKeys = REGISTRY_UTIL.getOption(OptionsRegistryType.KEYS, "fire") as Array;
+			fireButtons = REGISTRY_UTIL.getOption(OptionsRegistryType.CONTROLLER, "fire") as Array;
+			autoFire = REGISTRY_UTIL.getOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire") as Boolean;
+			controllerDeadZone = REGISTRY_UTIL.getOption(OptionsRegistryType.CONTROLLER, "deadZone") as Number;
 			
 			impulseTimer.addEventListener(TimerEvent.TIMER, onImpulseTimer);
 			impulseTimer.start();
@@ -222,29 +246,33 @@ package states.games {
 			speedTimer.start();
 			
 			fireTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onFireTimer);
-			
-			physicsEngineObserver.add(onPhysicsEngineObserverNotify);
-			Observer.add(PhysicsEngine.OBSERVERS, physicsEngineObserver);
 		}
 		
 		override public function update(deltaTime:Number):void {
 			if (!inputEngine.isUsingController()) {
 				sentry.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + 1.5708;
+				paddle1.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + 1.5708;
+				paddle2.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + Math.PI + 1.5708;
 			} else {
-				if (inputEngine.getStickProperties(0, 0).y > registryUtil.getOption(OptionsRegistryType.CONTROLLER, "deadZone")) {
+				if (inputEngine.getStickProperties(0, 0).y > controllerDeadZone) {
 					sentry.body.rotation = inputEngine.getStickProperties(0, 0).x;
-				} else if (inputEngine.getStickProperties(0, 1).y > registryUtil.getOption(OptionsRegistryType.CONTROLLER, "deadZone")) {
+					paddle1.body.rotation = inputEngine.getStickProperties(0, 0).x;
+					paddle2.body.rotation = inputEngine.getStickProperties(0, 0).x + Math.PI;
+				} else if (inputEngine.getStickProperties(0, 1).y > controllerDeadZone) {
 					sentry.body.rotation = inputEngine.getStickProperties(0, 1).x;
+					paddle1.body.rotation = inputEngine.getStickProperties(0, 1).x;
+					paddle2.body.rotation = inputEngine.getStickProperties(0, 1).x + Math.PI;
 				}
 			}
 			
-			if ((inputEngine.isMouseDown(registryUtil.getOption(OptionsRegistryType.KEYS, "fire")) || inputEngine.isButtonsDown(0, registryUtil.getOption(OptionsRegistryType.CONTROLLER, "fire")) || registryUtil.getOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire") as Boolean) && _canFire) {
+			if (_canFire && (inputEngine.isMouseDown(fireKeys) || inputEngine.isKeysDown(fireKeys) || inputEngine.isButtonsDown(0, fireButtons) || autoFire)) {
 				spawnBullet();
 			}
 		}
 		
 		override public function destroy():void {
 			Observer.remove(PhysicsEngine.OBSERVERS, physicsEngineObserver);
+			Observer.remove(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			speedTimer.stop();
 			unstuckTimer.stop();
@@ -428,10 +456,10 @@ package states.games {
 						setFireTimerDelay(250);
 						TweenMax.delayedCall(6, setFireTimerDelay, [750]);
 						
-						/*paddle1.tweenResize(4);
+						paddle1.tweenResize(4);
 						TweenMax.delayedCall(6, paddle1.tweenResize, [0.25]);
 						paddle2.tweenResize(4);
-						TweenMax.delayedCall(6, paddle2.tweenResize, [0.25]);*/
+						TweenMax.delayedCall(6, paddle2.tweenResize, [0.25]);
 					}
 				}
 				
@@ -462,6 +490,25 @@ package states.games {
 		private function checkLose():void {
 			if (core.health <= 0) {
 				//nextState();
+			}
+		}
+		
+		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (data.registry == "optionsRegistry") {
+				checkOptions(data.type as String, data.name as String, data.value as Object);
+			}
+		}
+		private function checkOptions(type:String, name:String, value:Object):void {
+			if (type == CustomOptionsRegistryType.GAMEPLAY && name == "autoFire") {
+				autoFire = value as String;
+			} else if (type == OptionsRegistryType.KEYS && name == "fire") {
+				fireKeys = value as Array;
+			} else if (type == OptionsRegistryType.CONTROLLER) {
+				if (name == "fire") {
+					fireButtons = value as Array;
+				} else if (name == "deadZone") {
+					controllerDeadZone = value as Number;
+				}
 			}
 		}
 	}

@@ -30,6 +30,7 @@ package egg82.custom {
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.interfaces.IRegistryUtil;
+	import egg82.registry.RegistryUtil;
 	import egg82.utils.ImageDecoder;
 	import egg82.utils.MathUtil;
 	import egg82.utils.TextureUtil;
@@ -67,6 +68,7 @@ package egg82.custom {
 		
 		private var imageDecoderObserver:Observer = new Observer();
 		private var simpleURLLoaderObserver:Observer = new Observer();
+		private var registryUtilObserver:Observer = new Observer();
 		
 		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 		
@@ -92,8 +94,12 @@ package egg82.custom {
 			
 			imageDecoderObserver.add(onImageDecoderObserverNotify);
 			Observer.add(ImageDecoder.OBSERVERS, imageDecoderObserver);
+			
 			simpleURLLoaderObserver.add(onSimpleURLLoaderObserverNotify);
 			Observer.add(SimpleURLLoader.OBSERVERS, simpleURLLoaderObserver);
+			
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			if (registryUtil.getAtlas(url)) {
 				atlas = registryUtil.getAtlas(url);
@@ -145,6 +151,7 @@ package egg82.custom {
 			
 			Observer.remove(ImageDecoder.OBSERVERS, imageDecoderObserver);
 			Observer.remove(SimpleURLLoader.OBSERVERS, simpleURLLoaderObserver);
+			Observer.remove(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			if (loader.file) {
 				url = registryUtil.stripURL(loader.file);
@@ -331,6 +338,17 @@ package egg82.custom {
 			_bmd = null;
 			_isLoaded = true;
 			dispatch(CustomAtlasImageEvent.COMPLETE);
+		}
+		
+		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (data.registry == "optionsRegistry") {
+				checkOptions(data.type as String, data.name as String, data.value as Object);
+			}
+		}
+		private function checkOptions(type:String, name:String, value:Object):void {
+			if (type == OptionsRegistryType.VIDEO && name == "textureFiltering") {
+				smoothing = value as String;
+			}
 		}
 		
 		private function dispatch(event:String, data:Object = null):void {

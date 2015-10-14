@@ -21,6 +21,8 @@
  */
 
 package egg82.registry {
+	import egg82.events.registry.RegistryEvent;
+	import egg82.patterns.Observer;
 	import egg82.registry.interfaces.IRegistry;
 	
 	/**
@@ -30,6 +32,8 @@ package egg82.registry {
 	
 	public class Registry implements IRegistry {
 		//vars
+		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
+		
 		protected var registry:Array = new Array();
 		
 		//constructor
@@ -43,7 +47,14 @@ package egg82.registry {
 		}
 		
 		public function setRegister(type:String, data:*):void {
+			var event:String = (registry[type]) ? ((data) ? RegistryEvent.VALUE_CHANGED : RegistryEvent.VALUE_REMOVED) : RegistryEvent.VALUE_ADDED;
+			
 			registry[type] = data;
+			
+			dispatch(event, {
+				"name": type,
+				"value": data
+			});
 		}
 		public function getRegister(type:String):* {
 			return registry[type];
@@ -67,6 +78,8 @@ package egg82.registry {
 		}
 		
 		//private
-		
+		protected function dispatch(event:String, data:Object = null):void {
+			Observer.dispatch(OBSERVERS, this, event, data);
+		}
 	}
 }

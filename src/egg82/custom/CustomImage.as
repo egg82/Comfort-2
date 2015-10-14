@@ -27,6 +27,7 @@ package egg82.custom {
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistryUtil;
+	import egg82.registry.RegistryUtil;
 	import egg82.utils.ImageDecoder;
 	import egg82.utils.TextureUtil;
 	import flash.display.BitmapData;
@@ -48,6 +49,7 @@ package egg82.custom {
 		private var _isLoaded:Boolean = false;
 		
 		private var imageDecoderObserver:Observer = new Observer();
+		private var registryUtilObserver:Observer = new Observer();
 		
 		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 		
@@ -64,6 +66,9 @@ package egg82.custom {
 			
 			imageDecoderObserver.add(onImageDecoderObserverNotify);
 			Observer.add(ImageDecoder.OBSERVERS, imageDecoderObserver);
+			
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			if (registryUtil.getTexture(url)) {
 				texture = registryUtil.getTexture(url);
@@ -93,6 +98,7 @@ package egg82.custom {
 			var url:String;
 			
 			Observer.remove(ImageDecoder.OBSERVERS, imageDecoderObserver);
+			Observer.remove(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			if (loader.file) {
 				name = registryUtil.stripURL(loader.file);
@@ -169,6 +175,17 @@ package egg82.custom {
 			
 			_isLoaded = true;
 			dispatch(CustomImageEvent.COMPLETE);
+		}
+		
+		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (data.registry == "optionsRegistry") {
+				checkOptions(data.type as String, data.name as String, data.value as Object);
+			}
+		}
+		private function checkOptions(type:String, name:String, value:Object):void {
+			if (type == OptionsRegistryType.VIDEO && name == "textureFiltering") {
+				smoothing = value as String;
+			}
 		}
 		
 		protected function dispatch(event:String, data:Object = null):void {

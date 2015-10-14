@@ -51,7 +51,7 @@ package egg82.base {
 			return _valid;
 		}
 		
-		public function create():void {
+		public function create(...args):void {
 			dispatch(BaseSpriteEvent.CREATE);
 		}
 		public function destroy():void {
@@ -143,6 +143,38 @@ package egg82.base {
 		//private
 		protected function dispatch(event:String, data:Object = null):void {
 			Observer.dispatch(OBSERVERS, this, event, data);
+		}
+		
+		protected function throwErrorOnArgsNull(args:Array):void {
+			if (!args || args.length == 0 || !args[args.length - 1]) {
+				throw new Error("args must be at least a length of 1");
+			}
+		}
+		
+		protected function addArg(args:Array, newArg:*):Array {
+			if (!args) {
+				args = new Array();
+			}
+			args.push(newArg);
+			
+			return args;
+		}
+		protected function getArg(args:Array, name:String):* {
+			if (!args || args.length == 0) {
+				return null;
+			}
+			
+			for (var i:uint = args.length - 1; i >= 0; i--) {
+				if (i > args.length - 1) {
+					return null;
+				}
+				
+				if (args[i][name]) {
+					return args[i][name];
+				}
+			}
+			
+			return null;
 		}
 	}
 }

@@ -21,6 +21,8 @@
  */
 
 package egg82.registry {
+	import egg82.events.registry.RegistryUtilEvent;
+	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.interfaces.IRegistryUtil;
@@ -36,6 +38,8 @@ package egg82.registry {
 	
 	public class RegistryUtil implements IRegistryUtil {
 		//vars
+		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
+		
 		private var fileRegistry:IRegistry;
 		private var fontRegistry:IRegistry;
 		private var optionsRegistry:IRegistry;
@@ -68,6 +72,13 @@ package egg82.registry {
 				"name": name,
 				"url": url
 			});
+			
+			dispatch(RegistryUtilEvent.VALUE_ADDED, {
+				"registry": "fileRegistry",
+				"type": type,
+				"name": name,
+				"value": url
+			});
 		}
 		public function getFile(type:String, name:String):String {
 			if (!fileRegistry.getRegister(type)) {
@@ -89,8 +100,17 @@ package egg82.registry {
 		}*/
 		
 		public function addFont(name:String, font:Class):void {
+			var event:String = (fontRegistry.getRegister(name)) ? ((font) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
+			
 			Font.registerFont(font);
 			fontRegistry.setRegister(name, font);
+			
+			dispatch(event, {
+				"registry": "fontRegistry",
+				"type": null,
+				"name": name,
+				"value": font
+			});
 		}
 		public function getFont(name:String):Class {
 			return fontRegistry.getRegister(name) as Class;
@@ -100,11 +120,19 @@ package egg82.registry {
 		}*/
 		
 		public function addOption(type:String, name:String, value:*):void {
+			var event:String = (optionsRegistry.getRegister(type)) ? (((optionsRegistry.getRegister(type) as Object)[name]) ? ((value) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED) : RegistryUtilEvent.VALUE_ADDED;
+			
 			if (!optionsRegistry.getRegister(type)) {
 				optionsRegistry.setRegister(type, new Object());
 			}
-			
 			(optionsRegistry.getRegister(type) as Object)[name] = value;
+			
+			dispatch(event, {
+				"registry": "optionsRegistry",
+				"type": type,
+				"name": name,
+				"value": value
+			});
 		}
 		public function getOption(type:String, name:String):* {
 			if (!optionsRegistry.getRegister(type)) {
@@ -118,7 +146,16 @@ package egg82.registry {
 		}*/
 		
 		public function addBitmapData(url:String, data:BitmapData):void {
+			var event:String = (textureRegistry.getRegister(stripURL(url) + "_bmd")) ? ((data) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
+			
 			textureRegistry.setRegister(stripURL(url) + "_bmd", data);
+			
+			dispatch(event, {
+				"registry": "textureRegistry",
+				"type": null,
+				"name": url,
+				"value": data
+			});
 		}
 		public function getBitmapData(url:String):BitmapData {
 			return textureRegistry.getRegister(stripURL(url) + "_bmd") as BitmapData;
@@ -128,7 +165,16 @@ package egg82.registry {
 		}*/
 		
 		public function addTexture(url:String, texture:Texture):void {
+			var event:String = (textureRegistry.getRegister(stripURL(url) + "_tex")) ? ((texture) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
+			
 			textureRegistry.setRegister(stripURL(url) + "_tex", texture);
+			
+			dispatch(event, {
+				"registry": "textureRegistry",
+				"type": null,
+				"name": url,
+				"value": texture
+			});
 		}
 		public function getTexture(url:String):Texture {
 			return textureRegistry.getRegister(stripURL(url) + "_tex") as Texture;
@@ -138,7 +184,16 @@ package egg82.registry {
 		}*/
 		
 		public function addAtlas(url:String, atlas:TextureAtlas):void {
+			var event:String = (textureRegistry.getRegister(stripURL(url) + "_atlas")) ? ((atlas) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
+			
 			textureRegistry.setRegister(stripURL(url) + "_atlas", atlas);
+			
+			dispatch(event, {
+				"registry": "textureRegistry",
+				"type": null,
+				"name": url,
+				"value": atlas
+			});
 		}
 		public function getAtlas(url:String):TextureAtlas {
 			return textureRegistry.getRegister(stripURL(url) + "_atlas") as TextureAtlas;
@@ -148,7 +203,16 @@ package egg82.registry {
 		}*/
 		
 		public function addXML(url:String, xml:XML):void {
+			var event:String = (textureRegistry.getRegister(stripURL(url) + "_xml")) ? ((xml) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
+			
 			textureRegistry.setRegister(stripURL(url) + "_xml", xml);
+			
+			dispatch(event, {
+				"registry": "textureRegistry",
+				"type": null,
+				"name": url,
+				"value": xml
+			});
 		}
 		public function getXML(url:String):XML {
 			return textureRegistry.getRegister(stripURL(url) + "_xml") as XML;
@@ -162,6 +226,8 @@ package egg82.registry {
 		}
 		
 		//private
-		
+		protected function dispatch(event:String, data:Object = null):void {
+			Observer.dispatch(OBSERVERS, this, event, data);
+		}
 	}
 }

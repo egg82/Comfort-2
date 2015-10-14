@@ -1,4 +1,5 @@
 package states.games {
+	import enums.GameType;
 	
 	/**
 	 * ...
@@ -14,6 +15,14 @@ package states.games {
 		}
 		
 		//public
+		override public function create(...args):void {
+			super.create({
+				"gameType": GameType.MASK
+			});
+			
+			physicsEngine.addBody(paddle1.body);
+			addChild(paddle1);
+		}
 		
 		//private
 		

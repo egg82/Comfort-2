@@ -7,9 +7,9 @@ package egg82.enums {
 	
 	public class MouseCodes {
 		//vars
-		public static const LEFT:uint = 0;
-		public static const MIDDLE:uint = 1;
-		public static const RIGHT:uint = 2;
+		public static const LEFT:uint = 1000;
+		public static const MIDDLE:uint = 1001;
+		public static const RIGHT:uint = 1002;
 		
 		//constructor
 		public function MouseCodes() {

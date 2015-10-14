@@ -22,6 +22,7 @@
 
 package egg82.base {
 	import egg82.engines.interfaces.IStateEngine;
+	import egg82.enums.ServiceType;
 	import egg82.events.base.BaseStateEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
@@ -41,10 +42,13 @@ package egg82.base {
 		public var forceUpdate:Boolean = false;
 		
 		protected var _prevState:Class;
+		protected var _prevStateParams:Array;
 		protected var _nextState:Class;
-		protected var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
+		protected var _nextStateParams:Array;
 		
-		private var _stateEngine:IStateEngine = ServiceLocator.getService("stateEngine") as IStateEngine;
+		protected const REGISTRY_UTIL:IRegistryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
+		
+		private var _stateEngine:IStateEngine = ServiceLocator.getService(ServiceType.STATE_ENGINE) as IStateEngine;
 		
 		//constructor
 		public function BaseState() {
@@ -64,7 +68,7 @@ package egg82.base {
 			
 			dispatch(BaseStateEvent.PREV_STATE);
 			
-			_stateEngine.swapStates(_prevState);
+			_stateEngine.swapStates(_prevState, _prevStateParams);
 		}
 		protected function nextState():void {
 			if (!_nextState) {
@@ -73,7 +77,7 @@ package egg82.base {
 			
 			dispatch(BaseStateEvent.NEXT_STATE);
 			
-			_stateEngine.swapStates(_nextState);
+			_stateEngine.swapStates(_nextState, _nextStateParams);
 		}
 	}
 }

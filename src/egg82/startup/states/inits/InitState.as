@@ -23,9 +23,11 @@
 package egg82.startup.states.inits {
 	import egg82.base.BaseState;
 	import egg82.engines.interfaces.IInputEngine;
+	import egg82.engines.interfaces.IModEngine;
 	import egg82.engines.interfaces.IPhysicsEngine;
 	import egg82.engines.interfaces.IStateEngine;
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.utils.interfaces.ISettingsLoader;
@@ -39,17 +41,18 @@ package egg82.startup.states.inits {
 	
 	public class InitState extends BaseState {
 		//vars
-		private var inputEngine:IInputEngine = ServiceLocator.getService("inputEngine") as IInputEngine;
-		private var stateEngine:IStateEngine = ServiceLocator.getService("stateEngine") as IStateEngine;
-		private var physicsEngine:IPhysicsEngine = ServiceLocator.getService("physicsEngine") as IPhysicsEngine;
+		private var inputEngine:IInputEngine = ServiceLocator.getService(ServiceType.INPUT_ENGINE) as IInputEngine;
+		private var stateEngine:IStateEngine = ServiceLocator.getService(ServiceType.STATE_ENGINE) as IStateEngine;
+		private var physicsEngine:IPhysicsEngine = ServiceLocator.getService(ServiceType.PHYSICS_ENGINE) as IPhysicsEngine;
+		private var modEngine:IModEngine = ServiceLocator.getService(ServiceType.MOD_ENGINE) as IModEngine;
 		
-		private var settingsLoader:ISettingsLoader = ServiceLocator.getService("settingsLoader") as ISettingsLoader;
+		private var settingsLoader:ISettingsLoader = ServiceLocator.getService(ServiceType.SETTINGS_LOADER) as ISettingsLoader;
 		
-		private var optionsRegistry:IRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
-		private var fontRegistry:IRegistry = ServiceLocator.getService("fontRegistry") as IRegistry;
-		private var fileRegistry:IRegistry = ServiceLocator.getService("fileRegistry") as IRegistry;
-		private var textureRegistry:IRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
-		private var initRegistry:IRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
+		private var optionsRegistry:IRegistry = ServiceLocator.getService(ServiceType.OPTIONS_REGISTRY) as IRegistry;
+		private var fontRegistry:IRegistry = ServiceLocator.getService(ServiceType.FONT_REGISTRY) as IRegistry;
+		private var fileRegistry:IRegistry = ServiceLocator.getService(ServiceType.FILE_REGISTRY) as IRegistry;
+		private var textureRegistry:IRegistry = ServiceLocator.getService(ServiceType.TEXTURE_REGISTRY) as IRegistry;
+		private var initRegistry:IRegistry = ServiceLocator.getService(ServiceType.INIT_REGISTRY) as IRegistry;
 		
 		//constructor
 		public function InitState() {
@@ -57,7 +60,7 @@ package egg82.startup.states.inits {
 		}
 		
 		//public
-		override public function create():void {
+		override public function create(...args):void {
 			super.create();
 			
 			_nextState = TextureInitState;
@@ -79,6 +82,7 @@ package egg82.startup.states.inits {
 			
 			inputEngine.initialize();
 			physicsEngine.initialize();
+			modEngine.initialize();
 			
 			nextState();
 		}

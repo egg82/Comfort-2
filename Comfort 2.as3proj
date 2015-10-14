@@ -58,6 +58,7 @@
     <element path="lib\Starling-Extension-Graphics.swc" />
     <element path="lib\greensock.swc" />
     <element path="lib\nape-dev.swc" />
+    <element path="lib\NewgroundsAPI.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>

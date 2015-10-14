@@ -1,5 +1,6 @@
 package egg82.base {
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.events.base.BaseLoadingStateEvent;
 	import egg82.events.ImageDecoderEvent;
 	import egg82.events.net.SimpleURLLoaderEvent;
@@ -23,9 +24,9 @@ package egg82.base {
 		//vars
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
-		protected var font:String = "visitor";
-		protected var loadingString:String = "Loading..";
-		protected var fileArr:Array = new Array();
+		private var font:String = "visitor";
+		private var loadingString:String = "Loading..";
+		private var fileArr:Array;
 		
 		private var centerText:TextField;
 		
@@ -42,7 +43,7 @@ package egg82.base {
 		private var urlLoaderObserver:Observer = new Observer();
 		private var imageDecoderObserver:Observer = new Observer();
 		
-		private var optionsRegistry:IRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
+		private var optionsRegistry:IRegistry = ServiceLocator.getService(ServiceType.OPTIONS_REGISTRY) as IRegistry;
 		
 		//constructor
 		public function BaseLoadingState() {
@@ -50,8 +51,23 @@ package egg82.base {
 		}
 		
 		//public
-		override public function create():void {
+		override public function create(...args):void {
 			super.create();
+			
+			throwErrorOnArgsNull(args);
+			fileArr = getArg(args, "fileArr") as Array;
+			if (getArg(args, "font")) {
+				font = getArg(args, "font") as String;
+				if (!font) {
+					throw new Error("font cannot be null.");
+				}
+			}
+			if (getArg(args, "loadingString")) {
+				loadingString = getArg(args, "loadingString") as String;
+				if (!loadingString) {
+					throw new Error("loadingString cannot be null");
+				}
+			}
 			
 			if (!fileArr || fileArr.length == 0) {
 				dispatch(BaseLoadingStateEvent.COMPLETE);
@@ -99,10 +115,10 @@ package egg82.base {
 		}
 		
 		override public function destroy():void {
-			super.destroy();
-			
 			Observer.remove(SimpleURLLoader.OBSERVERS, urlLoaderObserver);
 			Observer.remove(ImageDecoder.OBSERVERS, imageDecoderObserver);
+			
+			super.destroy();
 		}
 		
 		//private
@@ -141,7 +157,7 @@ package egg82.base {
 		}
 		
 		private function onUrlLoaderComplete(loader:SimpleURLLoader, data:ByteArray):void {
-			var name:String = registryUtil.stripURL(loader.file);
+			var name:String = REGISTRY_UTIL.stripURL(loader.file);
 			
 			dispatch(BaseLoadingStateEvent.DOWNLOAD_COMPLETE, {
 				"name": name,
@@ -196,7 +212,7 @@ package egg82.base {
 		}
 		
 		private function onImageDecoderComplete(decoder:ImageDecoder, data:BitmapData):void {
-			var name:String = registryUtil.stripURL(decoder.file);
+			var name:String = REGISTRY_UTIL.stripURL(decoder.file);
 			
 			dispatch(BaseLoadingStateEvent.DECODE_COMPLETE, {
 				"name": name,

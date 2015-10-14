@@ -21,146 +21,43 @@
  */
 
 package egg82.startup.states.inits {
-	import egg82.base.BaseState;
+	import egg82.base.BaseLoadingState;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
-	import egg82.events.net.SimpleURLLoaderEvent;
-	import egg82.net.SimpleURLLoader;
-	import egg82.patterns.Observer;
+	import egg82.enums.ServiceType;
 	import egg82.patterns.ServiceLocator;
-	import egg82.startup.Start;
 	import egg82.registry.interfaces.IRegistry;
-	import flash.utils.ByteArray;
-	import starling.text.TextField;
-	import starling.utils.HAlign;
-	import starling.utils.VAlign;
 	
 	/**
 	 * ...
 	 * @author egg82
 	 */
 	
-	public class AudioInitState extends BaseState {
+	public class AudioInitState extends BaseLoadingState {
 		//vars
-		private var centerText:TextField;
-		
-		private var urlLoaders:Vector.<SimpleURLLoader>;
-		private var currentFile:uint;
-		private var loadedFiles:Number;
-		private var totalFiles:Number;
-		
-		private var urlLoaderObserver:Observer = new Observer();
-		
-		private var optionsRegistry:IRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
-		private var audioRegistry:IRegistry = ServiceLocator.getService("audioRegistry") as IRegistry;
-		private var fileRegistry:IRegistry = ServiceLocator.getService("fileRegistry") as IRegistry;
-		private var initRegistry:IRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
+		private var initRegistry:IRegistry = ServiceLocator.getService(ServiceType.INIT_REGISTRY) as IRegistry;
+		private var fileRegistry:IRegistry = ServiceLocator.getService(ServiceType.FILE_REGISTRY) as IRegistry;
 		
 		//constructor
 		public function AudioInitState() {
-			
+			super();
 		}
 		
 		//public
-		override public function create():void {
-			super.create();
-			
+		override public function create(...args):void {
 			_nextState = initRegistry.getRegister("postInitState") as Class;
 			
-			if (!optionsRegistry.getRegister(OptionsRegistryType.NETWORK).preloadAudio || (fileRegistry.getRegister(FileRegistryType.AUDIO) as Array).length == 0) {
+			if (!REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "preloadAudio") as Boolean || (fileRegistry.getRegister(FileRegistryType.AUDIO) as Array).length == 0) {
 				nextState();
 				return;
 			}
 			
-			urlLoaderObserver.add(onUrlLoaderObserverNotify);
-			Observer.add(SimpleURLLoader.OBSERVERS, urlLoaderObserver);
-			
-			centerText = new TextField(0, 0, "Loading audio", "visitor", 22, 0x000000, false);
-			centerText.hAlign = HAlign.CENTER;
-			centerText.vAlign = VAlign.CENTER;
-			addChild(centerText);
-			
-			var fileArr:Array = fileRegistry.getRegister(FileRegistryType.AUDIO) as Array;
-			loadedFiles = 0;
-			totalFiles = fileArr.length;
-			
-			centerText.text = "Loading audio\n" + loadedFiles + "/" + totalFiles + "\n" + ((loadedFiles / totalFiles) * 100).toFixed(2) + "%";
-			
-			urlLoaders = new Vector.<SimpleURLLoader>();
-			var toLoad:uint = currentFile = Math.min(optionsRegistry.getRegister(OptionsRegistryType.NETWORK).threads, totalFiles);
-			var loaded:uint = 0;
-			
-			currentFile--;
-			
-			while (loaded < toLoad) {
-				urlLoaders.push(new SimpleURLLoader());
-				urlLoaders[urlLoaders.length - 1].load(fileArr[loaded].url);
-				
-				loaded++;
-			}
-		}
-		
-		override public function resize():void {
-			super.resize();
-			
-			centerText.width = stage.stageWidth;
-			centerText.height = stage.stageHeight;
-		}
-		
-		override public function destroy():void {
-			super.destroy();
-			
-			Observer.remove(SimpleURLLoader.OBSERVERS, urlLoaderObserver);
+			super.create({
+				"fileArr": fileRegistry.getRegister(FileRegistryType.AUDIO) as Array
+			});
 		}
 		
 		//private
-		private function onUrlLoaderObserverNotify(sender:Object, event:String, data:Object):void {
-			var isInVec:Boolean = false;
-			
-			for (var i:uint = 0; i < urlLoaders.length; i++) {
-				if (sender === urlLoaders[i]) {
-					isInVec = true;
-					break;
-				}
-			}
-			
-			if (!isInVec) {
-				return;
-			}
-			
-			if (event == SimpleURLLoaderEvent.COMPLETE) {
-				onUrlLoaderComplete(sender as SimpleURLLoader, data as ByteArray);
-			} else if (event == SimpleURLLoaderEvent.ERROR) {
-				centerText.text = "Error loading file\n" + (data as String);
-			}
-		}
 		
-		private function onUrlLoaderComplete(loader:SimpleURLLoader, data:ByteArray):void {
-			var name:String = loader.file;
-			name = name.replace(/\W|_/g, "_");
-			audioRegistry.setRegister(name, data);
-			
-			loadedFiles++;
-			centerText.text = "Loading audio\n" + loadedFiles + "/" + totalFiles + "\n" + ((loadedFiles / totalFiles) * 100).toFixed(2) + "%";
-			
-			if (currentFile < totalFiles - 1) {
-				currentFile++;
-				
-				if (currentFile > totalFiles - 1) {
-					trace("Skipping loading file " + currentFile);
-					
-					if (loadedFiles == totalFiles) {
-						nextState();
-						return;
-					}
-				}
-				
-				loader.load((fileRegistry.getRegister(FileRegistryType.AUDIO) as Array)[currentFile].url);
-			} else {
-				if (loadedFiles == totalFiles) {
-					nextState();
-				}
-			}
-		}
 	}
 }

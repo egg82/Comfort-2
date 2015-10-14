@@ -27,6 +27,13 @@ package objects.base {
 		//public
 		
 		//private
-		
+		protected function updateBody(physicsData:IPhysicsData):void {
+			body.shapes.clear();
+			
+			var polygons:Vector.<Polygon> = physicsData.getPolygons();
+			for (var i:uint = 0; i < polygons.length; i++) {
+				body.shapes.add(polygons[i]);
+			}
+		}
 	}
 }

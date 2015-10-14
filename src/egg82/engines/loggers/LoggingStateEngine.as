@@ -45,18 +45,18 @@ package egg82.engines.loggers {
 		}
 		
 		//public
-		override public function initialize(initState:Class):void {
+		override public function initialize(initState:Class, initStateArgs:Array = null):void {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Initialized with params" + JSON.stringify([getQualifiedClassName(initState)]), LogLevel.INFO);
-			super.initialize(initState);
+			super.initialize(initState, initStateArgs);
 		}
 		
-		override public function addState(newState:Class, addAt:uint = 0):void {
+		override public function addState(newState:Class, newStateArgs:Array = null, addAt:uint = 0):void {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([getQualifiedClassName(newState), addAt]), LogLevel.INFO);
-			super.addState(newState, addAt);
+			super.addState(newState, newStateArgs, addAt);
 		}
-		override public function swapStates(newState:Class, swapAt:uint = 0):void {
+		override public function swapStates(newState:Class, newStateArgs:Array = null, swapAt:uint = 0):void {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([getQualifiedClassName(newState), swapAt]), LogLevel.INFO);
-			super.swapStates(newState, swapAt);
+			super.swapStates(newState, newStateArgs, swapAt);
 		}
 		override public function removeState(index:uint):void {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([index]), LogLevel.INFO);

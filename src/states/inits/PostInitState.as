@@ -1,6 +1,7 @@
 package states.inits {
 	import egg82.base.BaseState;
 	import enums.GameType;
+	import states.AdState;
 	import states.LoadingState;
 	
 	/**
@@ -18,12 +19,16 @@ package states.inits {
 		}
 		
 		//public
-		override public function create():void {
+		override public function create(...args):void {
 			super.create();
 			
 			trace("postInit");
 			
+			//_nextState = AdState;
 			_nextState = LoadingState;
+			_nextStateParams = [{
+				"gameType": GameType.UNITY
+			}];
 			nextState();
 		}
 		

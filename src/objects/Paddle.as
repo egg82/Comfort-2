@@ -2,17 +2,17 @@ package objects {
 	import egg82.custom.CustomAtlasImage;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.events.custom.CustomAtlasImageEvent;
 	import egg82.patterns.Observer;
-	import egg82.patterns.prototype.interfaces.IPrototype;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.interfaces.IRegistryUtil;
 	import egg82.registry.RegistryUtil;
+	import enums.CustomServiceType;
 	import nape.geom.Vec2;
 	import nape.phys.BodyType;
 	import objects.base.BasePolyPhysicsObject;
-	import objects.interfaces.ITriggerable;
 	import physics.IPhysicsData;
 	
 	/**
@@ -20,20 +20,19 @@ package objects {
 	 * @author Alex
 	 */
 	
-	public class Bullet extends BasePolyPhysicsObject implements IPrototype, ITriggerable {
+	public class Paddle extends BasePolyPhysicsObject {
 		//vars
-		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
-		private var physicsRegistry:IRegistry = ServiceLocator.getService("physicsRegistry") as IRegistry;
+		private var registryUtil:IRegistryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
+		private var physicsRegistry:IRegistry = ServiceLocator.getService(CustomServiceType.PHYSICS_REGISTRY) as IRegistry;
 		
 		private var customAtlasImageObserver:Observer = new Observer();
 		private var registryUtilObserver:Observer = new Observer();
 		
-		private var gameType:String;
+		private var reverse:Boolean;
 		
 		//constructor
-		public function Bullet(gameType:String, triggerCallback:Function) {
-			this.gameType = gameType;
-			this.triggerCallback = triggerCallback;
+		public function Paddle(gameType:String, reverse:Boolean) {
+			this.reverse = reverse;
 			
 			customAtlasImageObserver.add(onCustomAtlasImageObserverNotify);
 			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
@@ -41,20 +40,21 @@ package objects {
 			registryUtilObserver.add(onRegistryUtilObserverNotify);
 			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("bullet_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0);
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("paddle_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0, BodyType.KINEMATIC);
 			
-			body.allowRotation = false;
-			body.allowMovement = true;
+			if (reverse) {
+				body.rotation = Math.PI;
+			}
+			
 			body.scaleShapes(0.6, 0.6);
-			body.translateShapes(Vec2.weak(0, -168));
-			body.isBullet = true;
+			body.translateShapes(Vec2.weak(0, -120));
+			body.allowRotation = true;
+			body.allowMovement = false;
 		}
 		
 		//public
-		public function clone():IPrototype {
-			var c:Bullet = new Bullet(gameType, triggerCallback);
-			c.create();
-			return c;
+		public function tweenResize(size:Number):void {
+			
 		}
 		
 		override public function destroy():void {
@@ -72,15 +72,16 @@ package objects {
 			Observer.remove(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
 			
 			if (event == CustomAtlasImageEvent.COMPLETE) {
-				setTextureFromName("bullet");
+				setTextureFromName("paddle" + ((!reverse) ? "" : "2"));
 			} else if (event == CustomAtlasImageEvent.ERROR) {
 				
 			}
 			
-			scaleX = scaleY = 0.6;
+			scaleX = 0.65;
+			scaleY = 0.79;
 			
 			alignPivot();
-			this.pivotY = 316;
+			this.pivotY = 198;
 		}
 		
 		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {

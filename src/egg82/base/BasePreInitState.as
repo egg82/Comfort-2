@@ -21,6 +21,7 @@
  */
 
 package egg82.base {
+	import egg82.enums.ServiceType;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.startup.states.inits.InitState;
@@ -32,7 +33,7 @@ package egg82.base {
 	
 	public class BasePreInitState extends BaseState {
 		//vars
-		protected var initRegistry:IRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
+		protected const INIT_REGISTRY:IRegistry = ServiceLocator.getService(ServiceType.INIT_REGISTRY) as IRegistry;
 		
 		//constructor
 		public function BasePreInitState() {
@@ -40,7 +41,7 @@ package egg82.base {
 		}
 		
 		//public
-		override public function create():void {
+		override public function create(...args):void {
 			super.create();
 			
 			_nextState = InitState;

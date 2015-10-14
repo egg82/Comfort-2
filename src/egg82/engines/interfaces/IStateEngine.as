@@ -43,10 +43,10 @@ package egg82.engines.interfaces {
 		function get skipMultiplePhysicsUpdate():Boolean;
 		function set skipMultiplePhysicsUpdate(val:Boolean):void;
 		
-		function initialize(initState:Class):void;
+		function initialize(initState:Class, initStateArgs:Array = null):void;
 		
-		function addState(newState:Class, addAt:uint = 0):void;
-		function swapStates(newState:Class, swapAt:uint = 0):void;
+		function addState(newState:Class, newStateArgs:Array = null, addAt:uint = 0):void;
+		function swapStates(newState:Class, newStateArgs:Array = null, swapAt:uint = 0):void;
 		function removeState(index:uint):void;
 		
 		function getState(index:uint):BaseState;

@@ -16,10 +16,10 @@ package states.games {
 		}
 		
 		//public
-		override public function create():void {
-			gameType = GameType.HORDE;
-			
-			super.create();
+		override public function create(...args):void {
+			super.create({
+				"gameType": GameType.HORDE
+			});
 			
 			physicsEngine.addBody(sentry.body);
 			addChild(sentry);

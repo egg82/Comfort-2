@@ -31,6 +31,7 @@ package egg82.engines {
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.interfaces.IRegistryUtil;
+	import egg82.registry.RegistryUtil;
 	import flash.events.TimerEvent;
 	import flash.system.System;
 	import flash.utils.getTimer;
@@ -65,6 +66,7 @@ package egg82.engines {
 		private var _calculatedSteps:uint = 0;
 		
 		private var init:Class = null;
+		private var initArgs:Array = null;
 		private static var _initialized:Boolean = false;
 		
 		private var inputEngine:IInputEngine;
@@ -72,6 +74,8 @@ package egg82.engines {
 		
 		private var initRegistry:IRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
 		private var registryUtil:IRegistryUtil;
+		
+		private var registryUtilObserver:Observer = new Observer();
 		
 		//constructor
 		public function StateEngine() {
@@ -104,7 +108,7 @@ package egg82.engines {
 			_skipMultiplePhysicsUpdate = val;
 		}
 		
-		public function initialize(initState:Class):void {
+		public function initialize(initState:Class, initStateArgs:Array = null):void {
 			if (_initialized) {
 				throw new Error("StateEngine already initialized");
 			}
@@ -126,13 +130,17 @@ package egg82.engines {
 			timestep = _updateFps;
 			
 			init = initState;
+			initArgs = initStateArgs;
+			
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			Starling.all[0].addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
 			
 			dispatch(StateEngineEvent.INITIALIZE);
 		}
 		
-		public function addState(newState:Class, addAt:uint = 0):void {
+		public function addState(newState:Class, newStateArgs:Array = null, addAt:uint = 0):void {
 			var tmp:Object;
 			var ns:BaseState;
 			
@@ -159,7 +167,7 @@ package egg82.engines {
 			states.splice(addAt, 0, ns);
 			Starling.all[0].stage.addChild(ns);
 			
-			ns.create();
+			ns.create.apply(null, newStateArgs);
 			
 			Starling.all[0].showStats = false;
 			Starling.all[0].showStats = initRegistry.getRegister("debug");
@@ -169,7 +177,7 @@ package egg82.engines {
 				drawTimer.start();
 			}
 		}
-		public function swapStates(newState:Class, swapAt:uint = 0):void {
+		public function swapStates(newState:Class, newStateArgs:Array = null, swapAt:uint = 0):void {
 			var oldState:BaseState;
 			var tmp:Object;
 			var ns:BaseState;
@@ -199,7 +207,7 @@ package egg82.engines {
 			states.splice(swapAt, 0, ns);
 			Starling.all[0].stage.addChild(ns);
 			
-			ns.create();
+			ns.create.apply(null, newStateArgs);
 			
 			Starling.all[0].showStats = false;
 			Starling.all[0].showStats = initRegistry.getRegister("debug");
@@ -376,13 +384,31 @@ package egg82.engines {
 			}
 		}
 		
+		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (data.registry == "optionsRegistry") {
+				checkOptions(data.type as String, data.name as String, data.value as Object);
+			}
+		}
+		private function checkOptions(type:String, name:String, value:Object):void {
+			if (type == OptionsRegistryType.VIDEO && name == "vsync") {
+				if (value as Boolean) {
+					drawTimer.stop();
+					Starling.all[0].stage.addEventListener(Event.ENTER_FRAME, onDraw);
+				} else {
+					Starling.all[0].stage.removeEventListener(Event.ENTER_FRAME, onDraw);
+					drawTimer.start();
+				}
+			}
+		}
+		
 		private function onContextCreated(e:Event):void {
 			Starling.all[0].removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
 			
 			dispatch(StateEngineEvent.CONTEXT_CREATED);
 			
-			addState(init);
+			addState(init, initArgs);
 			init = null;
+			initArgs = null;
 			
 			resize();
 			

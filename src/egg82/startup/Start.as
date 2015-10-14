@@ -33,6 +33,7 @@ package egg82.startup {
 	import egg82.engines.PhysicsEngine;
 	import egg82.engines.SoundEngine;
 	import egg82.engines.StateEngine;
+	import egg82.enums.ServiceType;
 	import egg82.log.Logger;
 	import egg82.patterns.prototype.PrototypeFactory;
 	import egg82.patterns.ServiceLocator;
@@ -63,14 +64,16 @@ package egg82.startup {
 		private var registryUtil:IRegistryUtil = null;
 		
 		//constructor
-		public function Start(preInitState:Class, postInitState:Class) {
-			ServiceLocator.provideService("initRegistry", InitRegistry, false);
-			initRegistry = ServiceLocator.getService("initRegistry") as IRegistry;
+		public function Start(preInitState:Class, preInitStateArgs:Array, postInitState:Class, postInitStateArgs:Array) {
+			ServiceLocator.provideService(ServiceType.INIT_REGISTRY, InitRegistry, false);
+			initRegistry = ServiceLocator.getService(ServiceType.INIT_REGISTRY) as IRegistry;
 			
 			initRegistry.initialize();
 			
 			initRegistry.setRegister("preInitState", preInitState);
+			initRegistry.setRegister("preInitStateArgs", preInitStateArgs);
 			initRegistry.setRegister("postInitState", postInitState);
+			initRegistry.setRegister("postInitStateArgs", postInitStateArgs);
 			
 			addEventListener(Event.ADDED_TO_STAGE, init);
 		}
@@ -85,39 +88,39 @@ package egg82.startup {
 			starling = new Starling(BaseSprite, stage, null, null, "auto", "auto");
 			starling.showStats = initRegistry.getRegister("debug");
 			
-			ServiceLocator.provideService("logger", Logger);
+			ServiceLocator.provideService(ServiceType.LOGGER, Logger);
 			
 			if (initRegistry.getRegister("logging")) {
-				ServiceLocator.provideService("stateEngine", LoggingStateEngine);
-				ServiceLocator.provideService("soundEngine", LoggingSoundEngine);
-				ServiceLocator.provideService("inputEngine", LoggingInputEngine);
-				ServiceLocator.provideService("physicsEngine", LoggingPhysicsEngine);
-				ServiceLocator.provideService("modEngine", LoggingModEngine);
+				ServiceLocator.provideService(ServiceType.STATE_ENGINE, LoggingStateEngine);
+				ServiceLocator.provideService(ServiceType.SOUND_ENGINE, LoggingSoundEngine);
+				ServiceLocator.provideService(ServiceType.INPUT_ENGINE, LoggingInputEngine);
+				ServiceLocator.provideService(ServiceType.PHYSICS_ENGINE, LoggingPhysicsEngine);
+				ServiceLocator.provideService(ServiceType.MOD_ENGINE, LoggingModEngine);
 				
-				ServiceLocator.provideService("settingsLoader", LoggingSettingsLoader);
+				ServiceLocator.provideService(ServiceType.SETTINGS_LOADER, LoggingSettingsLoader);
 			} else {
-				ServiceLocator.provideService("stateEngine", StateEngine);
-				ServiceLocator.provideService("soundEngine", SoundEngine);
-				ServiceLocator.provideService("inputEngine", InputEngine);
-				ServiceLocator.provideService("physicsEngine", PhysicsEngine);
-				ServiceLocator.provideService("modEngine", ModEngine);
+				ServiceLocator.provideService(ServiceType.STATE_ENGINE, StateEngine);
+				ServiceLocator.provideService(ServiceType.SOUND_ENGINE, SoundEngine);
+				ServiceLocator.provideService(ServiceType.INPUT_ENGINE, InputEngine);
+				ServiceLocator.provideService(ServiceType.PHYSICS_ENGINE, PhysicsEngine);
+				ServiceLocator.provideService(ServiceType.MOD_ENGINE, ModEngine);
 				
-				ServiceLocator.provideService("settingsLoader", SettingsLoader);
+				ServiceLocator.provideService(ServiceType.SETTINGS_LOADER, SettingsLoader);
 			}
 			
-			ServiceLocator.provideService("fontRegistry", FontRegistry, false);
-			ServiceLocator.provideService("fileRegistry", FileRegistry, false);
-			ServiceLocator.provideService("textureRegistry", TextureRegistry, false);
-			ServiceLocator.provideService("audioRegistry", Registry, false);
-			ServiceLocator.provideService("optionsRegistry", OptionsRegistry, false);
+			ServiceLocator.provideService(ServiceType.FONT_REGISTRY, FontRegistry, false);
+			ServiceLocator.provideService(ServiceType.FILE_REGISTRY, FileRegistry, false);
+			ServiceLocator.provideService(ServiceType.TEXTURE_REGISTRY, TextureRegistry, false);
+			ServiceLocator.provideService(ServiceType.AUDIO_REGISTRY, Registry, false);
+			ServiceLocator.provideService(ServiceType.OPTIONS_REGISTRY, OptionsRegistry, false);
 			
-			ServiceLocator.provideService("registryUtil", RegistryUtil);
-			registryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
+			ServiceLocator.provideService(ServiceType.REGISTRY_UTIL, RegistryUtil);
+			registryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
 			registryUtil.initialize();
 			
-			ServiceLocator.provideService("prototypeFactory", PrototypeFactory);
+			ServiceLocator.provideService(ServiceType.PROTOTYPE_FACTORY, PrototypeFactory);
 			
-			(ServiceLocator.getService("stateEngine") as IStateEngine).initialize(initRegistry.getRegister("preInitState") as Class);
+			(ServiceLocator.getService(ServiceType.STATE_ENGINE) as IStateEngine).initialize(initRegistry.getRegister("preInitState") as Class, initRegistry.getRegister("preInitStateArgs") as Array);
 			
 			starling.start();
 		}
