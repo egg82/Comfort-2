@@ -198,7 +198,7 @@ package egg82.engines {
 				return _stickProperties.clone();
 			}
 			
-			_stickProperties.x = (stick == 0) ? xboxControllers[controller].leftStick.angle : xboxControllers[controller].rightStick.angle;
+			_stickProperties.x = (stick == 0) ? xboxControllers[controller].leftStick.angle * -1 : xboxControllers[controller].rightStick.angle * -1;
 			_stickProperties.y = (stick == 0) ? xboxControllers[controller].leftStick.distance : xboxControllers[controller].rightStick.distance;
 			
 			return _stickProperties.clone();

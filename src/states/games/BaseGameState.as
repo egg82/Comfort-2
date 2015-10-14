@@ -255,13 +255,13 @@ package states.games {
 				paddle2.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + Math.PI + 1.5708;
 			} else {
 				if (inputEngine.getStickProperties(0, 0).y > controllerDeadZone) {
-					sentry.body.rotation = inputEngine.getStickProperties(0, 0).x;
-					paddle1.body.rotation = inputEngine.getStickProperties(0, 0).x;
-					paddle2.body.rotation = inputEngine.getStickProperties(0, 0).x + Math.PI;
+					sentry.body.rotation = inputEngine.getStickProperties(0, 0).x + 1.5708;
+					paddle1.body.rotation = inputEngine.getStickProperties(0, 0).x + 1.5708;
+					paddle2.body.rotation = inputEngine.getStickProperties(0, 0).x + Math.PI + 1.5708;
 				} else if (inputEngine.getStickProperties(0, 1).y > controllerDeadZone) {
-					sentry.body.rotation = inputEngine.getStickProperties(0, 1).x;
-					paddle1.body.rotation = inputEngine.getStickProperties(0, 1).x;
-					paddle2.body.rotation = inputEngine.getStickProperties(0, 1).x + Math.PI;
+					sentry.body.rotation = inputEngine.getStickProperties(0, 1).x + 1.5708;
+					paddle1.body.rotation = inputEngine.getStickProperties(0, 1).x + 1.5708;
+					paddle2.body.rotation = inputEngine.getStickProperties(0, 1).x + Math.PI + 1.5708;
 				}
 			}
 			
