@@ -71,6 +71,7 @@ package egg82.startup.reg {
 				"continue": [KeyCodes.ENTER],
 				"back": [KeyCodes.ESC, KeyCodes.BACKSPACE]
 			});
+			//TODO Allow stick positions as button codes
 			setRegister(OptionsRegistryType.CONTROLLER, {
 				"deadZone": 0.05,
 				"up": [XboxButtonCodes.UP],

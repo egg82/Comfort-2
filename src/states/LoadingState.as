@@ -1,6 +1,7 @@
 package states {
 	import egg82.base.BaseLoadingState;
 	import egg82.custom.CustomImage;
+	import egg82.enums.AudioRegistryType;
 	import egg82.enums.FileRegistryType;
 	import egg82.events.base.BaseLoadingStateEvent;
 	import egg82.patterns.Observer;
@@ -71,6 +72,10 @@ package states {
 				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType));
 			}
 			
+			if (!REGISTRY_UTIL.getAudio(AudioRegistryType.MUSIC, gameType)) {
+				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, "music_" + gameType));
+			}
+			
 			super.create({
 				"fileArr": fileArr,
 				"font": "note"
@@ -96,20 +101,22 @@ package states {
 			if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType))) {
 				decodeImage(name, data);
 			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType))) {
-				REGISTRY_UTIL.addXML(name, new XML(data.readUTFBytes(data.length)));
+				REGISTRY_UTIL.setXML(name, new XML(data.readUTFBytes(data.length)));
+			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, "music_" + gameType))) {
+				REGISTRY_UTIL.setAudio(AudioRegistryType.MUSIC, gameType, data);
 			}
 		}
 		private function onDecodeComplete(name:String, data:BitmapData):void {
 			if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType))) {
-				REGISTRY_UTIL.addBitmapData(name, data);
-				REGISTRY_UTIL.addTexture(name, TextureUtil.getTexture(data));
+				REGISTRY_UTIL.setBitmapData(name, data);
+				REGISTRY_UTIL.setTexture(name, TextureUtil.getTexture(data));
 			}
 		}
 		private function onComplete():void {
 			var url:String = REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType);
 			var xmlURL:String = REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType);
 			
-			REGISTRY_UTIL.addAtlas(url, TextureUtil.getTextureAtlasXML(REGISTRY_UTIL.getTexture(url), REGISTRY_UTIL.getXML(xmlURL)));
+			REGISTRY_UTIL.setAtlas(url, TextureUtil.getTextureAtlasXML(REGISTRY_UTIL.getTexture(url), REGISTRY_UTIL.getXML(xmlURL)));
 		}
 	}
 }

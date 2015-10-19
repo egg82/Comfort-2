@@ -14,6 +14,7 @@ package states.inits {
 	import egg82.utils.MathUtil;
 	import egg82.utils.NetUtil;
 	import egg82.utils.Util;
+	import enums.AudioQualityType;
 	import enums.CustomOptionsRegistryType;
 	import enums.CustomServiceType;
 	import enums.GameType;
@@ -108,13 +109,16 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.MEDIUM, new BulletMediumData());
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
 			
-			REGISTRY_UTIL.addOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
-			REGISTRY_UTIL.addOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.ULTRA);
-			REGISTRY_UTIL.addOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
-			REGISTRY_UTIL.addOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire", false);
-			REGISTRY_UTIL.addOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty", 1);
-			REGISTRY_UTIL.addOption(OptionsRegistryType.KEYS, "fire", [MouseCodes.LEFT]);
-			REGISTRY_UTIL.addOption(OptionsRegistryType.CONTROLLER, "fire", [XboxButtonCodes.A]);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.ULTRA);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "musicQuality", AudioQualityType.ULTRA);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "ambientQuality", AudioQualityType.ULTRA);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "sfxQuality", AudioQualityType.ULTRA);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire", false);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty", 1);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.KEYS, "fire", [MouseCodes.LEFT]);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.CONTROLLER, "fire", [XboxButtonCodes.A]);
 			
 			var fileHosts:Array = REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "fileHosts");
 			var length:uint = fileHosts.length - 1;
@@ -123,22 +127,29 @@ package states.inits {
 			
 			var methods:Array = Util.getEnums(TextureQualityType);
 			for each (var quality:String in methods) {
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/horde.png");
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.HORDE + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_horde.jpg");
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/mask.png");
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.MASK + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_mask.jpg");
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/nemesis.png");
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.NEMESIS + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_nemesis.jpg");
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/unity.png");
-				REGISTRY_UTIL.addFile(FileRegistryType.TEXTURE, GameType.UNITY + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_unity.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/horde.png");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/mask.png");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/nemesis.png");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/unity.png");
+				
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.HORDE + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_horde.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.MASK + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_mask.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.NEMESIS + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_nemesis.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.UNITY + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_unity.jpg");
+				
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_main", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/main.mp3");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/horde.mp3");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/mask.mp3");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/nemesis.mp3");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/unity.mp3");
 			}
-			REGISTRY_UTIL.addFile(FileRegistryType.XML, GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/horde.xml");
-			REGISTRY_UTIL.addFile(FileRegistryType.XML, GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/mask.xml");
-			REGISTRY_UTIL.addFile(FileRegistryType.XML, GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/nemesis.xml");
-			REGISTRY_UTIL.addFile(FileRegistryType.XML, GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/unity.xml");
+			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/horde.xml");
+			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/mask.xml");
+			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/nemesis.xml");
+			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/unity.xml");
 			
-			REGISTRY_UTIL.addFont("note", NOTE);
-			REGISTRY_UTIL.addFont("speech", SPEECH);
+			REGISTRY_UTIL.setFont("note", NOTE);
+			REGISTRY_UTIL.setFont("speech", SPEECH);
 			
 			trace("preInit");
 			

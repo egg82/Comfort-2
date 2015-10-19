@@ -28,6 +28,7 @@ package egg82.registry {
 	import egg82.registry.interfaces.IRegistryUtil;
 	import flash.display.BitmapData;
 	import flash.text.Font;
+	import flash.utils.ByteArray;
 	import starling.textures.Texture;
 	import starling.textures.TextureAtlas;
 	
@@ -41,6 +42,7 @@ package egg82.registry {
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
 		private var fileRegistry:IRegistry;
+		private var audioRegistry:IRegistry;
 		private var fontRegistry:IRegistry;
 		private var optionsRegistry:IRegistry;
 		private var textureRegistry:IRegistry;
@@ -53,17 +55,19 @@ package egg82.registry {
 		//public
 		public function initialize():void {
 			fileRegistry = ServiceLocator.getService("fileRegistry") as IRegistry;
+			audioRegistry = ServiceLocator.getService("audioRegistry") as IRegistry;
 			fontRegistry = ServiceLocator.getService("fontRegistry") as IRegistry;
 			optionsRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
 			textureRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
 			
 			fileRegistry.initialize();
+			audioRegistry.initialize();
 			fontRegistry.initialize();
 			optionsRegistry.initialize();
 			textureRegistry.initialize();
 		}
 		
-		public function addFile(type:String, name:String, url:String):void {
+		public function setFile(type:String, name:String, url:String):void {
 			if (!fileRegistry.getRegister(type)) {
 				fileRegistry.setRegister(type, new Array());
 			}
@@ -99,7 +103,43 @@ package egg82.registry {
 			
 		}*/
 		
-		public function addFont(name:String, font:Class):void {
+		public function setAudio(type:String, name:String, data:ByteArray):void {
+			if (!audioRegistry.getRegister(type)) {
+				audioRegistry.setRegister(type, new Array());
+			}
+			
+			(audioRegistry.getRegister(type) as Array).push({
+				"name": name,
+				"data": data
+			});
+			
+			dispatch(RegistryUtilEvent.VALUE_ADDED, {
+				"registry": "audioRegistry",
+				"type": type,
+				"name": name,
+				"value": data
+			});
+		}
+		public function getAudio(type:String, name:String):ByteArray {
+			if (!audioRegistry.getRegister(type)) {
+				return null;
+			}
+			
+			var arr:Array = audioRegistry.getRegister(type) as Array;
+			
+			for (var i:uint = 0; i < arr.length; i++) {
+				if (arr[i].name == name) {
+					return arr[i].data as ByteArray;
+				}
+			}
+			
+			return null;
+		}
+		/*public function removeAudio(type:String, name:String):void {
+			
+		}*/
+		
+		public function setFont(name:String, font:Class):void {
 			var event:String = (fontRegistry.getRegister(name)) ? ((font) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
 			
 			Font.registerFont(font);
@@ -119,7 +159,7 @@ package egg82.registry {
 			
 		}*/
 		
-		public function addOption(type:String, name:String, value:*):void {
+		public function setOption(type:String, name:String, value:*):void {
 			var event:String = (optionsRegistry.getRegister(type)) ? (((optionsRegistry.getRegister(type) as Object)[name]) ? ((value) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED) : RegistryUtilEvent.VALUE_ADDED;
 			
 			if (!optionsRegistry.getRegister(type)) {
@@ -145,7 +185,7 @@ package egg82.registry {
 			
 		}*/
 		
-		public function addBitmapData(url:String, data:BitmapData):void {
+		public function setBitmapData(url:String, data:BitmapData):void {
 			var event:String = (textureRegistry.getRegister(stripURL(url) + "_bmd")) ? ((data) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
 			
 			textureRegistry.setRegister(stripURL(url) + "_bmd", data);
@@ -164,7 +204,7 @@ package egg82.registry {
 			
 		}*/
 		
-		public function addTexture(url:String, texture:Texture):void {
+		public function setTexture(url:String, texture:Texture):void {
 			var event:String = (textureRegistry.getRegister(stripURL(url) + "_tex")) ? ((texture) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
 			
 			textureRegistry.setRegister(stripURL(url) + "_tex", texture);
@@ -183,7 +223,7 @@ package egg82.registry {
 			
 		}*/
 		
-		public function addAtlas(url:String, atlas:TextureAtlas):void {
+		public function setAtlas(url:String, atlas:TextureAtlas):void {
 			var event:String = (textureRegistry.getRegister(stripURL(url) + "_atlas")) ? ((atlas) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
 			
 			textureRegistry.setRegister(stripURL(url) + "_atlas", atlas);
@@ -202,7 +242,7 @@ package egg82.registry {
 			
 		}*/
 		
-		public function addXML(url:String, xml:XML):void {
+		public function setXML(url:String, xml:XML):void {
 			var event:String = (textureRegistry.getRegister(stripURL(url) + "_xml")) ? ((xml) ? RegistryUtilEvent.VALUE_CHANGED : RegistryUtilEvent.VALUE_REMOVED) : RegistryUtilEvent.VALUE_ADDED;
 			
 			textureRegistry.setRegister(stripURL(url) + "_xml", xml);

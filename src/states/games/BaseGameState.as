@@ -4,7 +4,9 @@ package states.games {
 	import egg82.custom.CustomImage;
 	import egg82.engines.interfaces.IInputEngine;
 	import egg82.engines.interfaces.IPhysicsEngine;
+	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.engines.PhysicsEngine;
+	import egg82.enums.AudioRegistryType;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
 	import egg82.enums.ServiceType;
@@ -69,6 +71,7 @@ package states.games {
 		
 		protected var physicsEngine:IPhysicsEngine = ServiceLocator.getService(ServiceType.PHYSICS_ENGINE) as IPhysicsEngine;
 		private var inputEngine:IInputEngine = ServiceLocator.getService(ServiceType.INPUT_ENGINE) as IInputEngine;
+		private var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
 		
 		private var physicsEngineObserver:Observer = new Observer();
 		private var registryUtilObserver:Observer = new Observer();
@@ -235,6 +238,8 @@ package states.games {
 			fireButtons = REGISTRY_UTIL.getOption(OptionsRegistryType.CONTROLLER, "fire") as Array;
 			autoFire = REGISTRY_UTIL.getOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire") as Boolean;
 			controllerDeadZone = REGISTRY_UTIL.getOption(OptionsRegistryType.CONTROLLER, "deadZone") as Number;
+			
+			audioEngine.playMp3(REGISTRY_UTIL.getAudio(AudioRegistryType.MUSIC, gameType), "music_" + gameType, true, REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "musicVolume") as Number);
 			
 			impulseTimer.addEventListener(TimerEvent.TIMER, onImpulseTimer);
 			impulseTimer.start();

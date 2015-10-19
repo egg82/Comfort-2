@@ -107,19 +107,19 @@ package egg82.custom {
 				_isLoaded = true;
 			} else if (registryUtil.getTexture(url)) {
 				if (registryUtil.getXML(xmlUrl)) {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
 				atlas = registryUtil.getAtlas(url);
 				texture = atlas.getTexture(atlas.getNames()[0]);
 				_isLoaded = true;
 			} else if (registryUtil.getBitmapData(url)) {
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				if (registryUtil.getXML(xmlUrl)) {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
 				atlas = registryUtil.getAtlas(url);
 				texture = atlas.getTexture(atlas.getNames()[0]);
@@ -160,7 +160,7 @@ package egg82.custom {
 			}
 			
 			dispose();
-			//registryUtil.addAtlas(url, null);
+			//registryUtil.setAtlas(url, null);
 			//registryUtil.addXML(xmlUrl, null);
 			//RegTextures.disposeBMD(name);
 		}
@@ -245,17 +245,17 @@ package egg82.custom {
 				atlas = registryUtil.getAtlas(url);
 			} else if (registryUtil.getTexture(url)) {
 				if (registryUtil.getXML(xmlUrl)) {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
 				atlas = registryUtil.getAtlas(url);
 			} else if (registryUtil.getBitmapData(url)) {
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				if (registryUtil.getXML(xmlUrl)) {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
 				atlas = registryUtil.getAtlas(url);
 			} else {
@@ -286,7 +286,7 @@ package egg82.custom {
 		private function onXMLLoadComplete(data:ByteArray):void {
 			var url:String = loader.file;
 			
-			registryUtil.addXML(url, new XML(data.readUTFBytes(data.length)));
+			registryUtil.setXML(url, new XML(data.readUTFBytes(data.length)));
 			_xmlLoaded = true;
 			
 			if (_bmd) {
@@ -303,27 +303,27 @@ package egg82.custom {
 			} else if (registryUtil.getTexture(url)) {
 				_bmd.dispose();
 				if (registryUtil.getXML(xmlUrl)) {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
 				atlas = registryUtil.getAtlas(url);
 			} else if (registryUtil.getBitmapData(url)) {
 				_bmd.dispose();
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				if (registryUtil.getXML(xmlUrl)) {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
 				atlas = registryUtil.getAtlas(url);
 			} else {
-				registryUtil.addBitmapData(url, _bmd);
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setBitmapData(url, _bmd);
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				if (registryUtil.getXML(xmlUrl)) {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
 				} else {
-					registryUtil.addAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
 				}
 				atlas = registryUtil.getAtlas(url);
 			}

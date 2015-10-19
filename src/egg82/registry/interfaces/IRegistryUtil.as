@@ -22,6 +22,7 @@
 
 package egg82.registry.interfaces {
 	import flash.display.BitmapData;
+	import flash.utils.ByteArray;
 	import starling.textures.Texture;
 	import starling.textures.TextureAtlas;
 	
@@ -38,19 +39,21 @@ package egg82.registry.interfaces {
 		//public
 		function initialize():void;
 		
-		function addFile(type:String, name:String, url:String):void;
+		function setFile(type:String, name:String, url:String):void;
 		function getFile(type:String, name:String):String;
-		function addFont(name:String, font:Class):void;
+		function setAudio(type:String, name:String, data:ByteArray):void;
+		function getAudio(type:String, name:String):ByteArray;
+		function setFont(name:String, font:Class):void;
 		function getFont(name:String):Class;
-		function addOption(type:String, name:String, value:*):void;
+		function setOption(type:String, name:String, value:*):void;
 		function getOption(type:String, name:String):*;
-		function addBitmapData(url:String, data:BitmapData):void;
+		function setBitmapData(url:String, data:BitmapData):void;
 		function getBitmapData(url:String):BitmapData;
-		function addTexture(url:String, texture:Texture):void;
+		function setTexture(url:String, texture:Texture):void;
 		function getTexture(url:String):Texture;
-		function addAtlas(url:String, atlas:TextureAtlas):void;
+		function setAtlas(url:String, atlas:TextureAtlas):void;
 		function getAtlas(url:String):TextureAtlas;
-		function addXML(url:String, xml:XML):void;
+		function setXML(url:String, xml:XML):void;
 		function getXML(url:String):XML;
 		
 		function stripURL(url:String):String;

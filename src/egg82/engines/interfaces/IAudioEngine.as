@@ -30,7 +30,7 @@ package egg82.engines.interfaces {
 	 * @author egg82
 	 */
 	
-	public interface ISoundEngine {
+	public interface IAudioEngine {
 		//vars
 		
 		//constructor

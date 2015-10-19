@@ -74,7 +74,7 @@ package egg82.custom {
 				texture = registryUtil.getTexture(url);
 				_isLoaded = true;
 			} else if (registryUtil.getBitmapData(url)) {
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				texture = registryUtil.getTexture(url);
 				_isLoaded = true;
 			} else {
@@ -107,7 +107,7 @@ package egg82.custom {
 			}
 			
 			dispose();
-			//registryUtil.addTexture(url, null);
+			//registryUtil.setTexture(url, null);
 			//RegTextures.disposeBMD(name);
 		}
 		
@@ -138,7 +138,7 @@ package egg82.custom {
 			if (registryUtil.getTexture(url)) {
 				texture = registryUtil.getTexture(url);
 			} else if (registryUtil.getBitmapData(url)) {
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				texture = registryUtil.getTexture(url);
 			} else {
 				return;
@@ -160,11 +160,11 @@ package egg82.custom {
 				texture = registryUtil.getTexture(url);
 			} else if (registryUtil.getBitmapData(url)) {
 				bmd.dispose();
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				texture = registryUtil.getTexture(url);
 			} else {
-				registryUtil.addBitmapData(url, bmd);
-				registryUtil.addTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				registryUtil.setBitmapData(url, bmd);
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
 				texture = registryUtil.getTexture(url);
 			}
 			

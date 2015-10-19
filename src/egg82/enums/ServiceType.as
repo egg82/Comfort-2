@@ -20,7 +20,7 @@ package egg82.enums {
 		public static const PROTOTYPE_FACTORY:String = "prototypeFactory";
 		
 		public static const STATE_ENGINE:String = "stateEngine";
-		public static const SOUND_ENGINE:String = "soundEngine";
+		public static const AUDIO_ENGINE:String = "audioEngine";
 		public static const INPUT_ENGINE:String = "inputEngine";
 		public static const PHYSICS_ENGINE:String = "physicsEngine";
 		public static const MOD_ENGINE:String = "modEngine";

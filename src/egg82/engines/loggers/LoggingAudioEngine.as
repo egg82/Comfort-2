@@ -23,7 +23,7 @@
 package egg82.engines.loggers {
 	import egg82.custom.CustomSound;
 	import egg82.custom.CustomWavSound;
-	import egg82.engines.SoundEngine;
+	import egg82.engines.AudioEngine;
 	import egg82.enums.LogLevel;
 	import egg82.log.interfaces.ILogger;
 	import egg82.patterns.ServiceLocator;
@@ -36,12 +36,12 @@ package egg82.engines.loggers {
 	 * @author egg82
 	 */
 	
-	public class LoggingSoundEngine extends SoundEngine {
+	public class LoggingAudioEngine extends AudioEngine {
 		//vars
 		private var logger:ILogger = ServiceLocator.getService("logger") as ILogger;
 		
 		//constructor
-		public function LoggingSoundEngine() {
+		public function LoggingAudioEngine() {
 			
 		}
 		

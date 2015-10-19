@@ -22,7 +22,7 @@
 
 package egg82.patterns {
 	import egg82.engines.InputEngine;
-	import egg82.engines.SoundEngine;
+	import egg82.engines.AudioEngine;
 	import egg82.engines.StateEngine;
 	
 	/**

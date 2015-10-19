@@ -23,6 +23,7 @@
 package egg82.registry.nulls {
 	import egg82.registry.interfaces.IRegistryUtil;
 	import flash.display.BitmapData;
+	import flash.utils.ByteArray;
 	import starling.textures.Texture;
 	import starling.textures.TextureAtlas;
 	
@@ -44,7 +45,7 @@ package egg82.registry.nulls {
 			
 		}
 		
-		public function addFile(type:String, name:String, url:String):void {
+		public function setFile(type:String, name:String, url:String):void {
 			
 		}
 		public function getFile(type:String, name:String):String {
@@ -54,7 +55,17 @@ package egg82.registry.nulls {
 			
 		}*/
 		
-		public function addFont(name:String, font:Class):void {
+		public function setAudio(type:String, name:String, data:ByteArray):void {
+			
+		}
+		public function getAudio(type:String, name:String):ByteArray {
+			return null;
+		}
+		/*public function removeAudio(type:String, name:String):void {
+			
+		}*/
+		
+		public function setFont(name:String, font:Class):void {
 			
 		}
 		public function getFont(name:String):Class {
@@ -64,7 +75,7 @@ package egg82.registry.nulls {
 			
 		}*/
 		
-		public function addOption(type:String, name:String, value:*):void {
+		public function setOption(type:String, name:String, value:*):void {
 			
 		}
 		public function getOption(type:String, name:String):* {
@@ -74,7 +85,7 @@ package egg82.registry.nulls {
 			
 		}*/
 		
-		public function addBitmapData(url:String, data:BitmapData):void {
+		public function setBitmapData(url:String, data:BitmapData):void {
 			
 		}
 		public function getBitmapData(url:String):BitmapData {
@@ -84,7 +95,7 @@ package egg82.registry.nulls {
 			
 		}*/
 		
-		public function addTexture(url:String, texture:Texture):void {
+		public function setTexture(url:String, texture:Texture):void {
 			
 		}
 		public function getTexture(url:String):Texture {
@@ -94,7 +105,7 @@ package egg82.registry.nulls {
 			
 		}*/
 		
-		public function addAtlas(url:String, atlas:TextureAtlas):void {
+		public function setAtlas(url:String, atlas:TextureAtlas):void {
 			
 		}
 		public function getAtlas(url:String):TextureAtlas {
@@ -104,7 +115,7 @@ package egg82.registry.nulls {
 			
 		}*/
 		
-		public function addXML(url:String, xml:XML):void {
+		public function setXML(url:String, xml:XML):void {
 			
 		}
 		public function getXML(url:String):XML {

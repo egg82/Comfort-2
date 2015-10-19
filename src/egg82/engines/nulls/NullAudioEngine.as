@@ -23,7 +23,7 @@
 package egg82.engines.nulls {
 	import egg82.custom.CustomSound;
 	import egg82.custom.CustomWavSound;
-	import egg82.engines.interfaces.ISoundEngine;
+	import egg82.engines.interfaces.IAudioEngine;
 	import flash.utils.ByteArray;
 	
 	/**
@@ -31,11 +31,11 @@ package egg82.engines.nulls {
 	 * @author egg82
 	 */
 	
-	public class NullSoundEngine implements ISoundEngine {
+	public class NullAudioEngine implements IAudioEngine {
 		//vars
 		
 		//constructor
-		public function NullSoundEngine() {
+		public function NullAudioEngine() {
 			
 		}
 		

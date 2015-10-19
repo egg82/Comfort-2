@@ -112,6 +112,7 @@ package egg82.net {
 			});
 		}
 		private function onComplete(e:Event):void {
+			_loading = false;
 			dispatch(SimpleURLLoaderEvent.COMPLETE, loader.data);
 		}
 		

@@ -27,18 +27,18 @@ package egg82.startup {
 	import egg82.engines.loggers.LoggingInputEngine;
 	import egg82.engines.loggers.LoggingModEngine;
 	import egg82.engines.loggers.LoggingPhysicsEngine;
-	import egg82.engines.loggers.LoggingSoundEngine;
+	import egg82.engines.loggers.LoggingAudioEngine;
 	import egg82.engines.loggers.LoggingStateEngine;
 	import egg82.engines.ModEngine;
 	import egg82.engines.PhysicsEngine;
-	import egg82.engines.SoundEngine;
+	import egg82.engines.AudioEngine;
 	import egg82.engines.StateEngine;
 	import egg82.enums.ServiceType;
 	import egg82.log.Logger;
 	import egg82.patterns.prototype.PrototypeFactory;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistryUtil;
-	import egg82.registry.Registry;
+	import egg82.startup.reg.AudioRegistry;
 	import egg82.startup.reg.FileRegistry;
 	import egg82.startup.reg.FontRegistry;
 	import egg82.startup.reg.InitRegistry;
@@ -92,7 +92,7 @@ package egg82.startup {
 			
 			if (initRegistry.getRegister("logging")) {
 				ServiceLocator.provideService(ServiceType.STATE_ENGINE, LoggingStateEngine);
-				ServiceLocator.provideService(ServiceType.SOUND_ENGINE, LoggingSoundEngine);
+				ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, LoggingAudioEngine);
 				ServiceLocator.provideService(ServiceType.INPUT_ENGINE, LoggingInputEngine);
 				ServiceLocator.provideService(ServiceType.PHYSICS_ENGINE, LoggingPhysicsEngine);
 				ServiceLocator.provideService(ServiceType.MOD_ENGINE, LoggingModEngine);
@@ -100,7 +100,7 @@ package egg82.startup {
 				ServiceLocator.provideService(ServiceType.SETTINGS_LOADER, LoggingSettingsLoader);
 			} else {
 				ServiceLocator.provideService(ServiceType.STATE_ENGINE, StateEngine);
-				ServiceLocator.provideService(ServiceType.SOUND_ENGINE, SoundEngine);
+				ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, AudioEngine);
 				ServiceLocator.provideService(ServiceType.INPUT_ENGINE, InputEngine);
 				ServiceLocator.provideService(ServiceType.PHYSICS_ENGINE, PhysicsEngine);
 				ServiceLocator.provideService(ServiceType.MOD_ENGINE, ModEngine);
@@ -111,7 +111,7 @@ package egg82.startup {
 			ServiceLocator.provideService(ServiceType.FONT_REGISTRY, FontRegistry, false);
 			ServiceLocator.provideService(ServiceType.FILE_REGISTRY, FileRegistry, false);
 			ServiceLocator.provideService(ServiceType.TEXTURE_REGISTRY, TextureRegistry, false);
-			ServiceLocator.provideService(ServiceType.AUDIO_REGISTRY, Registry, false);
+			ServiceLocator.provideService(ServiceType.AUDIO_REGISTRY, AudioRegistry, false);
 			ServiceLocator.provideService(ServiceType.OPTIONS_REGISTRY, OptionsRegistry, false);
 			
 			ServiceLocator.provideService(ServiceType.REGISTRY_UTIL, RegistryUtil);

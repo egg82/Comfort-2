@@ -27,7 +27,7 @@ package egg82.events.engines {
 	 * @author egg82
 	 */
 	
-	public class SoundEngineEvent {
+	public class AudioEngineEvent {
 		//vars
 		public static const INITIALIZE:String = "initialize";
 		
@@ -35,7 +35,7 @@ package egg82.events.engines {
 		public static const WAV_COMPLETE:String = "wavComplete";
 		
 		//constructor
-		public function SoundEngineEvent() {
+		public function AudioEngineEvent() {
 		
 		}
 		

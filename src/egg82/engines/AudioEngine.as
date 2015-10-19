@@ -23,23 +23,25 @@
 package egg82.engines {
 	import egg82.custom.CustomSound;
 	import egg82.custom.CustomWavSound;
-	import egg82.engines.interfaces.ISoundEngine;
-	import egg82.events.engines.SoundEngineEvent;
+	import egg82.engines.interfaces.IAudioEngine;
+	import egg82.enums.OptionsRegistryType;
+	import egg82.events.engines.AudioEngineEvent;
 	import egg82.patterns.Observer;
+	import egg82.patterns.ServiceLocator;
+	import egg82.registry.interfaces.IRegistryUtil;
+	import egg82.registry.RegistryUtil;
 	import flash.events.Event;
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
 	import flash.utils.ByteArray;
 	import org.as3wavsound.WavSoundChannel;
 	
-	//TODO: Make SoundEngine download sounds only when it needs them - as an option
-	
 	/**
 	 * ...
 	 * @author egg82
 	 */
 	
-	public class SoundEngine implements ISoundEngine {
+	public class AudioEngine implements IAudioEngine {
 		//vars
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
@@ -51,14 +53,44 @@ package egg82.engines {
 		private var playingWavSounds:Vector.<CustomWavSound> = new Vector.<CustomWavSound>();
 		private var playingWavNames:Vector.<String> = new Vector.<String>();
 		
+		private var masterVolume:Number;
+		private var ambientVolume:Number;
+		private var musicVolume:Number;
+		private var sfxVolume:Number;
+		private var uiVolume:Number;
+		private var voiceVolume:Number;
+		
+		private static var _initialized:Boolean = false;
+		
+		private var registryUtil:IRegistryUtil;
+		
+		private var registryUtilObserver:Observer = new Observer();
+		
 		//constructor
-		public function SoundEngine() {
+		public function AudioEngine() {
 			
 		}
 		
 		//public
 		public function initialize():void {
-			dispatch(SoundEngineEvent.INITIALIZE);
+			if (_initialized) {
+				throw new Error("AudioEngine already initialized");
+			}
+			_initialized = true;
+			
+			registryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
+			
+			masterVolume = registryUtil.getOption(OptionsRegistryType.AUDIO, "masterVolume") as Number;
+			ambientVolume = registryUtil.getOption(OptionsRegistryType.AUDIO, "ambientVolume") as Number;
+			musicVolume = registryUtil.getOption(OptionsRegistryType.AUDIO, "musicVolume") as Number;
+			sfxVolume = registryUtil.getOption(OptionsRegistryType.AUDIO, "sfxVolume") as Number;
+			uiVolume = registryUtil.getOption(OptionsRegistryType.AUDIO, "uiVolume") as Number;
+			voiceVolume = registryUtil.getOption(OptionsRegistryType.AUDIO, "voiceVolume") as Number;
+			
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
+			
+			dispatch(AudioEngineEvent.INITIALIZE);
 		}
 		
 		public function playWav(data:ByteArray, name:String, repeat:Boolean = false, volume:Number = 1):void {
@@ -210,6 +242,10 @@ package egg82.engines {
 			playingMp3s[index].soundTransform = new SoundTransform(volume);
 		}
 		
+		public function resetVolumes():void {
+			
+		}
+		
 		//private
 		private function onMp3Complete(e:Event):void {
 			var channel:SoundChannel = e.target as SoundChannel;
@@ -228,13 +264,13 @@ package egg82.engines {
 			channel.removeEventListener(Event.SOUND_COMPLETE, onMp3Complete);
 			
 			if (sound.repeat) {
-				dispatch(SoundEngineEvent.MP3_COMPLETE);
+				dispatch(AudioEngineEvent.MP3_COMPLETE);
 				playingMp3s[soundIndex] = sound.play();
 				playingMp3s[soundIndex].addEventListener(Event.SOUND_COMPLETE, onMp3Complete);
 			} else {
 				playingMp3Sounds.splice(soundIndex, 1);
 				playingMp3s.splice(soundIndex, 1);
-				dispatch(SoundEngineEvent.MP3_COMPLETE);
+				dispatch(AudioEngineEvent.MP3_COMPLETE);
 			}
 		}
 		private function onWavComplete(e:Event):void {
@@ -254,13 +290,40 @@ package egg82.engines {
 			channel.removeEventListener(Event.SOUND_COMPLETE, onWavComplete);
 			
 			if (sound.repeat) {
-				dispatch(SoundEngineEvent.WAV_COMPLETE);
+				dispatch(AudioEngineEvent.WAV_COMPLETE);
 				playingWavs[soundIndex] = sound.play();
 				playingWavs[soundIndex].addEventListener(Event.SOUND_COMPLETE, onWavComplete);
 			} else {
 				playingWavSounds.splice(soundIndex, 1);
 				playingWavs.splice(soundIndex, 1);
-				dispatch(SoundEngineEvent.WAV_COMPLETE);
+				dispatch(AudioEngineEvent.WAV_COMPLETE);
+			}
+		}
+		
+		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (data.registry == "optionsRegistry") {
+				checkOptions(data.type as String, data.name as String, data.value as Object);
+			}
+		}
+		private function checkOptions(type:String, name:String, value:Object):void {
+			if (type == OptionsRegistryType.AUDIO && name == "masterVolume") {
+				masterVolume = value as Number;
+				resetVolumes();
+			} else if (type == OptionsRegistryType.AUDIO && name == "ambientVolume") {
+				ambientVolume = value as Number;
+				resetVolumes();
+			} else if (type == OptionsRegistryType.AUDIO && name == "musicVolume") {
+				musicVolume = value as Number;
+				resetVolumes();
+			} else if (type == OptionsRegistryType.AUDIO && name == "sfxVolume") {
+				sfxVolume = value as Number;
+				resetVolumes();
+			} else if (type == OptionsRegistryType.AUDIO && name == "uiVolume") {
+				uiVolume = value as Number;
+				resetVolumes();
+			} else if (type == OptionsRegistryType.AUDIO && name == "voiceVolume") {
+				voiceVolume = value as Number;
+				resetVolumes();
 			}
 		}
 		
