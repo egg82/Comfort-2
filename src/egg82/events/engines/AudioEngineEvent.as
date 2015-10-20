@@ -31,9 +31,6 @@ package egg82.events.engines {
 		//vars
 		public static const INITIALIZE:String = "initialize";
 		
-		public static const MP3_COMPLETE:String = "mp3Complete";
-		public static const WAV_COMPLETE:String = "wavComplete";
-		
 		//constructor
 		public function AudioEngineEvent() {
 		

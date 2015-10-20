@@ -47,7 +47,7 @@ package egg82.startup.reg {
 			setRegister("preInitState", null);
 			setRegister("postInitState", null);
 			setRegister("logging", false);
-			setRegister("debug", true);
+			setRegister("debug", Capabilities.isDebugger);
 			
 			if (Capabilities.isDebugger) {
 				var str:String = "";

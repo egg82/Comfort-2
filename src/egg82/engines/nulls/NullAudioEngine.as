@@ -21,8 +21,6 @@
  */
 
 package egg82.engines.nulls {
-	import egg82.custom.CustomSound;
-	import egg82.custom.CustomWavSound;
 	import egg82.engines.interfaces.IAudioEngine;
 	import flash.utils.ByteArray;
 	
@@ -44,45 +42,24 @@ package egg82.engines.nulls {
 			
 		}
 		
-		public function playWav(data:ByteArray, name:String, repeat:Boolean = false, volume:Number = 1):void {
+		public function setAudio(name:String, fileType:String, audioType:String, data:ByteArray):void {
 			
 		}
-		public function playMp3(data:ByteArray, name:String, repeat:Boolean = false, volume:Number = 1):void {
-			
-		}
-		
-		public function stopWav(name:String):void {
-			
-		}
-		public function stopMp3(name:String):void {
-			
-		}
-		
-		public function getWav(name:String):CustomWavSound {
+		public function getAudio(name:String):ByteArray {
 			return null;
 		}
-		public function getMp3(name:String):CustomSound {
-			return null;
-		}
-		
-		public function getWavName(index:uint):String {
-			return null;
-		}
-		public function getMp3Name(index:uint):String {
-			return null;
-		}
-		
-		public function get numPlayingWavs():uint {
-			return 0;
-		}
-		public function get numPlayingMp3s():uint {
-			return 0;
-		}
-		
-		public function setWavVolume(name:String, volume:Number = 1):void {
+		public function removeAudio(name:String):void {
 			
 		}
-		public function setMp3Volume(name:String, volume:Number = 1):void {
+		
+		public function playAudio(name:String, repeat:Boolean = false):void {
+			
+		}
+		public function pauseAudio(name:String):void {
+			
+		}
+		
+		public function resetVolumes():void {
 			
 		}
 		

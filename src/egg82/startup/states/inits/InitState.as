@@ -22,6 +22,7 @@
 
 package egg82.startup.states.inits {
 	import egg82.base.BaseState;
+	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.engines.interfaces.IInputEngine;
 	import egg82.engines.interfaces.IModEngine;
 	import egg82.engines.interfaces.IPhysicsEngine;
@@ -44,6 +45,7 @@ package egg82.startup.states.inits {
 		private var inputEngine:IInputEngine = ServiceLocator.getService(ServiceType.INPUT_ENGINE) as IInputEngine;
 		private var stateEngine:IStateEngine = ServiceLocator.getService(ServiceType.STATE_ENGINE) as IStateEngine;
 		private var physicsEngine:IPhysicsEngine = ServiceLocator.getService(ServiceType.PHYSICS_ENGINE) as IPhysicsEngine;
+		private var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
 		private var modEngine:IModEngine = ServiceLocator.getService(ServiceType.MOD_ENGINE) as IModEngine;
 		
 		private var settingsLoader:ISettingsLoader = ServiceLocator.getService(ServiceType.SETTINGS_LOADER) as ISettingsLoader;
@@ -82,6 +84,7 @@ package egg82.startup.states.inits {
 			
 			inputEngine.initialize();
 			physicsEngine.initialize();
+			audioEngine.initialize();
 			modEngine.initialize();
 			
 			nextState();

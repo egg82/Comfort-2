@@ -21,8 +21,6 @@
  */
 
 package egg82.engines.loggers {
-	import egg82.custom.CustomSound;
-	import egg82.custom.CustomWavSound;
 	import egg82.engines.AudioEngine;
 	import egg82.enums.LogLevel;
 	import egg82.log.interfaces.ILogger;
@@ -51,49 +49,31 @@ package egg82.engines.loggers {
 			super.initialize();
 		}
 		
-		override public function playWav(data:ByteArray, name:String, repeat:Boolean = false, volume:Number = 1):void {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([data, name, repeat, volume]), LogLevel.INFO);
-			super.playWav(data, name, repeat, volume);
+		override public function setAudio(name:String, fileType:String, audioType:String, data:ByteArray):void {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name, fileType, audioType, data]), LogLevel.INFO);
+			super.setAudio(name, fileType, audioType, data);
 		}
-		override public function playMp3(data:ByteArray, name:String, repeat:Boolean = false, volume:Number = 1):void {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([data, name, repeat, volume]), LogLevel.INFO);
-			super.playMp3(data, name, repeat, volume);
+		override public function getAudio(name:String):ByteArray {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
+			return super.getAudio(name);
+		}
+		override public function removeAudio(name:String):void {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
+			super.removeAudio(name);
 		}
 		
-		override public function stopWav(name:String):void {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
-			super.stopWav(name);
+		override public function playAudio(name:String, repeat:Boolean = false):void {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name, repeat]), LogLevel.INFO);
+			super.playAudio(name, repeat);
 		}
-		override public function stopMp3(name:String):void {
+		override public function pauseAudio(name:String):void {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
-			super.stopMp3(name);
+			super.pauseAudio(name);
 		}
 		
-		override public function getWav(name:String):CustomWavSound {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
-			return super.getWav(name);
-		}
-		override public function getMp3(name:String):CustomSound {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
-			return super.getMp3(name);
-		}
-		
-		override public function getWavName(index:uint):String {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([index]), LogLevel.INFO);
-			return super.getWavName(index);
-		}
-		override public function getMp3Name(index:uint):String {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([index]), LogLevel.INFO);
-			return super.getMp3Name(index);
-		}
-		
-		override public function setWavVolume(name:String, volume:Number = 1):void {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name, volume]), LogLevel.INFO);
-			super.setWavVolume(name, volume);
-		}
-		override public function setMp3Volume(name:String, volume:Number = 1):void {
-			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name, volume]), LogLevel.INFO);
-			super.setMp3Volume(name, volume);
+		override public function resetVolumes():void {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this), LogLevel.INFO);
+			super.resetVolumes();
 		}
 		
 		//private

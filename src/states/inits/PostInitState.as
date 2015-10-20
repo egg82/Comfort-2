@@ -27,7 +27,7 @@ package states.inits {
 			//_nextState = AdState;
 			_nextState = LoadingState;
 			_nextStateParams = [{
-				"gameType": GameType.UNITY
+				"gameType": gameType
 			}];
 			nextState();
 		}

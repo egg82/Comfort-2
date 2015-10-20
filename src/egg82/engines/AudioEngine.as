@@ -21,20 +21,18 @@
  */
 
 package egg82.engines {
-	import egg82.custom.CustomSound;
-	import egg82.custom.CustomWavSound;
 	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.enums.OptionsRegistryType;
 	import egg82.events.engines.AudioEngineEvent;
+	import egg82.intern.Audio;
+	import egg82.patterns.objectPool.DynamicObjectPool;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistryUtil;
 	import egg82.registry.RegistryUtil;
-	import flash.events.Event;
-	import flash.media.SoundChannel;
-	import flash.media.SoundTransform;
+	import egg82.enums.AudioFileType;
+	import egg82.enums.AudioType;
 	import flash.utils.ByteArray;
-	import org.as3wavsound.WavSoundChannel;
 	
 	/**
 	 * ...
@@ -45,13 +43,8 @@ package egg82.engines {
 		//vars
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
-		private var playingMp3s:Vector.<SoundChannel> = new Vector.<SoundChannel>();
-		private var playingMp3Sounds:Vector.<CustomSound> = new Vector.<CustomSound>();
-		private var playingMp3Names:Vector.<String> = new Vector.<String>();
-		
-		private var playingWavs:Vector.<WavSoundChannel> = new Vector.<WavSoundChannel>();
-		private var playingWavSounds:Vector.<CustomWavSound> = new Vector.<CustomWavSound>();
-		private var playingWavNames:Vector.<String> = new Vector.<String>();
+		private var mp3AudioPool:DynamicObjectPool = new DynamicObjectPool("mp3", new Audio());
+		private var wavAudioPool:DynamicObjectPool = new DynamicObjectPool("wav", new Audio());
 		
 		private var masterVolume:Number;
 		private var ambientVolume:Number;
@@ -78,6 +71,9 @@ package egg82.engines {
 			}
 			_initialized = true;
 			
+			mp3AudioPool.initialize(0);
+			wavAudioPool.initialize(0);
+			
 			registryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
 			
 			masterVolume = registryUtil.getOption(OptionsRegistryType.AUDIO, "masterVolume") as Number;
@@ -93,210 +89,125 @@ package egg82.engines {
 			dispatch(AudioEngineEvent.INITIALIZE);
 		}
 		
-		public function playWav(data:ByteArray, name:String, repeat:Boolean = false, volume:Number = 1):void {
-			if (!data || data.length == 0 || playingWavNames.indexOf(name) > -1) {
-				return;
+		public function setAudio(name:String, fileType:String, audioType:String, data:ByteArray):void {
+			var audio:Audio = null;
+			
+			removeAudio(name);
+			
+			if (fileType == AudioFileType.MP3) {
+				audio = getAudioFromPool(name, mp3AudioPool);
+				if (!audio) {
+					audio = mp3AudioPool.getObject() as Audio;
+				}
+			} else if (fileType == AudioFileType.WAV) {
+				audio = getAudioFromPool(name, wavAudioPool);
+				if (!audio) {
+					audio = wavAudioPool.getObject() as Audio;
+				}
 			}
 			
-			if (volume > 1) {
-				volume = 1;
-			}
-			if (volume < 0) {
-				volume = 0;
-			}
-			
-			var sound:CustomWavSound = new CustomWavSound(data, repeat);
-			var channel:WavSoundChannel = sound.play(0, 0, new SoundTransform(volume));
-			
-			channel.addEventListener(Event.SOUND_COMPLETE, onWavComplete);
-			
-			playingWavSounds.push(sound);
-			playingWavs.push(channel);
-			playingWavNames.push(name);
+			audio.name = name;
+			audio.fileType = fileType;
+			audio.audioType = audioType;
+			audio.data = data;
+			setVolume(audio);
 		}
-		public function playMp3(data:ByteArray, name:String, repeat:Boolean = false, volume:Number = 1):void {
-			if (!data || data.length == 0 || playingMp3Names.indexOf(name) > -1) {
-				return;
+		public function getAudio(name:String):ByteArray {
+			var audio:Audio = null;
+			
+			audio = getAudioFromPool(name, mp3AudioPool);
+			if (!audio) {
+				audio = getAudioFromPool(name, wavAudioPool);
 			}
 			
-			if (volume > 1) {
-				volume = 1;
-			}
-			if (volume < 0) {
-				volume = 0;
-			}
-			
-			var sound:CustomSound = new CustomSound(repeat);
-			var channel:SoundChannel;
-			
-			sound.loadCompressedDataFromByteArray(data, data.length);
-			channel = sound.play(0, 0, new SoundTransform(volume));
-			channel.addEventListener(Event.SOUND_COMPLETE, onMp3Complete);
-			
-			playingMp3Sounds.push(sound);
-			playingMp3s.push(channel);
-			playingMp3Names.push(name);
+			return (audio) ? audio.data : null;
+		}
+		public function removeAudio(name:String):void {
+			clearAudio(name, mp3AudioPool);
+			clearAudio(name, wavAudioPool);
 		}
 		
-		public function stopWav(name:String):void {
-			var index:int = playingWavNames.indexOf(name);
+		public function playAudio(name:String, repeat:Boolean = false):void {
+			var audio:Audio = null;
 			
-			if (index == -1) {
+			audio = getAudioFromPool(name, mp3AudioPool);
+			if (!audio) {
+				audio = getAudioFromPool(name, wavAudioPool);
+			}
+			if (!audio) {
 				return;
 			}
 			
-			playingWavs[index].stop();
-			playingWavs[index].removeEventListener(Event.SOUND_COMPLETE, onWavComplete);
-			
-			playingWavSounds.splice(index, 1);
-			playingWavs.splice(index, 1);
-			playingWavNames.splice(index, 1);
+			audio.repeat = repeat;
+			audio.play();
 		}
-		public function stopMp3(name:String):void {
-			var index:int = playingMp3Names.indexOf(name);
+		public function pauseAudio(name:String):void {
+			var audio:Audio = null;
 			
-			if (index == -1) {
+			audio = getAudioFromPool(name, mp3AudioPool);
+			if (!audio) {
+				audio = getAudioFromPool(name, wavAudioPool);
+			}
+			if (!audio) {
 				return;
 			}
 			
-			playingMp3s[index].stop();
-			playingMp3s[index].removeEventListener(Event.SOUND_COMPLETE, onMp3Complete);
-			
-			playingMp3Sounds.splice(index, 1);
-			playingMp3s.splice(index, 1);
-			playingMp3Names.splice(index, 1);
-		}
-		
-		public function getWav(name:String):CustomWavSound {
-			var index:int = playingWavNames.indexOf(name);
-			
-			if (index == -1) {
-				return null;
-			}
-			
-			return playingWavSounds[index];
-		}
-		public function getMp3(name:String):CustomSound {
-			var index:int = playingMp3Names.indexOf(name);
-			
-			if (index == -1) {
-				return null;
-			}
-			
-			return playingMp3Sounds[index];
-		}
-		
-		public function get numPlayingWavs():uint {
-			return playingWavs.length;
-		}
-		public function get numPlayingMp3s():uint {
-			return playingMp3s.length;
-		}
-		
-		public function getWavName(index:uint):String {
-			if (index >= playingWavNames.length) {
-				return null;
-			}
-			
-			return playingWavNames[index];
-		}
-		public function getMp3Name(index:uint):String {
-			if (index >= playingMp3Names.length) {
-				return null;
-			}
-			
-			return playingMp3Names[index];
-		}
-		
-		public function setWavVolume(name:String, volume:Number = 1):void {
-			var index:int = playingWavNames.indexOf(name);
-			
-			if (index == -1) {
-				return;
-			}
-			
-			if (volume > 1) {
-				volume = 1;
-			}
-			if (volume < 0) {
-				volume = 0;
-			}
-			
-			//TODO: Get wav files to SoundTransform on-the-fly like MP3s.
-			//playingWavs[index].soundTransform = new SoundTransform(volume);
-		}
-		public function setMp3Volume(name:String, volume:Number = 1):void {
-			var index:int = playingMp3Names.indexOf(name);
-			
-			if (index == -1) {
-				return;
-			}
-			
-			if (volume > 1) {
-				volume = 1;
-			}
-			if (volume < 0) {
-				volume = 0;
-			}
-			
-			playingMp3s[index].soundTransform = new SoundTransform(volume);
+			audio.pause();
 		}
 		
 		public function resetVolumes():void {
+			var i:uint;
 			
+			for (i = 0; i < mp3AudioPool.usedPool.length; i++) {
+				setVolume(mp3AudioPool.usedPool[i] as Audio);
+			}
+			for (i = 0; i < wavAudioPool.usedPool.length; i++) {
+				setVolume(wavAudioPool.usedPool[i] as Audio);
+			}
 		}
 		
 		//private
-		private function onMp3Complete(e:Event):void {
-			var channel:SoundChannel = e.target as SoundChannel;
-			var sound:CustomSound;
-			var soundIndex:uint;
+		private function clearAudio(name:String, pool:DynamicObjectPool):void {
+			var audio:Audio;
 			
-			for (var i:uint = 0; i < playingMp3s.length; i++) {
-				if (channel === playingMp3s[i]) {
-					soundIndex = i;
+			for (var i:uint = 0; i < pool.usedPool.length; i++) {
+				audio = pool.usedPool[audio] as Audio;
+				if (audio.name == name) {
+					audio.destroy();
+					pool.returnObject(audio);
 					break;
 				}
 			}
 			
-			sound = playingMp3Sounds[soundIndex];
-			
-			channel.removeEventListener(Event.SOUND_COMPLETE, onMp3Complete);
-			
-			if (sound.repeat) {
-				dispatch(AudioEngineEvent.MP3_COMPLETE);
-				playingMp3s[soundIndex] = sound.play();
-				playingMp3s[soundIndex].addEventListener(Event.SOUND_COMPLETE, onMp3Complete);
-			} else {
-				playingMp3Sounds.splice(soundIndex, 1);
-				playingMp3s.splice(soundIndex, 1);
-				dispatch(AudioEngineEvent.MP3_COMPLETE);
+			if (pool.freePool.length >= 5) {
+				pool.gc();
 			}
 		}
-		private function onWavComplete(e:Event):void {
-			var channel:WavSoundChannel = e.target as WavSoundChannel;
-			var sound:CustomWavSound;
-			var soundIndex:uint;
+		
+		private function getAudioFromPool(name:String, pool:DynamicObjectPool):Audio {
+			var retObj:Audio = null;
 			
-			for (var i:uint = 0; i < playingWavs.length; i++) {
-				if (channel === playingWavs[i]) {
-					soundIndex = i;
-					break;
+			for (var i:uint = 0; i < pool.usedPool.length; i++) {
+				retObj = pool.usedPool[i] as Audio;
+				if (retObj.name == name) {
+					return retObj;
 				}
 			}
 			
-			sound = playingWavSounds[soundIndex];
-			
-			channel.removeEventListener(Event.SOUND_COMPLETE, onWavComplete);
-			
-			if (sound.repeat) {
-				dispatch(AudioEngineEvent.WAV_COMPLETE);
-				playingWavs[soundIndex] = sound.play();
-				playingWavs[soundIndex].addEventListener(Event.SOUND_COMPLETE, onWavComplete);
-			} else {
-				playingWavSounds.splice(soundIndex, 1);
-				playingWavs.splice(soundIndex, 1);
-				dispatch(AudioEngineEvent.WAV_COMPLETE);
+			return null;
+		}
+		
+		private function setVolume(audio:Audio):void {
+			if (audio.audioType == AudioType.AMBIENT) {
+				audio.setVolume(ambientVolume * masterVolume);
+			} else if (audio.audioType == AudioType.MUSIC) {
+				audio.setVolume(musicVolume * masterVolume);
+			} else if (audio.audioType == AudioType.SFX) {
+				audio.setVolume(sfxVolume * masterVolume);
+			} else if (audio.audioType == AudioType.UI) {
+				audio.setVolume(uiVolume * masterVolume);
+			} else if (audio.audioType == AudioType.VOICE) {
+				audio.setVolume(voiceVolume * masterVolume);
 			}
 		}
 		
@@ -308,21 +219,19 @@ package egg82.engines {
 		private function checkOptions(type:String, name:String, value:Object):void {
 			if (type == OptionsRegistryType.AUDIO && name == "masterVolume") {
 				masterVolume = value as Number;
-				resetVolumes();
 			} else if (type == OptionsRegistryType.AUDIO && name == "ambientVolume") {
 				ambientVolume = value as Number;
-				resetVolumes();
 			} else if (type == OptionsRegistryType.AUDIO && name == "musicVolume") {
 				musicVolume = value as Number;
-				resetVolumes();
 			} else if (type == OptionsRegistryType.AUDIO && name == "sfxVolume") {
 				sfxVolume = value as Number;
-				resetVolumes();
 			} else if (type == OptionsRegistryType.AUDIO && name == "uiVolume") {
 				uiVolume = value as Number;
-				resetVolumes();
 			} else if (type == OptionsRegistryType.AUDIO && name == "voiceVolume") {
 				voiceVolume = value as Number;
+			}
+			
+			if (type == OptionsRegistryType.AUDIO) {
 				resetVolumes();
 			}
 		}

@@ -1,10 +1,15 @@
 package states {
 	import egg82.base.BaseLoadingState;
 	import egg82.custom.CustomImage;
+	import egg82.engines.interfaces.IAudioEngine;
+	import egg82.enums.AudioFileType;
 	import egg82.enums.AudioRegistryType;
+	import egg82.enums.AudioType;
 	import egg82.enums.FileRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.events.base.BaseLoadingStateEvent;
 	import egg82.patterns.Observer;
+	import egg82.patterns.ServiceLocator;
 	import egg82.utils.TextureUtil;
 	import enums.GameType;
 	import flash.display.BitmapData;
@@ -21,6 +26,8 @@ package states {
 	
 	public class LoadingState extends BaseLoadingState {
 		//vars
+		private var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
+		
 		private var baseLoadingStateObserver:Observer = new Observer();
 		
 		private var background:CustomImage;
@@ -104,6 +111,7 @@ package states {
 				REGISTRY_UTIL.setXML(name, new XML(data.readUTFBytes(data.length)));
 			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, "music_" + gameType))) {
 				REGISTRY_UTIL.setAudio(AudioRegistryType.MUSIC, gameType, data);
+				audioEngine.setAudio("music_" + gameType, AudioFileType.MP3, AudioType.MUSIC, data);
 			}
 		}
 		private function onDecodeComplete(name:String, data:BitmapData):void {

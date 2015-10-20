@@ -239,7 +239,7 @@ package states.games {
 			autoFire = REGISTRY_UTIL.getOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire") as Boolean;
 			controllerDeadZone = REGISTRY_UTIL.getOption(OptionsRegistryType.CONTROLLER, "deadZone") as Number;
 			
-			audioEngine.playMp3(REGISTRY_UTIL.getAudio(AudioRegistryType.MUSIC, gameType), "music_" + gameType, true, REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "musicVolume") as Number);
+			audioEngine.playAudio("music_" + gameType);
 			
 			impulseTimer.addEventListener(TimerEvent.TIMER, onImpulseTimer);
 			impulseTimer.start();

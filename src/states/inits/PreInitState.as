@@ -69,9 +69,9 @@ package states.inits {
 		override public function create(...args):void {
 			super.create();
 			
-			//initRegistry.setRegister("debug", false);
-			/*initRegistry.setRegister("memoryHandicap", null);
-			(initRegistry.getRegister("cpuHandicap") as Timer).stop();*/
+			//INIT_REGISTRY.setRegister("debug", false);
+			/*INIT_REGISTRY.setRegister("memoryHandicap", null);
+			(INIT_REGISTRY.getRegister("cpuHandicap") as Timer).stop();*/
 			
 			NetUtil.loadExactPolicyFile("https://egg82.ninja/crossdomain.xml");
 			API.debugMode = (INIT_REGISTRY.getRegister("debug") as Boolean) ? API.DEBUG_MODE_LOGGED_OUT : API.RELEASE_MODE;
@@ -110,7 +110,7 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
 			
 			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
-			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.ULTRA);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.LOW);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "musicQuality", AudioQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "ambientQuality", AudioQualityType.ULTRA);

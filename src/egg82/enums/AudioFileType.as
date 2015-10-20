@@ -20,38 +20,24 @@
  * THE SOFTWARE.
  */
 
-package egg82.custom {
-	import flash.media.SoundTransform;
-	import flash.utils.ByteArray;
-	import org.as3wavsound.sazameki.core.AudioSetting;
-	import org.as3wavsound.WavSound;
-	import org.as3wavsound.WavSoundChannel;
+package egg82.enums {
 	
 	/**
 	 * ...
 	 * @author egg82
 	 */
 	
-	public class CustomWavSound extends WavSound {
+	public class AudioFileType {
 		//vars
-		private var _repeat:Boolean;
+		public static const MP3:String = "mp3";
+		public static const WAV:String = "wav";
 		
 		//constructor
-		public function CustomWavSound(wavData:ByteArray, repeat:Boolean, audioSettings:AudioSetting = null) {
-			_repeat = repeat;
-			super(wavData, audioSettings);
+		public function AudioFileType() {
+			
 		}
 		
 		//public
-		public function get repeat():Boolean {
-			return _repeat;
-		}
-		
-		override public function play(startTime:Number = 0, loops:int = 0, sndTransform:SoundTransform = null):WavSoundChannel {
-			//TODO: Figure out what in the hell I was doing here
-			//return player.playCustom(this, startTime, loops, sndTransform);
-			return super.play(startTime, loops, sndTransform);
-		}
 		
 		//private
 		
