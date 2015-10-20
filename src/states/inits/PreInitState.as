@@ -125,28 +125,48 @@ package states.inits {
 			
 			//TODO: Check fileHosts for hosts that are down and remove them from the array - except the first one
 			
-			var methods:Array = Util.getEnums(TextureQualityType);
-			for each (var quality:String in methods) {
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/horde.png");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/mask.png");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/nemesis.png");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/unity.png");
-				
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.HORDE + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_horde.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.MASK + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_mask.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.NEMESIS + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_nemesis.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, GameType.UNITY + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_unity.jpg");
-				
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_main", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/main.mp3");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/horde.mp3");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/mask.mp3");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/nemesis.mp3");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/unity.mp3");
+			var methods:Array;
+			var quality:String;
+			
+			var games:Array = Util.getEnums(GameType);
+			var game:String;
+			
+			//TODO Fix overwriting of quality
+			methods = Util.getEnums(TextureQualityType);
+			methods = ["ultra"];
+			for each (quality in methods) {
+				for each (game in games) {
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/" + game + ".png");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, game + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_" + game + ".jpg");
+				}
 			}
-			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.HORDE, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/horde.xml");
-			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.MASK, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/mask.xml");
-			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.NEMESIS, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/nemesis.xml");
-			REGISTRY_UTIL.setFile(FileRegistryType.XML, GameType.UNITY, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/unity.xml");
+			methods = Util.getEnums(AudioQualityType);
+			methods = ["ultra"];
+			for each (quality in methods) {
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_main", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/main.mp3");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "clock", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/clock.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "explosion", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/explosion.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "pause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/pause.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "unpause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/unpause.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "select", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/select.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "star_activation", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_activation.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "star_appearance", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_appearance.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "star_deactivation", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_deactivation.wav");
+				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "sentry_shoot", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/horde/sentry_shoot.wav");
+				for each (game in games) {
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "music_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/" + game + ".mp3");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "stress_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/ambient/" + quality + "/" + game + "_stress.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "ball_hit_critical_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_critical.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "ball_hit_insecure_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_insecure.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "ball_hit_normal_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_normal.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "ball_miss_1_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_miss_1.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "ball_miss_2_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_miss_2.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, "game_over_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/game_over.wav");
+				}
+			}
+			for each (game in games) {
+				REGISTRY_UTIL.setFile(FileRegistryType.XML, game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + game + ".xml");
+			}
 			
 			REGISTRY_UTIL.setFont("note", NOTE);
 			REGISTRY_UTIL.setFont("speech", SPEECH);

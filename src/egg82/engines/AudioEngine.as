@@ -171,7 +171,7 @@ package egg82.engines {
 			var audio:Audio;
 			
 			for (var i:uint = 0; i < pool.usedPool.length; i++) {
-				audio = pool.usedPool[audio] as Audio;
+				audio = pool.usedPool[i] as Audio;
 				if (audio.name == name) {
 					audio.destroy();
 					pool.returnObject(audio);
