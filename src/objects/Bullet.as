@@ -41,7 +41,7 @@ package objects {
 			registryUtilObserver.add(onRegistryUtilObserverNotify);
 			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("bullet_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0);
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("bullet_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0);
 			
 			body.allowRotation = false;
 			body.allowMovement = true;

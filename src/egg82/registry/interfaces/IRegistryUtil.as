@@ -41,8 +41,6 @@ package egg82.registry.interfaces {
 		
 		function setFile(type:String, name:String, url:String):void;
 		function getFile(type:String, name:String):String;
-		function setAudio(type:String, name:String, data:ByteArray):void;
-		function getAudio(type:String, name:String):ByteArray;
 		function setFont(name:String, font:Class):void;
 		function getFont(name:String):Class;
 		function setOption(type:String, name:String, value:*):void;

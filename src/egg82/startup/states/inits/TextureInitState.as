@@ -107,8 +107,10 @@ package egg82.startup.states.inits {
 		override public function resize():void {
 			super.resize();
 			
-			centerText.width = stage.stageWidth;
-			centerText.height = stage.stageHeight;
+			if (centerText) {
+				centerText.width = stage.stageWidth;
+				centerText.height = stage.stageHeight;
+			}
 		}
 		
 		override public function destroy():void {

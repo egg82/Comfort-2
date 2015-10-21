@@ -11,7 +11,6 @@ package egg82.enums {
 		public static const FONT_REGISTRY:String = "fontRegistry";
 		public static const FILE_REGISTRY:String = "fileRegistry";
 		public static const TEXTURE_REGISTRY:String = "textureRegistry";
-		public static const AUDIO_REGISTRY:String = "audioRegistry";
 		public static const OPTIONS_REGISTRY:String = "optionsRegistry";
 		
 		public static const LOGGER:String = "logger";

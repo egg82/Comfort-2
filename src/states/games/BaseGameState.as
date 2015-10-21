@@ -6,7 +6,6 @@ package states.games {
 	import egg82.engines.interfaces.IPhysicsEngine;
 	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.engines.PhysicsEngine;
-	import egg82.enums.AudioRegistryType;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
 	import egg82.enums.ServiceType;
@@ -73,6 +72,11 @@ package states.games {
 		private var inputEngine:IInputEngine = ServiceLocator.getService(ServiceType.INPUT_ENGINE) as IInputEngine;
 		private var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
 		
+		private var textureQuality:String;
+		private var musicQuality:String;
+		private var ambientQuality:String;
+		private var sfxQuality:String;
+		
 		private var physicsEngineObserver:Observer = new Observer();
 		private var registryUtilObserver:Observer = new Observer();
 		
@@ -109,7 +113,12 @@ package states.games {
 			
 			physicsEngine.resize();
 			
-			background = new CustomImage(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, gameType + "_background"));
+			ambientQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "ambientQuality");
+			musicQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "musicQuality");
+			sfxQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "sfxQuality");
+			textureQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.VIDEO, "textureQuality");
+			
+			background = new CustomImage(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType + "_background"));
 			background.create();
 			background.width = stage.stageWidth;
 			background.height = stage.stageHeight;
@@ -239,7 +248,7 @@ package states.games {
 			autoFire = REGISTRY_UTIL.getOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire") as Boolean;
 			controllerDeadZone = REGISTRY_UTIL.getOption(OptionsRegistryType.CONTROLLER, "deadZone") as Number;
 			
-			audioEngine.playAudio("music_" + gameType);
+			audioEngine.playAudio(musicQuality + "_music_" + gameType);
 			
 			impulseTimer.addEventListener(TimerEvent.TIMER, onImpulseTimer);
 			impulseTimer.start();
@@ -292,6 +301,8 @@ package states.games {
 			explosiveStressBallPool.clear();
 			clusterStressBallPool.clear();
 			stressBallPool.clear();
+			
+			audioEngine.pauseAudio(musicQuality + "_music_" + gameType);
 			
 			super.destroy();
 		}

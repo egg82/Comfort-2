@@ -36,7 +36,7 @@ package objects {
 			registryUtilObserver.add(onRegistryUtilObserverNotify);
 			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("sentry_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0, BodyType.KINEMATIC);
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("sentry_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0, BodyType.KINEMATIC);
 			
 			body.translateShapes(Vec2.weak(0, -120));
 			body.allowRotation = true;

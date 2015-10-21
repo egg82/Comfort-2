@@ -42,7 +42,6 @@ package egg82.registry {
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
 		private var fileRegistry:IRegistry;
-		private var audioRegistry:IRegistry;
 		private var fontRegistry:IRegistry;
 		private var optionsRegistry:IRegistry;
 		private var textureRegistry:IRegistry;
@@ -55,13 +54,11 @@ package egg82.registry {
 		//public
 		public function initialize():void {
 			fileRegistry = ServiceLocator.getService("fileRegistry") as IRegistry;
-			audioRegistry = ServiceLocator.getService("audioRegistry") as IRegistry;
 			fontRegistry = ServiceLocator.getService("fontRegistry") as IRegistry;
 			optionsRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
 			textureRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
 			
 			fileRegistry.initialize();
-			audioRegistry.initialize();
 			fontRegistry.initialize();
 			optionsRegistry.initialize();
 			textureRegistry.initialize();
@@ -100,42 +97,6 @@ package egg82.registry {
 			return null;
 		}
 		/*public function removeFile(type:String, name:String):void {
-			
-		}*/
-		
-		public function setAudio(type:String, name:String, data:ByteArray):void {
-			if (!audioRegistry.getRegister(type)) {
-				audioRegistry.setRegister(type, new Array());
-			}
-			
-			(audioRegistry.getRegister(type) as Array).push({
-				"name": name,
-				"data": data
-			});
-			
-			dispatch(RegistryUtilEvent.VALUE_ADDED, {
-				"registry": "audioRegistry",
-				"type": type,
-				"name": name,
-				"value": data
-			});
-		}
-		public function getAudio(type:String, name:String):ByteArray {
-			if (!audioRegistry.getRegister(type)) {
-				return null;
-			}
-			
-			var arr:Array = audioRegistry.getRegister(type) as Array;
-			
-			for (var i:uint = 0; i < arr.length; i++) {
-				if (arr[i].name == name) {
-					return arr[i].data as ByteArray;
-				}
-			}
-			
-			return null;
-		}
-		/*public function removeAudio(type:String, name:String):void {
 			
 		}*/
 		

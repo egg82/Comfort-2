@@ -3,6 +3,7 @@ package objects.base {
 	import com.greensock.TweenMax;
 	import egg82.custom.CustomAtlasImage;
 	import egg82.enums.FileRegistryType;
+	import egg82.enums.OptionsRegistryType;
 	import egg82.events.custom.CustomAtlasImageEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
@@ -36,7 +37,7 @@ package objects.base {
 			body.allowMovement = true;
 			body.allowRotation = false;
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body, damage);
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body, damage);
 		}
 		
 		//public

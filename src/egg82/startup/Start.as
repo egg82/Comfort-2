@@ -38,7 +38,6 @@ package egg82.startup {
 	import egg82.patterns.prototype.PrototypeFactory;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistryUtil;
-	import egg82.startup.reg.AudioRegistry;
 	import egg82.startup.reg.FileRegistry;
 	import egg82.startup.reg.FontRegistry;
 	import egg82.startup.reg.InitRegistry;
@@ -111,7 +110,6 @@ package egg82.startup {
 			ServiceLocator.provideService(ServiceType.FONT_REGISTRY, FontRegistry, false);
 			ServiceLocator.provideService(ServiceType.FILE_REGISTRY, FileRegistry, false);
 			ServiceLocator.provideService(ServiceType.TEXTURE_REGISTRY, TextureRegistry, false);
-			ServiceLocator.provideService(ServiceType.AUDIO_REGISTRY, AudioRegistry, false);
 			ServiceLocator.provideService(ServiceType.OPTIONS_REGISTRY, OptionsRegistry, false);
 			
 			ServiceLocator.provideService(ServiceType.REGISTRY_UTIL, RegistryUtil);

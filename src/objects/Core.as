@@ -1,6 +1,7 @@
 package objects {
 	import egg82.custom.CustomAtlasImage;
 	import egg82.enums.FileRegistryType;
+	import egg82.enums.OptionsRegistryType;
 	import egg82.events.custom.CustomAtlasImageEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
@@ -33,7 +34,7 @@ package objects {
 			var body:Body = new Body(BodyType.STATIC);
 			body.shapes.add(new Circle(98));
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body, 0);
+			super(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body, 0);
 		}
 		
 		//public

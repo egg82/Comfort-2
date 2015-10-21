@@ -168,6 +168,7 @@ package egg82.engines {
 			Starling.all[0].stage.addChild(ns);
 			
 			ns.create.apply(null, newStateArgs);
+			ns.resize();
 			
 			Starling.all[0].showStats = false;
 			Starling.all[0].showStats = initRegistry.getRegister("debug");
@@ -208,6 +209,7 @@ package egg82.engines {
 			Starling.all[0].stage.addChild(ns);
 			
 			ns.create.apply(null, newStateArgs);
+			ns.resize();
 			
 			Starling.all[0].showStats = false;
 			Starling.all[0].showStats = initRegistry.getRegister("debug");

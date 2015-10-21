@@ -55,16 +55,6 @@ package egg82.registry.nulls {
 			
 		}*/
 		
-		public function setAudio(type:String, name:String, data:ByteArray):void {
-			
-		}
-		public function getAudio(type:String, name:String):ByteArray {
-			return null;
-		}
-		/*public function removeAudio(type:String, name:String):void {
-			
-		}*/
-		
 		public function setFont(name:String, font:Class):void {
 			
 		}
