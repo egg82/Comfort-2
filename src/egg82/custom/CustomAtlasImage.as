@@ -165,6 +165,67 @@ package egg82.custom {
 			//RegTextures.disposeBMD(name);
 		}
 		
+		public function load(url:String, xmlUrl:String = null, atlasRows:uint = 0, atlasCols:uint = 0):void {
+			if (!url || url == "") {
+				throw new Error("url cannot be null.");
+			}
+			
+			loader.cancel();
+			xmlLoader.cancel();
+			
+			_isLoaded = false;
+			_xmlLoaded = false;
+			
+			path2 = registryUtil.stripURL(url);
+			this.xmlUrl = xmlUrl;
+			
+			this.atlasRows = atlasRows;
+			this.atlasCols = atlasCols;
+			
+			if (url == "null") {
+				_isLoaded = true;
+				return;
+			}
+			
+			if (registryUtil.getAtlas(url)) {
+				atlas = registryUtil.getAtlas(url);
+				texture = atlas.getTexture(atlas.getNames()[0]);
+				_isLoaded = true;
+				
+				this.texture = texture;
+			} else if (registryUtil.getTexture(url)) {
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+				} else {
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+				}
+				atlas = registryUtil.getAtlas(url);
+				texture = atlas.getTexture(atlas.getNames()[0]);
+				_isLoaded = true;
+				
+				this.texture = texture;
+			} else if (registryUtil.getBitmapData(url)) {
+				registryUtil.setTexture(url, TextureUtil.getTexture(registryUtil.getBitmapData(url)));
+				if (registryUtil.getXML(xmlUrl)) {
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlasXML(registryUtil.getTexture(url), registryUtil.getXML(xmlUrl)));
+				} else {
+					registryUtil.setAtlas(url, TextureUtil.getTextureAtlas(registryUtil.getTexture(url), atlasRows, atlasCols));
+				}
+				atlas = registryUtil.getAtlas(url);
+				texture = atlas.getTexture(atlas.getNames()[0]);
+				_isLoaded = true;
+				
+				this.texture = texture;
+			} else {
+				loader.load(url);
+				if (xmlUrl) {
+					xmlLoader.load(xmlUrl);
+				} else {
+					_xmlLoaded = true;
+				}
+			}
+		}
+		
 		public function setTexture(row:uint, col:uint):void {
 			if (!atlas) {
 				return;

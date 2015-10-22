@@ -46,6 +46,9 @@ package egg82.net {
 		private var _loading:Boolean = false;
 		private var _file:String = "";
 		
+		private var _loadedBytes:Number = 0;
+		private var _totalBytes:Number = 0;
+		
 		//constructor
 		public function SimpleURLLoader() {
 			loader.dataFormat = URLLoaderDataFormat.BINARY;
@@ -65,6 +68,8 @@ package egg82.net {
 			
 			_loading = true;
 			_file = url;
+			_loadedBytes = 0;
+			_totalBytes = 0;
 			loader.load(new URLRequest(url));
 		}
 		public function loadRequest(request:URLRequest):void {
@@ -74,6 +79,8 @@ package egg82.net {
 			
 			_loading = true;
 			_file = request.url;
+			_loadedBytes = 0;
+			_totalBytes = 0;
 			loader.load(request);
 		}
 		
@@ -95,17 +102,28 @@ package egg82.net {
 			return _file;
 		}
 		
+		public function get loadedBytes():Number {
+			return _loadedBytes;
+		}
+		public function get totalBytes():Number {
+			return _totalBytes;
+		}
+		
 		//private
 		private function onResponseStatus(e:HTTPStatusEvent):void {
 			dispatch(SimpleURLLoaderEvent.RESPONSE_STATUS, e.status);
 		}
 		private function onIoError(e:IOErrorEvent):void {
+			_loading = false;
 			dispatch(SimpleURLLoaderEvent.ERROR, e.text);
 		}
 		private function onSecurityError(e:SecurityErrorEvent):void {
+			_loading = false;
 			dispatch(SimpleURLLoaderEvent.ERROR, e.text);
 		}
 		private function onProgress(e:ProgressEvent):void {
+			_loadedBytes = e.bytesLoaded;
+			_totalBytes = e.bytesTotal;
 			dispatch(SimpleURLLoaderEvent.PROGRESS, {
 				"loaded": e.bytesLoaded,
 				"total": e.bytesTotal

@@ -84,7 +84,8 @@ package egg82.startup.reg {
 			setRegister(OptionsRegistryType.NETWORK, {
 				"preloadTextures": false,
 				"preloadAudio": false,
-				"threads": 3
+				"threads": 3,
+				"maxRetry": 2
 			});
 			setRegister(OptionsRegistryType.PHYSICS, {
 				"velocityAccuracy": 1,

@@ -1,26 +1,20 @@
 package objects {
-	import egg82.custom.CustomAtlasImage;
-	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
-	import egg82.events.custom.CustomAtlasImageEvent;
 	import egg82.patterns.Observer;
-	import egg82.patterns.ServiceLocator;
-	import egg82.registry.interfaces.IRegistryUtil;
-	import nape.phys.Body;
+	import egg82.registry.RegistryUtil;
 	import nape.phys.BodyType;
 	import nape.shape.Circle;
-	import objects.base.BasePhysicsObject;
+	import objects.graphics.GraphicsComponent;
+	import objects.physics.PhysicsComponent;
 	
 	/**
 	 * ...
 	 * @author Alex
 	 */
 	
-	public class Core extends BasePhysicsObject {
+	public class Core extends BaseObject {
 		//vars
-		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
-		
-		private var customAtlasImageObserver:Observer = new Observer();
+		private var registryUtilObserver:Observer = new Observer();
 		
 		private var _health:Number = 0;
 		
@@ -28,13 +22,17 @@ package objects {
 		public function Core(gameType:String, health:Number) {
 			_health = health;
 			
-			customAtlasImageObserver.add(onCustomAtlasImageObserverNotify);
-			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
-			var body:Body = new Body(BodyType.STATIC);
-			body.shapes.add(new Circle(98));
+			physicsComponent = new PhysicsComponent(BodyType.STATIC);
+			graphicsComponent = new GraphicsComponent(gameType, "core", 0.6, 2, 2);
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType), body, 0);
+			physicsComponent.setShapes([new Circle(98)]);
+			
+			physicsComponent.body.allowRotation = false;
+			physicsComponent.body.allowMovement = false;
+			physicsComponent.body.isBullet = false;
 		}
 		
 		//public
@@ -49,25 +47,22 @@ package objects {
 			_health = val;
 		}
 		
+		override public function destroy():void {
+			Observer.remove(RegistryUtil.OBSERVERS, registryUtilObserver);
+			
+			super.destroy();
+		}
+		
 		//private
-		private function onCustomAtlasImageObserverNotify(sender:Object, event:String, data:Object):void {
-			if (sender !== this) {
-				return;
+		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (data.registry == "optionsRegistry") {
+				checkOptions(data.type as String, data.name as String, data.value as Object);
 			}
-			
-			Observer.remove(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
-			
-			if (event == CustomAtlasImageEvent.COMPLETE) {
-				setTextureFromName("core");
-			} else if (event == CustomAtlasImageEvent.ERROR) {
-				
+		}
+		private function checkOptions(type:String, name:String, value:Object):void {
+			if (type == OptionsRegistryType.VIDEO && name == "textureQuality") {
+				graphicsComponent.resetTexture();
 			}
-			
-			scaleX = scaleY = 0.6;
-			
-			alignPivot();
-			pivotX += 2;
-			pivotY += 2;
 		}
 	}
 }

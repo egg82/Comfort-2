@@ -33,9 +33,11 @@ package egg82.base {
 		private var imageDecoders:Vector.<ImageDecoder> = new Vector.<ImageDecoder>();
 		
 		private var urlLoaders:Vector.<SimpleURLLoader>;
+		private var retries:Vector.<uint>;
 		private var currentFile:uint;
 		private var _loadedFiles:Number;
 		private var _totalFiles:Number;
+		private var maxRetry:uint;
 		
 		private var _decodedFiles:Number;
 		private var _totalDecodeFiles:Number;
@@ -90,10 +92,12 @@ package egg82.base {
 			_totalFiles = fileArr.length;
 			_decodedFiles = 0;
 			_totalDecodeFiles = 0;
+			maxRetry = REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "maxRetry") as uint;
 			
-			setLoadedFiles(0, _totalFiles);
+			setLoaded(0, _totalFiles);
 			
 			urlLoaders = new Vector.<SimpleURLLoader>();
+			retries = new Vector.<uint>();
 			var toLoad:uint = currentFile = Math.min(optionsRegistry.getRegister(OptionsRegistryType.NETWORK).threads, _totalFiles);
 			var loaded:uint = 0;
 			
@@ -101,6 +105,8 @@ package egg82.base {
 			
 			while (loaded < toLoad) {
 				urlLoaders.push(new SimpleURLLoader());
+				retries.push(0);
+				
 				urlLoaders[urlLoaders.length - 1].load(fileArr[loaded]);
 				
 				loaded++;
@@ -120,20 +126,49 @@ package egg82.base {
 			Observer.remove(SimpleURLLoader.OBSERVERS, urlLoaderObserver);
 			Observer.remove(ImageDecoder.OBSERVERS, imageDecoderObserver);
 			
+			cancelAll();
+			
 			super.destroy();
 		}
 		
 		//private
-		protected function setLoadedFiles(loadedFiles:uint, totalFiles:uint):void {
+		protected function setLoaded(loadedFiles:uint, totalFiles:uint):void {
 			centerText.text = loadingString + "\n" + loadedFiles + "/" + totalFiles + "\n" + ((loadedFiles / totalFiles) * 100).toFixed(2) + "%";
 		}
 		
 		protected function decodeImage(name:String, data:ByteArray):void {
 			_totalDecodeFiles++;
-			setLoadedFiles(_loadedFiles + _decodedFiles, _totalFiles + _totalDecodeFiles);
+			setLoaded(_loadedFiles + _decodedFiles, _totalFiles + _totalDecodeFiles);
 			
 			imageDecoders.push(new ImageDecoder());
 			imageDecoders[imageDecoders.length - 1].decode(data, name);
+		}
+		
+		protected function cancelAll():void {
+			var i:uint;
+			
+			if (urlLoaders) {
+				for (i = 0; i < urlLoaders.length; i++) {
+					urlLoaders[i].cancel();
+				}
+			}
+			if (imageDecoders) {
+				for (i = 0; i < imageDecoders.length; i++) {
+					imageDecoders[i].cancel();
+				}
+			}
+		}
+		
+		private function getTotal(inV:Vector.<Number>):Number {
+			var retNum:Number = 0;
+			
+			for (var i:uint = 0; i < inV.length; i++) {
+				if (!isNaN(inV[i])) {
+					retNum += inV[i];
+				}
+			}
+			
+			return retNum;
 		}
 		
 		private function onUrlLoaderObserverNotify(sender:Object, event:String, data:Object):void {
@@ -151,10 +186,17 @@ package egg82.base {
 			}
 			
 			if (event == SimpleURLLoaderEvent.COMPLETE) {
+				setLoaded(_loadedFiles + _decodedFiles, _totalFiles + _totalDecodeFiles);
 				onUrlLoaderComplete(sender as SimpleURLLoader, data as ByteArray);
 			} else if (event == SimpleURLLoaderEvent.ERROR) {
 				dispatch(BaseLoadingStateEvent.ERROR, data);
-				centerText.text = "Error loading file\n" + (data as String);
+				if (retries[i] < maxRetry) {
+					(sender as SimpleURLLoader).load((sender as SimpleURLLoader).file);
+					retries[i]++;
+				} else {
+					centerText.text = "Error loading file\n" + (data as String);
+					cancelAll();
+				}
 			}
 		}
 		
@@ -167,7 +209,7 @@ package egg82.base {
 			});
 			
 			_loadedFiles++;
-			setLoadedFiles(_loadedFiles + _decodedFiles, _totalFiles + _totalDecodeFiles);
+			setLoaded(_loadedFiles + _decodedFiles, _totalFiles + _totalDecodeFiles);
 			
 			if (currentFile < _totalFiles - 1) {
 				currentFile++;
@@ -222,7 +264,7 @@ package egg82.base {
 			});
 			
 			_decodedFiles++;
-			setLoadedFiles(_loadedFiles + _decodedFiles, _totalFiles + _totalDecodeFiles);
+			setLoaded(_loadedFiles + _decodedFiles, _totalFiles + _totalDecodeFiles);
 			
 			if (_loadedFiles == _totalFiles && _decodedFiles == _totalDecodeFiles) {
 				dispatch(BaseLoadingStateEvent.COMPLETE);

@@ -20,32 +20,21 @@
  * THE SOFTWARE.
  */
 
-package egg82.engines.interfaces {
-	import flash.utils.ByteArray;
+package egg82.patterns.interfaces {
 	
 	/**
 	 * ...
 	 * @author egg82
 	 */
 	
-	public interface IAudioEngine {
+	public interface IComponent {
 		//vars
 		
 		//constructor
 		
 		//public
-		function initialize():void;
-		
-		function setAudio(name:String, fileType:String, audioType:String, data:ByteArray):void;
-		function getAudio(name:String):ByteArray;
-		function removeAudio(name:String):void;
-		
-		function playAudio(name:String, repeat:Boolean = false):void;
-		function pauseAudio(name:String):void;
-		function stopAudio(name:String):void;
-		function setAudioPosition(name:String, position:Number):void;
-		
-		function resetVolumes():void;
+		function create():void;
+		function destroy():void;
 		
 		//private
 		

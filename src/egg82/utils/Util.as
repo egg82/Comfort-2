@@ -214,6 +214,16 @@ package egg82.utils {
 			return retArr;
 		}
 		
+		public static function toArray(iterable:*):Array {
+			var retArr:Array = new Array();
+			
+			for each (var elem:* in iterable) {
+				retArr.push(elem);
+			}
+			
+			return retArr;
+		}
+		
 		//private
 		private static function onTimer(e:TimerEvent):void {
 			for (var i:uint = 0; i < timers.length; i++) {

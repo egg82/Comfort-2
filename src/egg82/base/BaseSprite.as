@@ -140,6 +140,8 @@ package egg82.base {
 			return (_valid) ? _GRAPHICS : null;
 		}
 		
+		
+		
 		//private
 		protected function dispatch(event:String, data:Object = null):void {
 			Observer.dispatch(OBSERVERS, this, event, data);

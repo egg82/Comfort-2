@@ -1,18 +1,19 @@
 package objects {
-	import egg82.custom.CustomAtlasImage;
-	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
-	import egg82.events.custom.CustomAtlasImageEvent;
+	import egg82.enums.ServiceType;
 	import egg82.patterns.Observer;
 	import egg82.patterns.prototype.interfaces.IPrototype;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.interfaces.IRegistryUtil;
 	import egg82.registry.RegistryUtil;
+	import egg82.utils.Util;
+	import enums.CustomServiceType;
 	import nape.geom.Vec2;
 	import nape.phys.BodyType;
-	import objects.base.BasePolyPhysicsObject;
+	import objects.graphics.GraphicsComponent;
 	import objects.interfaces.ITriggerable;
+	import objects.physics.PhysicsComponent;
 	import physics.IPhysicsData;
 	
 	/**
@@ -20,39 +21,37 @@ package objects {
 	 * @author Alex
 	 */
 	
-	public class Bullet extends BasePolyPhysicsObject implements IPrototype, ITriggerable {
+	public class Bullet extends BaseObject implements IPrototype {
 		//vars
-		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
-		private var physicsRegistry:IRegistry = ServiceLocator.getService("physicsRegistry") as IRegistry;
+		private var physicsRegistry:IRegistry = ServiceLocator.getService(CustomServiceType.PHYSICS_REGISTRY) as IRegistry;
+		private var registryUtil:IRegistryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
 		
-		private var customAtlasImageObserver:Observer = new Observer();
 		private var registryUtilObserver:Observer = new Observer();
 		
 		private var gameType:String;
 		
 		//constructor
-		public function Bullet(gameType:String, triggerCallback:Function) {
+		public function Bullet(gameType:String) {
 			this.gameType = gameType;
-			this.triggerCallback = triggerCallback;
-			
-			customAtlasImageObserver.add(onCustomAtlasImageObserverNotify);
-			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
 			
 			registryUtilObserver.add(onRegistryUtilObserverNotify);
 			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType), physicsRegistry.getRegister("bullet_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData, 0);
+			physicsComponent = new PhysicsComponent(BodyType.DYNAMIC);
+			graphicsComponent = new GraphicsComponent(gameType, "bullet", 0.6, 0, 316);
 			
-			body.allowRotation = false;
-			body.allowMovement = true;
-			body.scaleShapes(0.6, 0.6);
-			body.translateShapes(Vec2.weak(0, -168));
-			body.isBullet = true;
+			physicsComponent.setShapes(Util.toArray((physicsRegistry.getRegister("bullet_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData).getPolygons()));
+			
+			physicsComponent.body.allowRotation = true;
+			physicsComponent.body.allowMovement = true;
+			physicsComponent.body.isBullet = true;
+			
+			physicsComponent.body.translateShapes(Vec2.weak(0, -168));
 		}
 		
 		//public
 		public function clone():IPrototype {
-			var c:Bullet = new Bullet(gameType, triggerCallback);
+			var c:Bullet = new Bullet(gameType);
 			c.create();
 			return c;
 		}
@@ -64,25 +63,6 @@ package objects {
 		}
 		
 		//private
-		private function onCustomAtlasImageObserverNotify(sender:Object, event:String, data:Object):void {
-			if (sender !== this) {
-				return;
-			}
-			
-			Observer.remove(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
-			
-			if (event == CustomAtlasImageEvent.COMPLETE) {
-				setTextureFromName("bullet");
-			} else if (event == CustomAtlasImageEvent.ERROR) {
-				
-			}
-			
-			scaleX = scaleY = 0.6;
-			
-			alignPivot();
-			this.pivotY = 316;
-		}
-		
 		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
 			if (data.registry == "optionsRegistry") {
 				checkOptions(data.type as String, data.name as String, data.value as Object);
@@ -90,7 +70,10 @@ package objects {
 		}
 		private function checkOptions(type:String, name:String, value:Object):void {
 			if (type == OptionsRegistryType.PHYSICS && name == "shapeQuality") {
-				updateBody(physicsRegistry.getRegister("sentry_" + (value as String)) as IPhysicsData);
+				physicsComponent.setShapes(Util.toArray((physicsRegistry.getRegister("bullet_" + (value as String)) as IPhysicsData).getPolygons()));
+				physicsComponent.body.translateShapes(Vec2.weak(0, -168));
+			} else if (type == OptionsRegistryType.VIDEO && name == "textureQuality") {
+				graphicsComponent.resetTexture();
 			}
 		}
 	}

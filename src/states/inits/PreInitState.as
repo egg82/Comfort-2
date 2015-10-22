@@ -1,7 +1,9 @@
 package states.inits {
 	import com.newgrounds.API;
+	import com.newgrounds.APIEvent;
 	import egg82.base.BasePreInitState;
 	import egg82.engines.interfaces.IStateEngine;
+	import egg82.engines.nulls.NullAudioEngine;
 	import egg82.engines.nulls.NullModEngine;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.MouseCodes;
@@ -60,6 +62,11 @@ package states.inits {
 		[Embed(source = "../../../res/font/speech.ttf", fontName = "speech", mimeType = "application/x-font", fontWeight = "normal", fontStyle = "normal", unicodeRange = "U+0020-U+007e", advancedAntiAliasing = "true", embedAsCFF = "false")]
 		private static var SPEECH:Class;
 		
+		private var retry:uint = 0;
+		
+		private var id:String = "36550:7oMQaUng";
+		private var key:String = "6eJ8M5kiQGj9mZIDIXs2C1i3ouERVw23";
+		
 		//constructor
 		public function PreInitState() {
 			
@@ -72,10 +79,12 @@ package states.inits {
 			//INIT_REGISTRY.setRegister("debug", false);
 			/*INIT_REGISTRY.setRegister("memoryHandicap", null);
 			(INIT_REGISTRY.getRegister("cpuHandicap") as Timer).stop();*/
+			ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, NullAudioEngine);
 			
 			NetUtil.loadExactPolicyFile("https://egg82.ninja/crossdomain.xml");
 			API.debugMode = (INIT_REGISTRY.getRegister("debug") as Boolean) ? API.DEBUG_MODE_LOGGED_OUT : API.RELEASE_MODE;
-			API.connect(Starling.all[0].nativeOverlay, "36550:7oMQaUng", "6eJ8M5kiQGj9mZIDIXs2C1i3ouERVw23");
+			API.addEventListener(APIEvent.ERROR_TIMED_OUT, onConnectError);
+			API.connect(Starling.all[0].nativeOverlay, id, key);
 			
 			stateEngine.skipMultiplePhysicsUpdate = true;
 			
@@ -175,6 +184,14 @@ package states.inits {
 		}
 		
 		//private
-		
+		private function onConnectError(e:APIEvent):void {
+			if (e.success || retry >= REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "maxRetry")) {
+				API.removeEventListener(APIEvent.ERROR_TIMED_OUT, onConnectError);
+			} else {
+				retry++;
+				API.disconnect();
+				API.connect(Starling.all[0].nativeOverlay, id, key);
+			}
+		}
 	}
 }

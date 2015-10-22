@@ -1,5 +1,5 @@
 package objects.interfaces {
-	import objects.base.BasePhysicsObject;
+	import objects.BaseObject;
 	
 	/**
 	 * ...
@@ -12,7 +12,7 @@ package objects.interfaces {
 		//constructor
 		
 		//public
-		function trigger(hitObj:BasePhysicsObject):void;
+		function trigger(hitObj:BaseObject):void;
 		
 		//private
 		

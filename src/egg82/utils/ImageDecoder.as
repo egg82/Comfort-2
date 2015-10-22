@@ -45,8 +45,12 @@ package egg82.utils {
 		
 		private var loader:Loader;
 		private var _file:String;
+		private var _isLoading:Boolean = false;
 		
 		private var context:LoaderContext;
+		
+		private var _loadedBytes:Number = 0;
+		private var _totalBytes:Number = 0;
 		
 		//constructor
 		public function ImageDecoder() {
@@ -55,8 +59,14 @@ package egg82.utils {
 		
 		//public
 		public function decode(bytes:ByteArray, file:String = ""):void {
+			if (_isLoading) {
+				return;
+			}
+			
 			loader = new Loader();
 			_file = file;
+			_loadedBytes = 0;
+			_totalBytes = 0;
 			
 			if (!_file) {
 				_file = "";
@@ -71,11 +81,19 @@ package egg82.utils {
 			loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
 			
+			_isLoading = true;
+			
 			loader.loadBytes(bytes, context);
 		}
 		public function load(file:String):void {
+			if (_isLoading) {
+				return;
+			}
+			
 			loader = new Loader();
 			_file = file;
+			_loadedBytes = 0;
+			_totalBytes = 0;
 			
 			context = new LoaderContext();
 			context.imageDecodingPolicy = ImageDecodingPolicy.ON_LOAD;
@@ -86,11 +104,34 @@ package egg82.utils {
 			loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, onProgress);
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
 			
+			_isLoading = true;
+			
 			loader.load(new URLRequest(file), context);
 		}
 		
 		public function get file():String {
 			return _file;
+		}
+		public function isLoading():Boolean {
+			return _isLoading;
+		}
+		
+		public function get loadedBytes():Number {
+			return _loadedBytes;
+		}
+		public function get totalBytes():Number {
+			return _totalBytes;
+		}
+		
+		public function cancel():void {
+			if (!_isLoading) {
+				return;
+			}
+			
+			_file = "";
+			loader.close();
+			
+			_isLoading = false;
 		}
 		
 		//private
@@ -101,6 +142,8 @@ package egg82.utils {
 			loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
 			
+			_isLoading = false;
+			
 			dispatch(ImageDecoderEvent.ERROR, e.text);
 		}
 		private function onIOError(e:IOErrorEvent):void {
@@ -109,6 +152,8 @@ package egg82.utils {
 			loader.contentLoaderInfo.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
 			loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
+			
+			_isLoading = false;
 			
 			dispatch(ImageDecoderEvent.ERROR, e.text);
 		}
@@ -119,10 +164,14 @@ package egg82.utils {
 			loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
 			
+			_isLoading = false;
+			
 			dispatch(ImageDecoderEvent.ERROR, e.text);
 		}
 		
 		private function onProgress(e:ProgressEvent):void {
+			_loadedBytes = e.bytesLoaded;
+			_totalBytes = e.bytesTotal;
 			dispatch(ImageDecoderEvent.PROGRESS, {
 				"loaded": e.bytesLoaded,
 				"total": e.bytesTotal
@@ -135,6 +184,8 @@ package egg82.utils {
 			loader.contentLoaderInfo.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
 			loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS, onProgress);
 			loader.contentLoaderInfo.removeEventListener(Event.COMPLETE, onComplete);
+			
+			_isLoading = false;
 			
 			dispatch(ImageDecoderEvent.COMPLETE, (loader.content as Bitmap).bitmapData);
 		}

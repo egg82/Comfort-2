@@ -1,33 +1,76 @@
 package objects {
+	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
+	import egg82.patterns.Observer;
 	import egg82.patterns.prototype.interfaces.IPrototype;
-	import enums.objects.StarType;
-	import objects.base.BaseStarPhysicsObject;
-	import objects.interfaces.ITriggerable;
-	
+	import egg82.patterns.ServiceLocator;
+	import egg82.registry.interfaces.IRegistry;
+	import egg82.registry.interfaces.IRegistryUtil;
+	import egg82.registry.RegistryUtil;
+	import egg82.utils.Util;
+	import enums.CustomServiceType;
+	import nape.phys.BodyType;
+	import objects.graphics.GraphicsComponent;
+	import objects.physics.PhysicsComponent;
+	import physics.IPhysicsData;
 	/**
 	 * ...
 	 * @author Alex
 	 */
 	
-	public class ReinforcementStar extends BaseStarPhysicsObject implements IPrototype, ITriggerable {
+	public class ReinforcementStar extends BaseObject implements IPrototype {
 		//vars
+		private var physicsRegistry:IRegistry = ServiceLocator.getService(CustomServiceType.PHYSICS_REGISTRY) as IRegistry;
+		private var registryUtil:IRegistryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
+		
+		private var registryUtilObserver:Observer = new Observer();
+		
 		private var gameType:String;
 		
 		//constructor
-		public function ReinforcementStar(gameType:String, triggerCallback:Function) {
+		public function ReinforcementStar(gameType:String) {
 			this.gameType = gameType;
-			this.triggerCallback = triggerCallback;
-			super(gameType, StarType.REINFORCEMENT, -1.5);
+			
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
+			
+			physicsComponent = new PhysicsComponent(BodyType.DYNAMIC);
+			graphicsComponent = new GraphicsComponent(gameType, "star_reinforcement", 0.6, 0, 3);
+			
+			physicsComponent.setShapes(Util.toArray((physicsRegistry.getRegister("star_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData).getPolygons()));
+			
+			physicsComponent.body.allowRotation = true;
+			physicsComponent.body.allowMovement = true;
+			physicsComponent.body.isBullet = false;
+			
+			physicsComponent.body.applyAngularImpulse(500);
 		}
 		
 		//public
 		public function clone():IPrototype {
-			var c:ReinforcementStar = new ReinforcementStar(gameType, triggerCallback);
+			var c:ReinforcementStar = new ReinforcementStar(gameType);
 			c.create();
 			return c;
 		}
 		
-		//private
+		override public function destroy():void {
+			Observer.remove(RegistryUtil.OBSERVERS, registryUtilObserver);
+			
+			super.destroy();
+		}
 		
+		//private
+		private function onRegistryUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (data.registry == "optionsRegistry") {
+				checkOptions(data.type as String, data.name as String, data.value as Object);
+			}
+		}
+		private function checkOptions(type:String, name:String, value:Object):void {
+			if (type == OptionsRegistryType.PHYSICS && name == "shapeQuality") {
+				physicsComponent.setShapes(Util.toArray((physicsRegistry.getRegister("star_" + (value as String)) as IPhysicsData).getPolygons()));
+			} else if (type == OptionsRegistryType.VIDEO && name == "textureQuality") {
+				graphicsComponent.resetTexture();
+			}
+		}
 	}
 }

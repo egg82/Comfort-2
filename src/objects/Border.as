@@ -1,26 +1,30 @@
 package objects {
-	import nape.phys.Body;
 	import nape.phys.BodyType;
 	import nape.shape.Polygon;
-	import objects.base.BasePhysicsObject;
+	import objects.physics.PhysicsComponent;
 	
 	/**
 	 * ...
 	 * @author Alex
 	 */
 	
-	public class Border extends BasePhysicsObject {
+	public class Border extends BaseObject {
 		//vars
 		
 		//constructor
 		public function Border(width:uint, height:uint) {
-			var body:Body = new Body(BodyType.STATIC);
-			body.shapes.add(new Polygon(Polygon.rect(-40, 0, width + 80, -40)));
-			body.shapes.add(new Polygon(Polygon.rect(0, 0, -40, height)));
-			body.shapes.add(new Polygon(Polygon.rect(width, 0, 40, height)));
-			body.shapes.add(new Polygon(Polygon.rect(-40, height, width + 80, 40)));
+			physicsComponent = new PhysicsComponent(BodyType.STATIC);
 			
-			super("null", null, body, 0);
+			physicsComponent.setShapes([
+				new Polygon(Polygon.rect(-40, 0, width + 80, -40)),
+				new Polygon(Polygon.rect(0, 0, -40, height)),
+				new Polygon(Polygon.rect(width, 0, 40, height)),
+				new Polygon(Polygon.rect(-40, height, width + 80, 40))
+			]);
+			
+			physicsComponent.body.allowRotation = false;
+			physicsComponent.body.allowMovement = false;
+			physicsComponent.body.isBullet = false;
 		}
 		
 		//public
