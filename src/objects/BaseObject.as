@@ -46,20 +46,19 @@ package objects {
 		public function create():void {
 			if (physicsComponent) {
 				physicsComponent.body.userData.parent = this;
+				physicsComponent.create();
 			}
-			
-			TweenMax.from(this, 0.75, {
-				"scale": 0,
-				"ease": Elastic.easeOut
-			});
+			if (graphicsComponent) {
+				graphicsComponent.create();
+			}
 			
 			dispatch(BaseObjectEvent.CREATE);
 		}
 		
 		public function draw():void {
 			if (graphicsComponent && physicsComponent) {
-				graphicsComponent.x = physicsComponent.body.position.x;
-				graphicsComponent.y = physicsComponent.body.position.y;
+				graphicsComponent.x = physicsComponent.body.worldCOM.x - 168;
+				graphicsComponent.y = physicsComponent.body.worldCOM.y - 168;
 				graphicsComponent.rotation = physicsComponent.body.rotation;
 			}
 		}
@@ -69,6 +68,10 @@ package objects {
 				physicsComponent.body.rotation = 0;
 				physicsComponent.body.angularVel = 0;
 				physicsComponent.body.velocity = Vec2.weak(0, 0);
+				physicsComponent.destroy();
+			}
+			if (graphicsComponent) {
+				graphicsComponent.destroy();
 			}
 			
 			scale = 1;
@@ -85,9 +88,6 @@ package objects {
 			}
 			
 			_scale = val;
-			if (physicsComponent) {
-				physicsComponent.scale = _scale;
-			}
 			if (graphicsComponent) {
 				graphicsComponent.scale = _scale;
 			}
@@ -101,20 +101,8 @@ package objects {
 				"onCompleteParams": [BaseObjectEvent.TWEEN_FINISHED]
 			});
 		}
-		public function tweenDestroy(duration:Number = 0.75):void {
-			TweenMax.to(this, duration, {
-				"scale": 0,
-				"ease": Elastic.easeOut,
-				"onComplete": tweenDestroyInternal
-			});
-		}
 		
 		//private
-		private function tweenDestroyInternal():void {
-			dispatch(BaseObjectEvent.TWEEN_FINISHED);
-			destroy();
-		}
-		
 		protected function dispatch(event:String, data:Object = null):void {
 			Observer.dispatch(OBSERVERS, this, event, data);
 		}

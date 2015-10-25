@@ -28,6 +28,13 @@ package objects.physics {
 		}
 		
 		//public
+		public function create():void {
+			
+		}
+		public function destroy():void {
+			
+		}
+		
 		public function get body():Body {
 			return _body;
 		}

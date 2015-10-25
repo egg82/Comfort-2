@@ -160,9 +160,6 @@ package egg82.custom {
 			}
 			
 			dispose();
-			//registryUtil.setAtlas(url, null);
-			//registryUtil.addXML(xmlUrl, null);
-			//RegTextures.disposeBMD(name);
 		}
 		
 		public function load(url:String, xmlUrl:String = null, atlasRows:uint = 0, atlasCols:uint = 0):void {

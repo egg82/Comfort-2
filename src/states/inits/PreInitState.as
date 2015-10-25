@@ -19,6 +19,7 @@ package states.inits {
 	import enums.AudioQualityType;
 	import enums.CustomOptionsRegistryType;
 	import enums.CustomServiceType;
+	import enums.DifficultyType;
 	import enums.GameType;
 	import enums.ShapeQualityType;
 	import enums.TextureQualityType;
@@ -81,6 +82,8 @@ package states.inits {
 			(INIT_REGISTRY.getRegister("cpuHandicap") as Timer).stop();*/
 			ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, NullAudioEngine);
 			
+			ServiceLocator.provideService(CustomServiceType.GAME_OPTIONS_REGISTRY, Registry);
+			
 			NetUtil.loadExactPolicyFile("https://egg82.ninja/crossdomain.xml");
 			API.debugMode = (INIT_REGISTRY.getRegister("debug") as Boolean) ? API.DEBUG_MODE_LOGGED_OUT : API.RELEASE_MODE;
 			API.addEventListener(APIEvent.ERROR_TIMED_OUT, onConnectError);
@@ -119,15 +122,40 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
 			
 			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
-			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.LOW);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.HIGH);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "musicQuality", AudioQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "ambientQuality", AudioQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "sfxQuality", AudioQualityType.ULTRA);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire", false);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty", 1);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.KEYS, "fire", [MouseCodes.LEFT]);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.CONTROLLER, "fire", [XboxButtonCodes.A]);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire", false);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty", DifficultyType.MEDIUM);
+			
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "health", 4);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "fireRate", 750);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "remedySpawnRate", 10000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "remedySpawnChance", 0.025);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "remedyTime", 6000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "remedyPower", 4);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceSpawnRate", 10000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceSpawnChance", 0.025);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceTime", 6000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforcePower", 4);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefSpawnRate", 10000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefSpawnChance", 0.05);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefPower", 1);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressSpawnRate", 5000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressSpawnChance", 0.25);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressPower", 1);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "shieldedStressSpawnRate", 12000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "shieldedStressSpawnChance", 0.15);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "shieldedStressPower", 1);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "explosiveStressSpawnRate", 11000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "explosiveStressSpawnChance", 0.1);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "explosiveStressPower", 1);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "clusterStressNumber", 8);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "clusterStressPower", 0.15);
 			
 			var fileHosts:Array = REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "fileHosts");
 			var length:uint = fileHosts.length - 1;

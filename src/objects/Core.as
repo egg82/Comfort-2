@@ -26,7 +26,7 @@ package objects {
 			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			physicsComponent = new PhysicsComponent(BodyType.STATIC);
-			graphicsComponent = new GraphicsComponent(gameType, "core", 0.6, 2, 2);
+			graphicsComponent = new GraphicsComponent(gameType, "core", 0.6);
 			
 			physicsComponent.setShapes([new Circle(98)]);
 			

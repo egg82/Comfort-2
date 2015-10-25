@@ -108,6 +108,34 @@ package egg82.intern {
 				playbackStart = wavSoundChannel.position;
 			}
 		}
+		public function stop():void {
+			if (!data || paused) {
+				return;
+			}
+			paused = true;
+			
+			if (sound && soundChannel) {
+				soundChannel.stop();
+				playbackStart = 0;
+			} else if (wavSound && wavSoundChannel) {
+				wavSoundChannel.stop();
+				playbackStart = 0;
+			}
+		}
+		public function setPosition(val:Number):void {
+			if (!data) {
+				return;
+			}
+			
+			//stop() sets paused to true, don't try to compact this
+			if (!paused) {
+				stop();
+				playbackStart = val;
+				play();
+			} else {
+				playbackStart = val;
+			}
+		}
 		
 		public function setVolume(val:Number):void {
 			volume = val;

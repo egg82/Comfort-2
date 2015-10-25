@@ -21,10 +21,10 @@ package states.games {
 			});
 			
 			physicsEngine.addBody(paddle1.body);
-			addChild(paddle1);
+			addChild(paddle1.graphics);
 			
 			physicsEngine.addBody(paddle2.body);
-			addChild(paddle2);
+			addChild(paddle2.graphics);
 		}
 		
 		//private

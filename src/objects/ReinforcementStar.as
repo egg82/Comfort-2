@@ -34,8 +34,8 @@ package objects {
 			registryUtilObserver.add(onRegistryUtilObserverNotify);
 			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
-			physicsComponent = new PhysicsComponent(BodyType.DYNAMIC);
-			graphicsComponent = new GraphicsComponent(gameType, "star_reinforcement", 0.6, 0, 3);
+			physicsComponent = new PhysicsComponent(BodyType.DYNAMIC, 0.6);
+			graphicsComponent = new GraphicsComponent(gameType, "star_reinforcement", 0.6);
 			
 			physicsComponent.setShapes(Util.toArray((physicsRegistry.getRegister("star_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData).getPolygons()));
 			

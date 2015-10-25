@@ -154,6 +154,32 @@ package egg82.engines {
 			
 			audio.pause();
 		}
+		public function stopAudio(name:String):void {
+			var audio:Audio = null;
+			
+			audio = getAudioFromPool(name, mp3AudioPool);
+			if (!audio) {
+				audio = getAudioFromPool(name, wavAudioPool);
+			}
+			if (!audio) {
+				return;
+			}
+			
+			audio.stop();
+		}
+		public function setAudioPosition(name:String, position:Number):void {
+			var audio:Audio = null;
+			
+			audio = getAudioFromPool(name, mp3AudioPool);
+			if (!audio) {
+				audio = getAudioFromPool(name, wavAudioPool);
+			}
+			if (!audio) {
+				return;
+			}
+			
+			audio.setPosition(position);
+		}
 		
 		public function resetVolumes():void {
 			var i:uint;

@@ -1,5 +1,6 @@
 package states.games {
 	import com.greensock.easing.Elastic;
+	import com.greensock.easing.Expo;
 	import com.greensock.easing.Quart;
 	import com.greensock.easing.RoughEase;
 	import com.greensock.TweenMax;
@@ -44,8 +45,10 @@ package states.games {
 	import objects.Sentry;
 	import objects.ShieldedStressBall;
 	import objects.StressBall;
+	import states.components.CollisionComponent;
 	import states.components.PoolComponent;
 	import states.components.RegistryComponent;
+	import states.components.TimerComponent;
 	import states.LoseState;
 	
 	/**
@@ -61,8 +64,8 @@ package states.games {
 		
 		private var registryComponent:RegistryComponent;
 		private var poolComponent:PoolComponent;
-		
-		private var physicsEngineObserver:Observer = new Observer();
+		private var timerComponent:TimerComponent;
+		private var collisionComponent:CollisionComponent;
 		
 		private var gameType:String;
 		
@@ -72,12 +75,6 @@ package states.games {
 		protected var paddle1:Paddle;
 		protected var paddle2:Paddle;
 		protected var sentry:Sentry;
-		
-		private var impulseTimer:Timer = new Timer(100);
-		private var unstuckTimer:Timer = new Timer(1000);
-		private var speedTimer:Timer = new Timer(250);
-		protected var fireTimer:Timer = new Timer(750, 1);
-		private var _canFire:Boolean = false;
 		
 		//constructor
 		public function BaseGameState() {
@@ -96,17 +93,23 @@ package states.games {
 				throw new Error("gameType cannot be null.");
 			}
 			
-			physicsEngine.resize();
-			
-			registryComponent = new RegistryComponent();
+			registryComponent = new RegistryComponent(gameType);
 			registryComponent.create();
 			poolComponent = new PoolComponent(gameType);
 			poolComponent.create();
+			timerComponent = new TimerComponent(spawn, poolComponent, registryComponent);
+			timerComponent.create();
+			collisionComponent = new CollisionComponent(onCollide);
+			collisionComponent.create();
 			
-			background = new CustomImage(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType + "_background"));
+			physicsEngine.resize();
+			
+			background = new CustomImage(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, registryComponent.textureQuality + "_" + gameType + "_background"));
 			background.create();
 			background.width = stage.stageWidth;
 			background.height = stage.stageHeight;
+			background.x = -166;
+			background.y = -166;
 			addChild(background);
 			
 			border = new Border(stage.stageWidth, stage.stageHeight);
@@ -114,7 +117,7 @@ package states.games {
 			border.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
 			physicsEngine.addBody(border.body);
 			
-			core = new Core(gameType, health);
+			core = new Core(gameType, registryComponent.health);
 			core.create();
 			core.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
 			physicsEngine.addBody(core.body);
@@ -130,26 +133,12 @@ package states.games {
 			sentry.create();
 			sentry.body.position.setxy(stage.stageWidth / 2, stage.stageHeight / 2);
 			
-			physicsEngineObserver.add(onPhysicsEngineObserverNotify);
-			Observer.add(PhysicsEngine.OBSERVERS, physicsEngineObserver);
-			
-			audioEngine.playAudio(musicQuality + "_music_" + gameType);
-			
-			impulseTimer.addEventListener(TimerEvent.TIMER, onImpulseTimer);
-			impulseTimer.start();
-			
-			unstuckTimer.addEventListener(TimerEvent.TIMER, onUnstuckTimer);
-			unstuckTimer.start();
-			
-			speedTimer.addEventListener(TimerEvent.TIMER, onSpeedTimer);
-			speedTimer.start();
-			
-			fireTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onFireTimer);
+			audioEngine.playAudio(registryComponent.musicQuality + "_music_" + gameType);
 			
 			alignPivot();
 			x = stage.stageWidth / 2;
 			y = stage.stageHeight / 2;
-			shake(5, 3);
+			//shake(5, 3);
 		}
 		
 		override public function update(deltaTime:Number):void {
@@ -158,54 +147,173 @@ package states.games {
 				paddle1.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + 1.5708;
 				paddle2.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + Math.PI + 1.5708;
 			} else {
-				if (inputEngine.getStickProperties(0, 0).y > controllerDeadZone) {
+				if (inputEngine.getStickProperties(0, 0).y > registryComponent.controllerDeadZone) {
 					sentry.body.rotation = inputEngine.getStickProperties(0, 0).x + 1.5708;
 					paddle1.body.rotation = inputEngine.getStickProperties(0, 0).x + 1.5708;
 					paddle2.body.rotation = inputEngine.getStickProperties(0, 0).x + Math.PI + 1.5708;
-				} else if (inputEngine.getStickProperties(0, 1).y > controllerDeadZone) {
+				} else if (inputEngine.getStickProperties(0, 1).y > registryComponent.controllerDeadZone) {
 					sentry.body.rotation = inputEngine.getStickProperties(0, 1).x + 1.5708;
 					paddle1.body.rotation = inputEngine.getStickProperties(0, 1).x + 1.5708;
 					paddle2.body.rotation = inputEngine.getStickProperties(0, 1).x + Math.PI + 1.5708;
 				}
 			}
 			
-			if (_canFire && (inputEngine.isMouseDown(fireKeys) || inputEngine.isKeysDown(fireKeys) || inputEngine.isButtonsDown(0, fireButtons) || autoFire)) {
+			if (timerComponent.canFire && (inputEngine.isMouseDown(registryComponent.fireKeys) || inputEngine.isKeysDown(registryComponent.fireKeys) || inputEngine.isButtonsDown(0, registryComponent.fireButtons) || registryComponent.autoFire)) {
 				spawnBullet();
 			}
 		}
+		override public function draw():void {
+			core.draw();
+			paddle1.draw();
+			paddle2.draw();
+			sentry.draw();
+			
+			poolComponent.draw();
+			
+			super.draw();
+		}
 		
 		override public function destroy():void {
-			Observer.remove(PhysicsEngine.OBSERVERS, physicsEngineObserver);
-			
 			registryComponent.destroy();
 			poolComponent.destroy();
-			
-			speedTimer.stop();
-			unstuckTimer.stop();
-			impulseTimer.stop();
+			timerComponent.destroy();
+			collisionComponent.destroy();
 			
 			physicsEngine.removeAllBodies();
 			
-			audioEngine.stopAudio(musicQuality + "_music_" + gameType);
+			audioEngine.stopAudio(registryComponent.musicQuality + "_music_" + gameType);
 			
 			super.destroy();
 		}
 		
 		//private
-		private function destroyObject(obj:BaseObject):void {
-			removeChild(obj.graphics);
-			physicsEngine.removeBody(obj.body);
+		private function onCollide(obj1:BaseObject, obj2:BaseObject):void {
+			if (obj2 is Core) {
+				if (obj1 is StressBall) {
+					core.health -= registryComponent.stressPower;
+				} else if (obj1 is ShieldedStressBall) {
+					core.health -= registryComponent.shieldedStressPower;
+				} else if (obj1 is ExplosiveStressBall) {
+					core.health -= registryComponent.explosiveStressPower;
+				} else if (obj1 is ClusterStressBall) {
+					core.health -= registryComponent.clusterStressPower;
+				} else if (obj1 is ReliefStar) {
+					core.health += registryComponent.reliefPower;
+				}
+				checkLose();
+			}
 			
-			if (obj is Bullet) {
-				bulletPool.returnObject(obj as IPrototype);
+			if (obj1 is Bullet) {
+				var destroyBullet:Boolean = true;
+				
+				if (obj2 is ClusterStressBall) {
+					destroyBullet = false;
+				}
+				
+				if (destroyBullet) {
+					physicsEngine.removeBody(obj1.body);
+					removeChild(obj1.graphics);
+					obj1.destroy();
+					poolComponent.returnObject(obj1);
+				}
+			} else if (obj1 is RemedyStar) {
+				if (obj2 is Core || obj2 is Bullet) {
+					tweenDestroy(obj1);
+					if (obj2 is Core) {
+						TweenMax.to(physicsEngine, 2, {
+							"speed": physicsEngine.speed / registryComponent.remedyPower,
+							"ease": Expo.easeOut
+						});
+						TweenMax.to(physicsEngine, 2, {
+							"speed": 1,
+							"delay": registryComponent.remedyTime + 2,
+							"ease": Expo.easeIn
+						});
+					}
+				}
+			} else if (obj1 is ReinforcementStar) {
+				if (obj2 is Core || obj2 is Bullet) {
+					tweenDestroy(obj1);
+					if (obj2 is Core) {
+						setFireRateMultiplier(timerComponent.fireRateMultiplier / registryComponent.reinforcePower);
+						TweenMax.delayedCall(registryComponent.reinforceTime, setFireRateMultiplier, [1]);
+						
+						paddle1.tweenScale(registryComponent.reinforcePower);
+						TweenMax.delayedCall(registryComponent.reinforceTime, paddle1.tweenScale, [1]);
+						paddle2.tweenScale(registryComponent.reinforcePower);
+						TweenMax.delayedCall(registryComponent.reinforceTime, paddle2.tweenScale, [1]);
+					}
+				}
+			} else if (obj1 is ReliefStar) {
+				if (obj2 is Core || obj2 is Bullet) {
+					tweenDestroy(obj1);
+				}
+			} else if (obj1 is StressBall) {
+				if (obj2 is Core || obj2 is Bullet) {
+					tweenDestroy(obj1);
+				}
+			} else if (obj1 is ShieldedStressBall) {
+				if (obj2 is Core) {
+					tweenDestroy(obj1);
+				}
+			} else if (obj1 is ExplosiveStressBall) {
+				if (!(obj2 is Border)) {
+					tweenDestroy(obj1);
+					if (!(obj2 is Core)) {
+						for (var i:uint = 0; i < registryComponent.clusterStressNumber; i++) {
+							spawnClusterBall(obj1.body.position.x + FastMath.sin(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.y + FastMath.cos(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.x, obj1.body.position.y);
+						}
+					}
+				}
+			} else if (obj1 is ClusterStressBall) {
+				tweenDestroy(obj1);
 			}
 		}
 		
+		private function spawn(type:Class):void {
+			var obj:BaseObject = poolComponent.getObject(type);
+			
+			if (!obj) {
+				return;
+			}
+			
+			var x:Number;
+			var y:Number;
+			
+			/*do {
+				var good:Boolean = true;
+				
+				x = MathUtil.betterRoundedRandom(20, stage.stageWidth - 20);
+				y = MathUtil.betterRoundedRandom(20, stage.stageHeight - 20);
+				
+				if (x >= stage.stageWidth / 2 - 70 && x <= stage.stageWidth / 2 + 70) {
+					good = false;
+				}
+				if (x >= stage.stageHeight / 2 - 70 && x <= stage.stageHeight / 2 + 70) {
+					good = false;
+				}
+			} while (!good);*/
+			
+			x = MathUtil.betterRoundedRandom(20, stage.stageWidth - 20);
+			y = MathUtil.betterRoundedRandom(20, stage.stageHeight - 20);
+			obj.body.position.setxy(x, y);
+			
+			tweenCreate(obj);
+			
+			var impulse:Vec2 = Vec2.get((stage.stageWidth / 2 - obj.body.worldCOM.x) * -1, (stage.stageHeight / 2 - obj.body.worldCOM.y) * -1);
+			impulse.length = MathUtil.random(10, 20);
+			obj.body.applyImpulse(impulse);
+			if (obj.body.allowRotation) {
+				obj.body.applyAngularImpulse(MathUtil.random(400, 600));
+			}
+			
+			trace("created " + obj);
+		}
+		
 		private function spawnBullet():void {
-			var bullet:Bullet = bulletPool.getObject() as Bullet;
+			var bullet:Bullet = poolComponent.getObject(Bullet) as Bullet;
 			if (bullet) {
-				_canFire = false;
-				fireTimer.start();
+				timerComponent.canFire = false;
 				
 				bullet.body.position.setxy(sentry.body.position.x, sentry.body.position.y);
 				bullet.body.rotation = sentry.body.rotation;
@@ -219,7 +327,7 @@ package states.games {
 			}
 		}
 		private function spawnClusterBall(x:Number, y:Number, centerX:Number, centerY:Number):void {
-			var ball:ClusterStressBall = clusterStressBallPool.getObject() as ClusterStressBall;
+			var ball:ClusterStressBall = poolComponent.getObject(ClusterStressBall) as ClusterStressBall;
 			if (ball) {
 				ball.body.position.setxy(x, y);
 				
@@ -232,168 +340,8 @@ package states.games {
 			}
 		}
 		
-		private function onImpulseTimer(e:TimerEvent):void {
-			for (var i:uint = 0; i < shieldedStressBallPool.usedPool.length; i++) {
-				for (var j:uint = 0; j < physicsEngine.numBodies; j++) {
-					var body1:Body = (shieldedStressBallPool.usedPool[i] as BasePhysicsObject).body;
-					var body2:Body = physicsEngine.getBody(j);
-					
-					if (body1 === body2) {
-						continue;
-					}
-					
-					try {
-						var distance:Number = Geom.distanceBody(body1, body2, Vec2.weak(), Vec2.weak());
-					} catch (ex:Error) {
-						continue;
-					}
-					
-					if (distance <= 70) {
-						var impulse1:Vec2 = Vec2.get(body1.position.x - body2.position.x, body1.position.y - body2.position.y);
-						impulse1.length = 40 - distance;
-						body1.applyImpulse(impulse1);
-						
-						var impulse2:Vec2 = Vec2.get(body2.position.x - body1.position.x, body2.position.y - body1.position.y);
-						impulse2.length = 80 - distance;
-						body2.applyImpulse(impulse2);
-					}
-				}
-			}
-		}
-		private function onUnstuckTimer(e:TimerEvent):void {
-			for (var i:uint = 0; i < physicsEngine.numBodies; i++) {
-				for (var j:uint = 0; j < physicsEngine.numBodies; j++) {
-					if (i == j) {
-						continue;
-					}
-					
-					var body1:Body = physicsEngine.getBody(i);
-					var body2:Body = physicsEngine.getBody(j);
-					
-					if (Geom.intersectsBody(body1, body2)) {
-						var impulse1:Vec2 = Vec2.get(body1.position.x - body2.position.x, body1.position.y - body2.position.y);
-						impulse1.length = 25;
-						body1.applyImpulse(impulse1);
-						
-						var impulse2:Vec2 = Vec2.get(body2.position.x - body1.position.x, body2.position.y - body1.position.y);
-						impulse2.length = 25;
-						body2.applyImpulse(impulse2);
-					}
-				}
-			}
-		}
-		private function onSpeedTimer(e:TimerEvent):void {
-			for (var i:uint = 0; i < physicsEngine.numBodies; i++) {
-				var body:Body = physicsEngine.getBody(i);
-				
-				if (body.type != BodyType.DYNAMIC) {
-					continue;
-				}
-				
-				if (body.userData.parent is Bullet) {
-					continue;
-				}
-				
-				if (body.velocity.length > 300) {
-					body.velocity.length = 300;
-				} else if (body.velocity.length < 200) {
-					body.velocity.length = 200;
-				}
-				
-				if (body.angularVel > 250) {
-					body.angularVel = 250;
-				}
-			}
-		}
-		
-		private function onFireTimer(e:TimerEvent):void {
-			_canFire = true;
-		}
-		
-		private function onPhysicsEngineObserverNotify(sender:Object, event:String, data:Object):void {
-			if (event == PhysicsEngineEvent.COLLIDE) {
-				onCollide(data.body1 as Body, data.body2 as Body);
-			}
-		}
-		private function onCollide(body1:Body, body2:Body):void {
-			if (body1.userData.parent is ITriggerable) {
-				(body1.userData.parent as ITriggerable).trigger(body2.userData.parent as BaseObject);
-			}
-			if (body2.userData.parent is ITriggerable) {
-				(body2.userData.parent as ITriggerable).trigger(body1.userData.parent as BaseObject);
-			}
-		}
-		
-		private function checkHit(body1:BasePhysicsObject, body2:BasePhysicsObject):void {
-			if (body2 is Core) {
-				core.health -= body1.damage;
-				checkLose();
-			}
-			
-			if (body1 is Bullet) {
-				var destroyBullet:Boolean = true;
-				
-				if (body2 is ClusterStressBall) {
-					destroyBullet = false;
-				}
-				
-				if (destroyBullet) {
-					body1.destroy();
-					bulletPool.returnObject(body1 as Bullet);
-				}
-			} else if (body1 is RemedyStar) {
-				if (body2 is Core || body2 is Bullet) {
-					body1.tweenRemove(remedyStarPool.returnObject, [body1]);
-					if (body2 is Core) {
-						TweenMax.to(physicsEngine, 2, {
-							"speed": 0.25
-						});
-						TweenMax.to(physicsEngine, 2, {
-							"speed": 1,
-							"delay": 8
-						});
-					}
-				}
-			} else if (body1 is ReinforcementStar) {
-				if (body2 is Core || body2 is Bullet) {
-					body1.tweenRemove(reinforcementStarPool.returnObject, [body1]);
-				}
-			} else if (body1 is ReliefStar) {
-				if (body2 is Core || body2 is Bullet) {
-					body1.tweenRemove(reliefStarPool.returnObject, [body1]);
-					if (body2 is Core) {
-						setFireTimerDelay(250);
-						TweenMax.delayedCall(6, setFireTimerDelay, [750]);
-						
-						paddle1.tweenResize(4);
-						TweenMax.delayedCall(6, paddle1.tweenResize, [0.25]);
-						paddle2.tweenResize(4);
-						TweenMax.delayedCall(6, paddle2.tweenResize, [0.25]);
-					}
-				}
-				
-			} else if (body1 is StressBall) {
-				if (body2 is Core || body2 is Bullet) {
-					body1.tweenRemove(stressBallPool.returnObject, [body1]);
-				}
-			} else if (body1 is ShieldedStressBall) {
-				if (body2 is Core) {
-					body1.tweenRemove(shieldedStressBallPool.returnObject, [body1]);
-				}
-			} else if (body1 is ExplosiveStressBall) {
-				body1.tweenRemove(explosiveStressBallPool.returnObject, [body1]);
-				if (!(body2 is Core)) {
-					for (var i:uint = 0; i < 8; i++) {
-						spawnClusterBall(body1.body.position.x + FastMath.sin(FastMath.toRadians((i / 8) * 360), true) * 15, body1.body.position.y + FastMath.cos(FastMath.toRadians((i / 8) * 360), true) * 15, body1.body.position.x, body1.body.position.y);
-					}
-				}
-			} else if (body1 is ClusterStressBall) {
-				body1.tweenRemove(clusterStressBallPool.returnObject, [body1]);
-			}
-		}
-		
-		private function setFireTimerDelay(delay:Number):void {
-			fireTimer.delay = delay;
+		private function setFireRateMultiplier(multiplier:Number):void {
+			timerComponent.fireRateMultiplier = multiplier;
 		}
 		
 		private function checkLose():void {
@@ -402,7 +350,32 @@ package states.games {
 			}
 		}
 		
-		public function shake(intensity:Number, duration:Number):void {
+		private function tweenCreate(obj:BaseObject):void {
+			physicsEngine.addBody(obj.body);
+			addChild(obj.graphics);
+			
+			TweenMax.from(obj, 0.75, {
+				"scale": 0,
+				"ease": Elastic.easeOut
+			});
+		}
+		private function tweenDestroy(obj:BaseObject):void {
+			physicsEngine.removeBody(obj.body);
+			
+			TweenMax.to(obj, 0.75, {
+				"scale": 0,
+				"ease": Expo.easeOut,
+				"onComplete": tweenDestroyInternal,
+				"onCompleteParams": [obj]
+			});
+		}
+		private function tweenDestroyInternal(obj:BaseObject):void {
+			removeChild(obj.graphics);
+			obj.destroy();
+			poolComponent.returnObject(obj);
+		}
+		
+		private function shake(intensity:Number, duration:Number):void {
 			var randDuration:Number = MathUtil.random(0.1, 0.2);
 			duration -= randDuration;
 			

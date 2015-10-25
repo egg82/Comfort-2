@@ -70,6 +70,14 @@ package egg82.engines.loggers {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
 			super.pauseAudio(name);
 		}
+		override public function stopAudio(name:String):void {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name]), LogLevel.INFO);
+			super.stopAudio(name);
+		}
+		override public function setAudioPosition(name:String, position:Number):void {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([name, position]), LogLevel.INFO);
+			super.setAudioPosition(name, position);
+		}
 		
 		override public function resetVolumes():void {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this), LogLevel.INFO);

@@ -49,7 +49,7 @@ package states.components {
 			
 			stressBallPool = new DynamicObjectPool("stressBall", new StressBall(gameType));
 			stressBallPool.initialize(3);
-			shieldedStressBallPool = new ObjectPool("shieldedBall", new ShieldedStressBall(gmeType));
+			shieldedStressBallPool = new ObjectPool("shieldedBall", new ShieldedStressBall(gameType));
 			shieldedStressBallPool.initialize(4);
 			explosiveStressBallPool = new ObjectPool("explosiveBall", new ExplosiveStressBall(gameType));
 			explosiveStressBallPool.initialize(4);
@@ -57,7 +57,7 @@ package states.components {
 			clusterStressBallPool.initialize(16);
 			
 			bulletPool = new ObjectPool("bullet", new Bullet(gameType));
-			bulletPool.initialize(6);
+			bulletPool.initialize(4);
 		}
 		public function destroy():void {
 			remedyStarPool.clear();
@@ -69,22 +69,65 @@ package states.components {
 			stressBallPool.clear();
 		}
 		
+		public function getUsedPool(type:Class):Vector.<IPrototype> {
+			if (type == RemedyStar) {
+				return remedyStarPool.usedPool;
+			} else if (type == ReinforcementStar) {
+				return reinforcementStarPool.usedPool;
+			} else if (type == ReliefStar) {
+				return reliefStarPool.usedPool;
+			} else if (type == StressBall) {
+				return stressBallPool.usedPool;
+			} else if (type == ShieldedStressBall) {
+				return shieldedStressBallPool.usedPool;
+			} else if (type == ExplosiveStressBall) {
+				return explosiveStressBallPool.usedPool;
+			} else if (type == ClusterStressBall) {
+				return clusterStressBallPool.usedPool;
+			} else if (type == Bullet) {
+				return bulletPool.usedPool;
+			}
+			
+			return null;
+		}
+		public function getFreePool(type:Class):Vector.<IPrototype> {
+			if (type == RemedyStar) {
+				return remedyStarPool.freePool;
+			} else if (type == ReinforcementStar) {
+				return reinforcementStarPool.freePool;
+			} else if (type == ReliefStar) {
+				return reliefStarPool.freePool;
+			} else if (type == StressBall) {
+				return stressBallPool.freePool;
+			} else if (type == ShieldedStressBall) {
+				return shieldedStressBallPool.freePool;
+			} else if (type == ExplosiveStressBall) {
+				return explosiveStressBallPool.freePool;
+			} else if (type == ClusterStressBall) {
+				return clusterStressBallPool.freePool;
+			} else if (type == Bullet) {
+				return bulletPool.freePool;
+			}
+			
+			return null;
+		}
+		
 		public function getObject(type:Class):BaseObject {
-			if (type is RemedyStar) {
+			if (type == RemedyStar) {
 				return remedyStarPool.getObject() as BaseObject;
-			} else if (type is ReinforcementStar) {
+			} else if (type == ReinforcementStar) {
 				return reinforcementStarPool.getObject() as BaseObject;
-			} else if (type is ReliefStar) {
+			} else if (type == ReliefStar) {
 				return reliefStarPool.getObject() as BaseObject;
-			} else if (type is StressBall) {
+			} else if (type == StressBall) {
 				return stressBallPool.getObject() as BaseObject;
-			} else if (type is ShieldedStressBall) {
+			} else if (type == ShieldedStressBall) {
 				return shieldedStressBallPool.getObject() as BaseObject;
-			} else if (type is ExplosiveStressBall) {
+			} else if (type == ExplosiveStressBall) {
 				return explosiveStressBallPool.getObject() as BaseObject;
-			} else if (type is ClusterStressBall) {
+			} else if (type == ClusterStressBall) {
 				return clusterStressBallPool.getObject() as BaseObject;
-			} else if (type is Bullet) {
+			} else if (type == Bullet) {
 				return bulletPool.getObject() as BaseObject;
 			}
 			
@@ -107,6 +150,35 @@ package states.components {
 				clusterStressBallPool.returnObject(obj as IPrototype);
 			} else if (obj is Bullet) {
 				bulletPool.returnObject(obj as IPrototype);
+			}
+		}
+		
+		public function draw():void {
+			var i:uint;
+			
+			for (i = 0; i < remedyStarPool.usedPool.length; i++) {
+				(remedyStarPool.usedPool[i]["draw"] as Function).call();
+			}
+			for (i = 0; i < reinforcementStarPool.usedPool.length; i++) {
+				(reinforcementStarPool.usedPool[i]["draw"] as Function).call();
+			}
+			for (i = 0; i < reliefStarPool.usedPool.length; i++) {
+				(reliefStarPool.usedPool[i]["draw"] as Function).call();
+			}
+			for (i = 0; i < stressBallPool.usedPool.length; i++) {
+				(stressBallPool.usedPool[i]["draw"] as Function).call();
+			}
+			for (i = 0; i < shieldedStressBallPool.usedPool.length; i++) {
+				(shieldedStressBallPool.usedPool[i]["draw"] as Function).call();
+			}
+			for (i = 0; i < explosiveStressBallPool.usedPool.length; i++) {
+				(explosiveStressBallPool.usedPool[i]["draw"] as Function).call();
+			}
+			for (i = 0; i < clusterStressBallPool.usedPool.length; i++) {
+				(clusterStressBallPool.usedPool[i]["draw"] as Function).call();
+			}
+			for (i = 0; i < bulletPool.usedPool.length; i++) {
+				(bulletPool.usedPool[i]["draw"] as Function).call();
 			}
 		}
 		

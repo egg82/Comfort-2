@@ -22,9 +22,7 @@ package states.games {
 			});
 			
 			physicsEngine.addBody(sentry.body);
-			addChild(sentry);
-			
-			fireTimer.start();
+			addChild(sentry.graphics);
 		}
 		
 		//private

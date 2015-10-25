@@ -58,6 +58,12 @@ package egg82.engines.nulls {
 		public function pauseAudio(name:String):void {
 			
 		}
+		public function stopAudio(name:String):void {
+			
+		}
+		public function setAudioPosition(name:String, position:Number):void {
+			
+		}
 		
 		public function resetVolumes():void {
 			

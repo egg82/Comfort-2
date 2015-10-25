@@ -21,7 +21,7 @@ package states.games {
 			});
 			
 			physicsEngine.addBody(paddle1.body);
-			addChild(paddle1);
+			addChild(paddle1.graphics);
 		}
 		
 		//private

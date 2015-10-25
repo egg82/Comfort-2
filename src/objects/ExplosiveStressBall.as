@@ -36,7 +36,7 @@ package objects {
 			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
 			physicsComponent = new PhysicsComponent(BodyType.DYNAMIC, 0.13);
-			graphicsComponent = new GraphicsComponent(gameType, "ball_explosive", 0.6, 0, 0);
+			graphicsComponent = new GraphicsComponent(gameType, "ball_explosive", 0.6);
 			
 			physicsComponent.setShapes(Util.toArray((physicsRegistry.getRegister("explosion_" + registryUtil.getOption(OptionsRegistryType.PHYSICS, "shapeQuality")) as IPhysicsData).getPolygons()));
 			
