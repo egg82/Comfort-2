@@ -46,10 +46,15 @@ package objects {
 			physicsComponent.body.allowMovement = true;
 			physicsComponent.body.isBullet = true;
 			
-			physicsComponent.body.translateShapes(Vec2.weak(0, -168));
+			setInitialPosition();
 		}
 		
 		//public
+		public function resetPosition():void {
+			physicsComponent.body.position = physicsComponent.body.worldCOM;
+			physicsComponent.body.translateShapes(Vec2.weak(0, 168));
+		}
+		
 		public function clone():IPrototype {
 			var c:Bullet = new Bullet(gameType);
 			c.create();
@@ -58,6 +63,8 @@ package objects {
 		
 		override public function destroy():void {
 			Observer.remove(RegistryUtil.OBSERVERS, registryUtilObserver);
+			
+			setInitialPosition();
 			
 			super.destroy();
 		}
@@ -75,6 +82,10 @@ package objects {
 			} else if (type == OptionsRegistryType.VIDEO && name == "textureQuality") {
 				graphicsComponent.resetTexture();
 			}
+		}
+		
+		private function setInitialPosition():void {
+			physicsComponent.body.translateShapes(Vec2.weak(0, -168));
 		}
 	}
 }

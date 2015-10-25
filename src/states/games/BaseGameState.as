@@ -108,8 +108,8 @@ package states.games {
 			background.create();
 			background.width = stage.stageWidth;
 			background.height = stage.stageHeight;
-			background.x = -166;
-			background.y = -166;
+			background.x = -168;
+			background.y = -168;
 			addChild(background);
 			
 			border = new Border(stage.stageWidth, stage.stageHeight);
@@ -138,7 +138,6 @@ package states.games {
 			alignPivot();
 			x = stage.stageWidth / 2;
 			y = stage.stageHeight / 2;
-			//shake(5, 3);
 		}
 		
 		override public function update(deltaTime:Number):void {
@@ -160,6 +159,7 @@ package states.games {
 			
 			if (timerComponent.canFire && (inputEngine.isMouseDown(registryComponent.fireKeys) || inputEngine.isKeysDown(registryComponent.fireKeys) || inputEngine.isButtonsDown(0, registryComponent.fireButtons) || registryComponent.autoFire)) {
 				spawnBullet();
+				timerComponent.startFireTimer();
 			}
 		}
 		override public function draw():void {
@@ -190,12 +190,16 @@ package states.games {
 		private function onCollide(obj1:BaseObject, obj2:BaseObject):void {
 			if (obj2 is Core) {
 				if (obj1 is StressBall) {
+					shake(1, 1);
 					core.health -= registryComponent.stressPower;
 				} else if (obj1 is ShieldedStressBall) {
+					shake(1, 1);
 					core.health -= registryComponent.shieldedStressPower;
 				} else if (obj1 is ExplosiveStressBall) {
+					shake(1, 1);
 					core.health -= registryComponent.explosiveStressPower;
 				} else if (obj1 is ClusterStressBall) {
+					shake(0.5, 1);
 					core.health -= registryComponent.clusterStressPower;
 				} else if (obj1 is ReliefStar) {
 					core.health += registryComponent.reliefPower;
@@ -210,11 +214,10 @@ package states.games {
 					destroyBullet = false;
 				}
 				
+				trace("destroyBullet: " + destroyBullet);
+				
 				if (destroyBullet) {
-					physicsEngine.removeBody(obj1.body);
-					removeChild(obj1.graphics);
-					obj1.destroy();
-					poolComponent.returnObject(obj1);
+					tweenDestroy(obj1);
 				}
 			} else if (obj1 is RemedyStar) {
 				if (obj2 is Core || obj2 is Bullet) {
@@ -260,6 +263,7 @@ package states.games {
 				if (!(obj2 is Border)) {
 					tweenDestroy(obj1);
 					if (!(obj2 is Core)) {
+						shake(2, 1.5);
 						for (var i:uint = 0; i < registryComponent.clusterStressNumber; i++) {
 							spawnClusterBall(obj1.body.position.x + FastMath.sin(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.y + FastMath.cos(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.x, obj1.body.position.y);
 						}
@@ -280,22 +284,17 @@ package states.games {
 			var x:Number;
 			var y:Number;
 			
-			/*do {
+			do {
 				var good:Boolean = true;
 				
 				x = MathUtil.betterRoundedRandom(20, stage.stageWidth - 20);
 				y = MathUtil.betterRoundedRandom(20, stage.stageHeight - 20);
 				
-				if (x >= stage.stageWidth / 2 - 70 && x <= stage.stageWidth / 2 + 70) {
+				if ((x >= stage.stageWidth / 2 - 70 && x <= stage.stageWidth / 2 + 70) && (y >= stage.stageHeight / 2 - 70 && y <= stage.stageHeight / 2 + 70)) {
 					good = false;
 				}
-				if (x >= stage.stageHeight / 2 - 70 && x <= stage.stageHeight / 2 + 70) {
-					good = false;
-				}
-			} while (!good);*/
+			} while (!good);
 			
-			x = MathUtil.betterRoundedRandom(20, stage.stageWidth - 20);
-			y = MathUtil.betterRoundedRandom(20, stage.stageHeight - 20);
 			obj.body.position.setxy(x, y);
 			
 			tweenCreate(obj);
@@ -323,6 +322,7 @@ package states.games {
 				bullet.body.applyImpulse(impulse);
 				
 				physicsEngine.addBody(bullet.body);
+				bullet.resetPosition();
 				addChild(bullet.graphics);
 			}
 		}
@@ -360,6 +360,8 @@ package states.games {
 			});
 		}
 		private function tweenDestroy(obj:BaseObject):void {
+			trace("tweenDestroy " + obj);
+			
 			physicsEngine.removeBody(obj.body);
 			
 			TweenMax.to(obj, 0.75, {
@@ -376,6 +378,16 @@ package states.games {
 		}
 		
 		private function shake(intensity:Number, duration:Number):void {
+			if (!registryComponent.screenShake) {
+				return;
+			}
+			
+			TweenMax.delayedCall(duration, function():void {
+				x = stage.stageWidth / 2;
+				y = stage.stageHeight / 2;
+				rotation = 0;
+			});
+			
 			var randDuration:Number = MathUtil.random(0.1, 0.2);
 			duration -= randDuration;
 			
@@ -402,8 +414,8 @@ package states.games {
 					this,
 					randDuration,
 					{
-						"x": x + (MathUtil.random(-1, 1) * intensity),
-						"y": y + (MathUtil.random(-1, 1) * intensity),
+						"x": x + (MathUtil.random(-2, 2) * intensity),
+						"y": y + (MathUtil.random(-2, 2) * intensity),
 						"rotation": MathUtil.random(-0.0174533, 0.0174533) * intensity,
 						"ease": Elastic.easeOut
 					}
@@ -412,8 +424,8 @@ package states.games {
 					this,
 					randDuration,
 					{
-						"x": x + (MathUtil.random(-1, 1) * intensity),
-						"y": y + (MathUtil.random(-1, 1) * intensity),
+						"x": x + (MathUtil.random(-2, 2) * intensity),
+						"y": y + (MathUtil.random(-2, 2) * intensity),
 						"rotation": MathUtil.random(-0.0174533, 0.0174533) * intensity,
 						"ease": Elastic.easeOut
 					}

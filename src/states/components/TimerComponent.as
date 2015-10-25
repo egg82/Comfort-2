@@ -66,8 +66,8 @@ package states.components {
 			speedTimer.start();
 			
 			if (registryComponent.gameType == GameType.HORDE) {
-				fireTimer = new Timer(registryComponent.fireRate * _fireRateMultiplier);
-				fireTimer.addEventListener(TimerEvent.TIMER, onFireTimer);
+				fireTimer = new Timer(registryComponent.fireRate * _fireRateMultiplier, 1);
+				fireTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onFireTimer);
 				fireTimer.start();
 			}
 			
@@ -126,6 +126,12 @@ package states.components {
 			}
 			
 			_fireRateMultiplier = val;
+		}
+		
+		public function startFireTimer():void {
+			if (fireTimer) {
+				fireTimer.start();
+			}
 		}
 		
 		//private

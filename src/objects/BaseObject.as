@@ -57,8 +57,8 @@ package objects {
 		
 		public function draw():void {
 			if (graphicsComponent && physicsComponent) {
-				graphicsComponent.x = physicsComponent.body.worldCOM.x - 168;
-				graphicsComponent.y = physicsComponent.body.worldCOM.y - 168;
+				graphicsComponent.x = physicsComponent.body.worldCOM.x - 169;
+				graphicsComponent.y = physicsComponent.body.worldCOM.y - 169;
 				graphicsComponent.rotation = physicsComponent.body.rotation;
 			}
 		}
