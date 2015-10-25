@@ -25,6 +25,7 @@ package egg82.engines {
 	import egg82.enums.MouseCodes;
 	import egg82.enums.OptionsRegistryType;
 	import egg82.enums.XboxButtonCodes;
+	import egg82.enums.XboxStickCodes;
 	import egg82.events.engines.InputEngineEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
@@ -143,6 +144,25 @@ package egg82.engines {
 					return true;
 				}
 			}
+			
+			return false;
+		}
+		//TODO finish isSticksPressed function
+		public function isSticksPressed(controller:uint, stickCodes:Array):Boolean {
+			stickCodes = cleanArray(stickCodes);
+			
+			if (controller >= xboxControllers.length) {
+				return false;
+			}
+			
+			var leftStickAngle:Number = xboxControllers[controller].leftStick.angle * -1;
+			var rightStickAngle:Number = xboxControllers[controller].rightStick.angle * -1;
+			
+			/*for (var i:uint = 0; i < stickCodes.length; i++) {
+				if (stickCodes[i] == XboxStickCodes.LEFT_N) {
+					return true;
+				}
+			}*/
 			
 			return false;
 		}

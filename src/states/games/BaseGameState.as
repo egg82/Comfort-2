@@ -157,7 +157,7 @@ package states.games {
 				}
 			}
 			
-			if (timerComponent.canFire && (inputEngine.isMouseDown(registryComponent.fireKeys) || inputEngine.isKeysDown(registryComponent.fireKeys) || inputEngine.isButtonsDown(0, registryComponent.fireButtons) || registryComponent.autoFire)) {
+			if (timerComponent.canFire && (inputEngine.isMouseDown(registryComponent.fireKeys) || inputEngine.isKeysDown(registryComponent.fireKeys) || inputEngine.isButtonsDown(0, registryComponent.fireButtons) || inputEngine.isSticksPressed(0, registryComponent.fireButtons) || registryComponent.autoFire)) {
 				spawnBullet();
 				timerComponent.startFireTimer();
 			}
@@ -227,7 +227,7 @@ package states.games {
 						});
 						TweenMax.to(physicsEngine, 2, {
 							"speed": 1,
-							"delay": registryComponent.remedyTime + 2,
+							"delay": (registryComponent.remedyTime / 1000) + 2,
 							"ease": Expo.easeIn
 						});
 					}
@@ -237,12 +237,12 @@ package states.games {
 					tweenDestroy(obj1);
 					if (obj2 is Core) {
 						setFireRateMultiplier(timerComponent.fireRateMultiplier / registryComponent.reinforcePower);
-						TweenMax.delayedCall(registryComponent.reinforceTime, setFireRateMultiplier, [1]);
+						TweenMax.delayedCall(registryComponent.reinforceTime / 1000, setFireRateMultiplier, [1]);
 						
 						paddle1.tweenScale(registryComponent.reinforcePower);
-						TweenMax.delayedCall(registryComponent.reinforceTime, paddle1.tweenScale, [1]);
+						TweenMax.delayedCall(registryComponent.reinforceTime / 1000, paddle1.tweenScale, [1]);
 						paddle2.tweenScale(registryComponent.reinforcePower);
-						TweenMax.delayedCall(registryComponent.reinforceTime, paddle2.tweenScale, [1]);
+						TweenMax.delayedCall(registryComponent.reinforceTime / 1000, paddle2.tweenScale, [1]);
 					}
 				}
 			} else if (obj1 is ReliefStar) {

@@ -35,6 +35,7 @@ package egg82.engines.interfaces {
 		
 		function isKeysDown(keyCodes:Array):Boolean;
 		function isButtonsDown(controller:uint, buttonCodes:Array):Boolean;
+		function isSticksPressed(controller:uint, stickCodes:Array):Boolean;
 		
 		function isMouseDown(mouseCodes:Array):Boolean;
 		

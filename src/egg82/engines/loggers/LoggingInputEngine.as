@@ -53,6 +53,11 @@ package egg82.engines.loggers {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([controller, buttonCodes]), LogLevel.INFO);
 			return super.isButtonsDown(controller, buttonCodes);
 		}
+		override public function isSticksPressed(controller:uint, stickCodes:Array):Boolean {
+			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([controller, stickCodes]), LogLevel.INFO);
+			return super.isSticksPressed(controller, stickCodes);
+		}
+		
 		override public function isMouseDown(mouseCodes:Array):Boolean {
 			logger.writeLog("[" + getQualifiedClassName(this) + "] Called " + Util.getFunctionName(arguments.callee, this) + " with params " + JSON.stringify([mouseCodes]), LogLevel.INFO);
 			return super.isMouseDown(mouseCodes);

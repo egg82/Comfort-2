@@ -44,6 +44,9 @@ package egg82.engines.nulls {
 		public function isButtonsDown(controller:uint, buttonCodes:Array):Boolean {
 			return false;
 		}
+		public function isSticksPressed(controller:uint, stickCodes:Array):Boolean {
+			return false;
+		}
 		
 		public function isMouseDown(mouseCodes:Array):Boolean {
 			return false;

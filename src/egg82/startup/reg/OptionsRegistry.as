@@ -24,6 +24,7 @@ package egg82.startup.reg {
 	import egg82.enums.KeyCodes;
 	import egg82.enums.OptionsRegistryType;
 	import egg82.enums.XboxButtonCodes;
+	import egg82.enums.XboxStickCodes;
 	import egg82.registry.Registry;
 	import flash.display.StageQuality;
 	import starling.textures.TextureSmoothing;
@@ -74,10 +75,10 @@ package egg82.startup.reg {
 			//TODO Allow stick positions as button codes
 			setRegister(OptionsRegistryType.CONTROLLER, {
 				"deadZone": 0.05,
-				"up": [XboxButtonCodes.UP],
-				"down": [XboxButtonCodes.DOWN],
-				"left": [XboxButtonCodes.LEFT],
-				"right": [XboxButtonCodes.RIGHT],
+				"up": [XboxButtonCodes.UP, XboxStickCodes.LEFT_N, XboxStickCodes.RIGHT_N],
+				"down": [XboxButtonCodes.DOWN, XboxStickCodes.LEFT_S, XboxStickCodes.RIGHT_S],
+				"left": [XboxButtonCodes.LEFT, XboxStickCodes.LEFT_W, XboxStickCodes.RIGHT_W],
+				"right": [XboxButtonCodes.RIGHT, XboxStickCodes.LEFT_E, XboxStickCodes.RIGHT_E],
 				"continue": [XboxButtonCodes.A, XboxButtonCodes.START],
 				"back": [XboxButtonCodes.B, XboxButtonCodes.BACK]
 			});
