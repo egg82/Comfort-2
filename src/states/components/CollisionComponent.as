@@ -39,6 +39,7 @@ package states.components {
 		}
 		private function onCollide(obj1:BaseObject, obj2:BaseObject):void {
 			collideCallback.apply(null, [obj1, obj2]);
+			collideCallback.apply(null, [obj2, obj1]);
 		}
 	}
 }

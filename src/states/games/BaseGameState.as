@@ -214,8 +214,6 @@ package states.games {
 					destroyBullet = false;
 				}
 				
-				trace("destroyBullet: " + destroyBullet);
-				
 				if (destroyBullet) {
 					tweenDestroy(obj1);
 				}
@@ -305,8 +303,6 @@ package states.games {
 			if (obj.body.allowRotation) {
 				obj.body.applyAngularImpulse(MathUtil.random(400, 600));
 			}
-			
-			trace("created " + obj);
 		}
 		
 		private function spawnBullet():void {
@@ -360,8 +356,6 @@ package states.games {
 			});
 		}
 		private function tweenDestroy(obj:BaseObject):void {
-			trace("tweenDestroy " + obj);
-			
 			physicsEngine.removeBody(obj.body);
 			
 			TweenMax.to(obj, 0.75, {
