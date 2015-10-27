@@ -24,7 +24,7 @@ package states.inits {
 		//vars
 		private var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
 		
-		private var gameType:String = GameType.HORDE;
+		private var gameType:String = GameType.MASK;
 		
 		private var baseLoadingStateObserver:Observer = new Observer();
 		

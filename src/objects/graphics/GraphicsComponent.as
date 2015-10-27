@@ -8,6 +8,7 @@ package objects.graphics {
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistryUtil;
+	import starling.filters.ColorMatrixFilter;
 	
 	/**
 	 * ...
@@ -27,6 +28,9 @@ package objects.graphics {
 		private var _adjustX:Number = 0;
 		private var _adjustY:Number = 0;
 		
+		private var brightnessFilter:ColorMatrixFilter = new ColorMatrixFilter();
+		private var _brightness:Number = 0;
+		
 		//constructor
 		public function GraphicsComponent(gameType:String, textureName:String, origScale:Number = 1, adjustX:Number = 0, adjustY:Number = 0) {
 			this.gameType = gameType;
@@ -43,6 +47,9 @@ package objects.graphics {
 		
 		//public
 		override public function create():void {
+			brightnessFilter.adjustBrightness(_brightness);
+			filter = brightnessFilter;
+			
 			super.create();
 		}
 		override public function destroy():void {
@@ -71,6 +78,20 @@ package objects.graphics {
 			
 			_scale = val;
 			realign();
+		}
+		
+		public function get brightness():Number {
+			return _brightness;
+		}
+		public function set brightness(val:Number):void {
+			if (isNaN(val)) {
+				return;
+			}
+			
+			_brightness = val;
+			brightnessFilter.reset();
+			brightnessFilter.adjustBrightness(_brightness);
+			filter = brightnessFilter;
 		}
 		
 		public function setTextureName(textureName:String):void {

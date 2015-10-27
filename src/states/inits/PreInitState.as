@@ -122,7 +122,7 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
 			
 			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
-			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.LOW);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.HIGH);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "screenShake", true);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "musicQuality", AudioQualityType.ULTRA);
@@ -133,8 +133,11 @@ package states.inits {
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "autoFire", false);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty", DifficultyType.MEDIUM);
 			
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "health", 4);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "health", 6);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "nemesisImpulseRate", 150);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "nemesisImpulseChance", 0.5);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "fireRate", 750);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "minObjects", 2);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "remedySpawnRate", 10000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "remedySpawnChance", 0.025);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "remedyTime", 6000);
@@ -142,21 +145,21 @@ package states.inits {
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceSpawnRate", 10000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceSpawnChance", 0.025);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceTime", 6000);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforcePower", 4);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforcePower", 2);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefSpawnRate", 10000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefSpawnChance", 0.05);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefPower", 1);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressSpawnRate", 5000);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressSpawnRate", 7000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressSpawnChance", 0.25);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressPower", 1);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "stressPower", 0.75);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "shieldedStressSpawnRate", 12000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "shieldedStressSpawnChance", 0.15);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "shieldedStressPower", 1);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "shieldedStressPower", 0.75);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "explosiveStressSpawnRate", 11000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "explosiveStressSpawnChance", 0.1);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "explosiveStressPower", 1);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "clusterStressNumber", 8);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "clusterStressPower", 0.15);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "clusterStressPower", 0.25);
 			
 			var fileHosts:Array = REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "fileHosts");
 			var length:uint = fileHosts.length - 1;
@@ -215,8 +218,10 @@ package states.inits {
 		//private
 		private function onConnectError(e:APIEvent):void {
 			if (e.success || retry >= REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "maxRetry")) {
+				trace("removed");
 				API.removeEventListener(APIEvent.ERROR_TIMED_OUT, onConnectError);
 			} else {
+				trace("retry");
 				retry++;
 				API.disconnect();
 				API.connect(Starling.all[0].nativeOverlay, id, key);

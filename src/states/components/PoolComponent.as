@@ -182,6 +182,19 @@ package states.components {
 			}
 		}
 		
+		public function getNumUsedObjects():uint {
+			var retVal:uint = 0;
+			
+			retVal += remedyStarPool.usedPool.length;
+			retVal += reinforcementStarPool.usedPool.length;
+			retVal += reliefStarPool.usedPool.length;
+			retVal += stressBallPool.usedPool.length;
+			retVal += shieldedStressBallPool.usedPool.length;
+			retVal += explosiveStressBallPool.usedPool.length;
+			
+			return retVal;
+		}
+		
 		//private
 		
 	}

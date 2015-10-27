@@ -1,4 +1,5 @@
 package objects {
+	import com.greensock.easing.Circ;
 	import com.greensock.easing.Elastic;
 	import com.greensock.TweenMax;
 	import egg82.custom.CustomAtlasImage;
@@ -29,6 +30,7 @@ package objects {
 		protected var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
 		
 		private var _scale:Number = 1;
+		private var _brightness:Number = 0;
 		
 		//constructor
 		public function BaseObject() {
@@ -93,10 +95,32 @@ package objects {
 			}
 		}
 		
+		public function get brightness():Number {
+			return _brightness;
+		}
+		public function set brightness(val:Number):void {
+			if (isNaN(val)) {
+				return;
+			}
+			
+			_brightness = val;
+			if (graphicsComponent) {
+				graphicsComponent.brightness = _brightness;
+			}
+		}
+		
 		public function tweenScale(newScale:Number, duration:Number = 0.75):void {
 			TweenMax.to(this, duration, {
 				"scale": newScale,
 				"ease": Elastic.easeOut,
+				"onComplete": dispatch,
+				"onCompleteParams": [BaseObjectEvent.TWEEN_FINISHED]
+			});
+		}
+		public function tweenBrightness(newBrightness:Number, duration:Number = 0.2):void {
+			TweenMax.to(this, duration, {
+				"brightness": newBrightness,
+				"ease": Circ.easeOut,
 				"onComplete": dispatch,
 				"onCompleteParams": [BaseObjectEvent.TWEEN_FINISHED]
 			});

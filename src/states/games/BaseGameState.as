@@ -1,4 +1,5 @@
 package states.games {
+	import com.greensock.easing.Circ;
 	import com.greensock.easing.Elastic;
 	import com.greensock.easing.Expo;
 	import com.greensock.easing.Quart;
@@ -141,6 +142,10 @@ package states.games {
 		}
 		
 		override public function update(deltaTime:Number):void {
+			if (poolComponent.getNumUsedObjects() < registryComponent.minObjects) {
+				timerComponent.spawnObjects(registryComponent.minObjects - poolComponent.getNumUsedObjects());
+			}
+			
 			if (!inputEngine.isUsingController()) {
 				sentry.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + 1.5708;
 				paddle1.body.rotation = FastMath.atan2(inputEngine.mousePosition.y - sentry.body.position.y, inputEngine.mousePosition.x - sentry.body.position.x) + 1.5708;
@@ -189,22 +194,30 @@ package states.games {
 		//private
 		private function onCollide(obj1:BaseObject, obj2:BaseObject):void {
 			if (obj2 is Core) {
+				obj2.tweenBrightness(((registryComponent.health - core.health + 1) / registryComponent.health) * 0.6);
+				TweenMax.delayedCall(0.2, obj2.tweenBrightness, [0]);
 				if (obj1 is StressBall) {
-					shake(1, 1);
+					shake((registryComponent.health - core.health + 1) / registryComponent.health, 1);
 					core.health -= registryComponent.stressPower;
 				} else if (obj1 is ShieldedStressBall) {
-					shake(1, 1);
+					shake((registryComponent.health - core.health + 1) / registryComponent.health, 1);
 					core.health -= registryComponent.shieldedStressPower;
 				} else if (obj1 is ExplosiveStressBall) {
-					shake(1, 1);
+					shake((registryComponent.health - core.health + 1) / registryComponent.health, 1);
 					core.health -= registryComponent.explosiveStressPower;
 				} else if (obj1 is ClusterStressBall) {
-					shake(0.5, 1);
+					shake(((registryComponent.health - core.health + 1) / registryComponent.health) * 0.5, 1);
 					core.health -= registryComponent.clusterStressPower;
 				} else if (obj1 is ReliefStar) {
 					core.health += registryComponent.reliefPower;
 				}
 				checkLose();
+			} else if (obj2 is Sentry) {
+				obj2.tweenBrightness(0.8);
+				TweenMax.delayedCall(0.2, obj2.tweenBrightness, [0]);
+			} else if (obj2 is Paddle) {
+				obj2.tweenBrightness(0.8);
+				TweenMax.delayedCall(0.2, obj2.tweenBrightness, [0]);
 			}
 			
 			if (obj1 is Bullet) {
@@ -301,7 +314,7 @@ package states.games {
 			impulse.length = MathUtil.random(10, 20);
 			obj.body.applyImpulse(impulse);
 			if (obj.body.allowRotation) {
-				obj.body.applyAngularImpulse(MathUtil.random(400, 600));
+				obj.body.applyAngularImpulse(MathUtil.random(200, 400));
 			}
 		}
 		
@@ -342,7 +355,32 @@ package states.games {
 		
 		private function checkLose():void {
 			if (core.health <= 0) {
-				//nextState();
+				timerComponent.destroy();
+				tweenDestroyAll();
+				shake(7, 4);
+				TweenMax.delayedCall(3, TweenMax.to, [
+					this,
+					1,
+					{
+						"alpha": 0,
+						"ease": Circ.easeOut,
+						"onComplete": nextState
+					}
+				]);
+				
+				var origSpeed:Number = physicsEngine.speed;
+				TweenMax.to(physicsEngine, 2, {
+					"speed": 0.25,
+					"ease": Expo.easeOut
+				});
+				TweenMax.delayedCall(2, TweenMax.to, [
+					physicsEngine,
+					2,
+					{
+						"speed": origSpeed,
+						"ease": Expo.easeIn
+					}
+				]);
 			}
 		}
 		
@@ -355,10 +393,10 @@ package states.games {
 				"ease": Elastic.easeOut
 			});
 		}
-		private function tweenDestroy(obj:BaseObject):void {
+		private function tweenDestroy(obj:BaseObject, duration:Number = 0.75):void {
 			physicsEngine.removeBody(obj.body);
 			
-			TweenMax.to(obj, 0.75, {
+			TweenMax.to(obj, duration, {
 				"scale": 0,
 				"ease": Expo.easeOut,
 				"onComplete": tweenDestroyInternal,
@@ -369,6 +407,27 @@ package states.games {
 			removeChild(obj.graphics);
 			obj.destroy();
 			poolComponent.returnObject(obj);
+		}
+		
+		private function tweenDestroyAll():void {
+			destroyPool(poolComponent.getUsedPool(RemedyStar));
+			destroyPool(poolComponent.getUsedPool(ReinforcementStar));
+			destroyPool(poolComponent.getUsedPool(ReliefStar));
+			destroyPool(poolComponent.getUsedPool(StressBall));
+			destroyPool(poolComponent.getUsedPool(ShieldedStressBall));
+			destroyPool(poolComponent.getUsedPool(ExplosiveStressBall));
+			destroyPool(poolComponent.getUsedPool(ClusterStressBall));
+			destroyPool(poolComponent.getUsedPool(Bullet));
+			
+			TweenMax.delayedCall(2, tweenDestroy, [paddle1, 2]);
+			TweenMax.delayedCall(2, tweenDestroy, [paddle2, 2]);
+			TweenMax.delayedCall(2, tweenDestroy, [sentry, 2]);
+			TweenMax.delayedCall(2, tweenDestroy, [core, 2]);
+		}
+		private function destroyPool(objs:Vector.<IPrototype>):void {
+			for (var i:uint = 0; i < objs.length; i++) {
+				tweenDestroy(objs[i] as BaseObject, 2);
+			}
 		}
 		
 		private function shake(intensity:Number, duration:Number):void {

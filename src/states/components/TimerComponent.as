@@ -3,6 +3,7 @@ package states.components {
 	import egg82.enums.ServiceType;
 	import egg82.patterns.interfaces.IComponent;
 	import egg82.patterns.ServiceLocator;
+	import egg82.utils.MathUtil;
 	import enums.GameType;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
@@ -49,6 +50,8 @@ package states.components {
 		private var shieldedStressTimer:Timer;
 		private var explosiveStressTimer:Timer;
 		
+		private var nemesisImpulseTimer:Timer;
+		
 		//constructor
 		public function TimerComponent(spawnCallback:Function, poolComponent:PoolComponent, registryComponent:RegistryComponent) {
 			this.poolComponent = poolComponent;
@@ -64,12 +67,6 @@ package states.components {
 			unstuckTimer.start();
 			speedTimer.addEventListener(TimerEvent.TIMER, onSpeedTimer);
 			speedTimer.start();
-			
-			if (registryComponent.gameType == GameType.HORDE) {
-				fireTimer = new Timer(registryComponent.fireRate * _fireRateMultiplier, 1);
-				fireTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onFireTimer);
-				fireTimer.start();
-			}
 			
 			remedyTimer = new Timer(registryComponent.remedySpawnRate);
 			remedyTimer.addEventListener(TimerEvent.TIMER, onRemedyTimer);
@@ -89,6 +86,16 @@ package states.components {
 			explosiveStressTimer = new Timer(registryComponent.explosiveStressSpawnRate);
 			explosiveStressTimer.addEventListener(TimerEvent.TIMER, onExplosiveStressTimer);
 			explosiveStressTimer.start();
+			
+			if (registryComponent.gameType == GameType.HORDE) {
+				fireTimer = new Timer(registryComponent.fireRate * _fireRateMultiplier, 1);
+				fireTimer.addEventListener(TimerEvent.TIMER_COMPLETE, onFireTimer);
+				fireTimer.start();
+			} else if (registryComponent.gameType == GameType.NEMESIS) {
+				nemesisImpulseTimer = new Timer(registryComponent.nemesisImpulseRate, 1);
+				nemesisImpulseTimer.addEventListener(TimerEvent.TIMER, onNemesisImpulseTimer);
+				nemesisImpulseTimer.start();
+			}
 		}
 		public function destroy():void {
 			impulseTimer.stop();
@@ -97,11 +104,6 @@ package states.components {
 			unstuckTimer.removeEventListener(TimerEvent.TIMER, onUnstuckTimer);
 			speedTimer.stop();
 			speedTimer.removeEventListener(TimerEvent.TIMER, onSpeedTimer);
-			
-			if (registryComponent.gameType == GameType.HORDE) {
-				fireTimer.stop();
-				fireTimer.removeEventListener(TimerEvent.TIMER, onFireTimer);
-			}
 			
 			remedyTimer.stop();
 			remedyTimer.removeEventListener(TimerEvent.TIMER, onRemedyTimer);
@@ -115,6 +117,14 @@ package states.components {
 			shieldedStressTimer.removeEventListener(TimerEvent.TIMER, onShieldedStressTimer);
 			explosiveStressTimer.stop();
 			explosiveStressTimer.removeEventListener(TimerEvent.TIMER, onExplosiveStressTimer);
+			
+			if (registryComponent.gameType == GameType.HORDE) {
+				fireTimer.stop();
+				fireTimer.removeEventListener(TimerEvent.TIMER_COMPLETE, onFireTimer);
+			} else if (registryComponent.gameType == GameType.NEMESIS) {
+				nemesisImpulseTimer.stop();
+				nemesisImpulseTimer.removeEventListener(TimerEvent.TIMER, onNemesisImpulseTimer);
+			}
 		}
 		
 		public function get fireRateMultiplier():Number {
@@ -131,6 +141,38 @@ package states.components {
 		public function startFireTimer():void {
 			if (fireTimer) {
 				fireTimer.start();
+			}
+		}
+		
+		public function spawnObjects(num:uint):void {
+			var check:uint = 0;
+			
+			while (num > 0) {
+				if (check == 0 && registryComponent.remedySpawnChance && Math.random() <= registryComponent.remedySpawnChance) {
+					spawnCallback.apply(null, [RemedyStar]);
+					num--;
+				} else if (check == 1 && registryComponent.reinforceSpawnChance && Math.random() <= registryComponent.reinforceSpawnChance) {
+					spawnCallback.apply(null, [ReinforcementStar]);
+					num--;
+				} else if (check == 2 && registryComponent.reliefSpawnChance && Math.random() <= registryComponent.reliefSpawnChance) {
+					spawnCallback.apply(null, [ReliefStar]);
+					num--;
+				} else if (check == 3 && registryComponent.stressSpawnChance && Math.random() <= registryComponent.stressSpawnChance) {
+					spawnCallback.apply(null, [StressBall]);
+					num--;
+				} else if (check == 4 && registryComponent.shieldedStressSpawnChance && Math.random() <= registryComponent.shieldedStressSpawnChance) {
+					spawnCallback.apply(null, [ShieldedStressBall]);
+					num--;
+				} else if (check == 5 && registryComponent.explosiveStressSpawnChance && Math.random() <= registryComponent.explosiveStressSpawnChance) {
+					spawnCallback.apply(null, [ExplosiveStressBall]);
+					num--;
+				}
+				
+				if (check == 5) {
+					check = 0;
+				} else {
+					check++;
+				}
 			}
 		}
 		
@@ -166,6 +208,21 @@ package states.components {
 				}
 			}
 		}
+		private function onNemesisImpulseTimer(e:TimerEvent):void {
+			if (!registryComponent.nemesisImpulseChance || Math.random() > registryComponent.nemesisImpulseChance) {
+				return;
+			}
+			
+			for (var j:uint = 0; j < physicsEngine.numBodies; j++) {
+				var body:Body = physicsEngine.getBody(i);
+				if (body.type == BodyType.DYNAMIC) {
+					var impulse:Vec2 = Vec2.get(stage.stageWidth / 2 - body.worldCOM.x, stage.stageHeight / 2 - body.worldCOM.y);
+					impulse.length = MathUtil.random(10, 20);
+					body.applyImpulse(impulse);
+				}
+			}
+		}
+		
 		private function onUnstuckTimer(e:TimerEvent):void {
 			for (var i:uint = 0; i < physicsEngine.numBodies; i++) {
 				for (var j:uint = 0; j < physicsEngine.numBodies; j++) {
@@ -217,37 +274,37 @@ package states.components {
 		}
 		
 		private function onRemedyTimer(e:TimerEvent):void {
-			if (Math.random() <= registryComponent.remedySpawnChance) {
+			if (registryComponent.remedySpawnChance && Math.random() <= registryComponent.remedySpawnChance) {
 				spawnCallback.apply(null, [RemedyStar]);
 			}
 			remedyTimer.delay = registryComponent.remedySpawnRate;
 		}
 		private function onReinforceTimer(e:TimerEvent):void {
-			if (Math.random() <= registryComponent.reinforceSpawnChance) {
+			if (registryComponent.reinforceSpawnChance && Math.random() <= registryComponent.reinforceSpawnChance) {
 				spawnCallback.apply(null, [ReinforcementStar]);
 			}
 			reinforceTimer.delay = registryComponent.reinforceSpawnRate;
 		}
 		private function onReliefTimer(e:TimerEvent):void {
-			if (Math.random() <= registryComponent.reliefSpawnChance) {
+			if (registryComponent.reliefSpawnChance && Math.random() <= registryComponent.reliefSpawnChance) {
 				spawnCallback.apply(null, [ReliefStar]);
 			}
 			reliefTimer.delay = registryComponent.reliefSpawnRate;
 		}
 		private function onStressTimer(e:TimerEvent):void {
-			if (Math.random() <= registryComponent.stressSpawnChance) {
+			if (registryComponent.stressSpawnChance && Math.random() <= registryComponent.stressSpawnChance) {
 				spawnCallback.apply(null, [StressBall]);
 			}
 			stressTimer.delay = registryComponent.stressSpawnRate;
 		}
 		private function onShieldedStressTimer(e:TimerEvent):void {
-			if (Math.random() <= registryComponent.shieldedStressSpawnChance) {
+			if (registryComponent.shieldedStressSpawnChance && Math.random() <= registryComponent.shieldedStressSpawnChance) {
 				spawnCallback.apply(null, [ShieldedStressBall]);
 			}
 			shieldedStressTimer.delay = registryComponent.shieldedStressSpawnRate;
 		}
 		private function onExplosiveStressTimer(e:TimerEvent):void {
-			if (Math.random() <= registryComponent.explosiveStressSpawnChance) {
+			if (registryComponent.explosiveStressSpawnChance && Math.random() <= registryComponent.explosiveStressSpawnChance) {
 				spawnCallback.apply(null, [ExplosiveStressBall]);
 			}
 			explosiveStressTimer.delay = registryComponent.explosiveStressSpawnRate;

@@ -11,6 +11,7 @@ package states {
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.utils.TextureUtil;
+	import enums.CustomOptionsRegistryType;
 	import enums.GameType;
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;

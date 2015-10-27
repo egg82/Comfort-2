@@ -1,4 +1,6 @@
 package states.games {
+	import enums.CustomOptionsRegistryType;
+	import enums.DifficultyType;
 	import enums.GameType;
 	import states.games.BaseGameState;
 	

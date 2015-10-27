@@ -33,7 +33,10 @@ package states.components {
 		private var _gameType:String;
 		private var _difficulty:String;
 		private var _health:Number;
+		private var _nemesisImpulseRate:Number;
+		private var _nemesisImpulseChance:Number;
 		private var _fireRate:Number;
+		private var _minObjects:uint;
 		private var _remedySpawnRate:Number;
 		private var _remedySpawnChance:Number;
 		private var _remedyTime:Number;
@@ -80,7 +83,10 @@ package states.components {
 			
 			_difficulty = registryUtil.getOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty") as String;
 			_health = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "health") as Number;
+			_nemesisImpulseRate = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "nemesisImpulseRate") as Number;
+			_nemesisImpulseChance = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "nemesisImpulseChance") as Number;
 			_fireRate = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "fireRate") as Number;
+			_minObjects = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "minObjects") as uint;
 			_remedySpawnRate = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "remedySpawnRate") as Number;
 			_remedySpawnChance = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "remedySpawnChance") as Number;
 			_remedyTime = registryUtil.getOption(CustomOptionsRegistryType.SETUP, "remedyTime") as Number;
@@ -146,8 +152,17 @@ package states.components {
 		public function get health():Number {
 			return _health;
 		}
+		public function get nemesisImpulseRate():Number {
+			return _nemesisImpulseRate;
+		}
+		public function get nemesisImpulseChance():Number {
+			return _nemesisImpulseChance;
+		}
 		public function get fireRate():Number {
 			return _fireRate;
+		}
+		public function get minObjects():uint {
+			return _minObjects;
 		}
 		public function get remedySpawnRate():Number {
 			return _remedySpawnRate;
@@ -249,8 +264,14 @@ package states.components {
 				_difficulty = value as String;
 			} else if (type == CustomOptionsRegistryType.SETUP && name == "health") {
 				_health = value as Number;
+			} else if (type == CustomOptionsRegistryType.SETUP && name == "nemesisImpulseRate") {
+				_nemesisImpulseRate = value as Number;
+			} else if (type == CustomOptionsRegistryType.SETUP && name == "nemesisImpulseChance") {
+				_nemesisImpulseChance = value as Number;
 			} else if (type == CustomOptionsRegistryType.SETUP && name == "fireRate") {
 				_fireRate = value as Number;
+			} else if (type == CustomOptionsRegistryType.SETUP && name == "minObjects") {
+				_minObjects = value as uint;
 			} else if (type == CustomOptionsRegistryType.SETUP && name == "remedySpawnRate") {
 				_remedySpawnRate = value as Number;
 			} else if (type == CustomOptionsRegistryType.SETUP && name == "remedySpawnChance") {
