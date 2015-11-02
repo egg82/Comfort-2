@@ -24,6 +24,7 @@ package states.components {
 		private var _ambientQuality:String;
 		private var _sfxQuality:String;
 		private var _screenShake:Boolean;
+		private var _animations:Boolean;
 		
 		private var _fireKeys:Array;
 		private var _fireButtons:Array;
@@ -75,6 +76,7 @@ package states.components {
 			_sfxQuality = registryUtil.getOption(OptionsRegistryType.AUDIO, "sfxQuality") as String;
 			_textureQuality = registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") as String;
 			_screenShake = registryUtil.getOption(OptionsRegistryType.VIDEO, "screenShake") as Boolean;
+			_animations = registryUtil.getOption(OptionsRegistryType.VIDEO, "animations") as Boolean;
 			
 			_fireKeys = registryUtil.getOption(OptionsRegistryType.KEYS, "fire") as Array;
 			_fireButtons = registryUtil.getOption(OptionsRegistryType.CONTROLLER, "fire") as Array;
@@ -128,6 +130,9 @@ package states.components {
 		}
 		public function get screenShake():Boolean {
 			return _screenShake;
+		}
+		public function get animations():Boolean {
+			return _animations;
 		}
 		
 		public function get fireKeys():Array {
@@ -248,6 +253,8 @@ package states.components {
 				_sfxQuality = value as String;
 			} else if (type == OptionsRegistryType.VIDEO && name == "screenShake") {
 				_screenShake = value as Boolean;
+			} else if (type == OptionsRegistryType.VIDEO && name == "animations") {
+				_animations = value as Boolean;
 			}
 			
 			if (type == CustomOptionsRegistryType.GAMEPLAY && name == "autoFire") {

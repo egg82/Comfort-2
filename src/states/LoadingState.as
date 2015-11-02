@@ -88,6 +88,10 @@ package states {
 			if (!REGISTRY_UTIL.getXML(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType))) {
 				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType));
 			}
+			if (REGISTRY_UTIL.getOption(OptionsRegistryType.VIDEO, "animations") as Boolean) {
+				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_anim"));
+				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.XML, "anim"));
+			}
 			
 			if (!audioEngine.getAudio(musicQuality + "_music_" + gameType)) {
 				fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, musicQuality + "_music_" + gameType));
@@ -173,6 +177,12 @@ package states {
 				decodeImage(name, data);
 			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType))) {
 				REGISTRY_UTIL.setXML(name, new XML(data.readUTFBytes(data.length)));
+			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_anim"))) {
+				decodeImage(name, data);
+			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.XML, "anim"))) {
+				REGISTRY_UTIL.setXML(name, new XML(data.readUTFBytes(data.length)));
+			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType + "_background"))) {
+				decodeImage(name, data);
 			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, musicQuality + "_music_" + gameType))) {
 				audioEngine.setAudio(musicQuality + "_music_" + gameType, AudioFileType.MP3, AudioType.MUSIC, data);
 			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, ambientQuality + "_stress_" + gameType))) {
@@ -211,13 +221,17 @@ package states {
 			if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType))) {
 				REGISTRY_UTIL.setBitmapData(name, data);
 				REGISTRY_UTIL.setTexture(name, TextureUtil.getTexture(data));
+			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_anim"))) {
+				REGISTRY_UTIL.setBitmapData(name, data);
+				REGISTRY_UTIL.setTexture(name, TextureUtil.getTexture(data));
+			} else if (name == REGISTRY_UTIL.stripURL(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType + "_background"))) {
+				REGISTRY_UTIL.setBitmapData(name, data);
 			}
 		}
 		private function onComplete():void {
-			var url:String = REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType);
-			var xmlURL:String = REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType);
-			
-			REGISTRY_UTIL.setAtlas(url, TextureUtil.getTextureAtlasXML(REGISTRY_UTIL.getTexture(url), REGISTRY_UTIL.getXML(xmlURL)));
+			REGISTRY_UTIL.setAtlas(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType), TextureUtil.getTextureAtlasXML(REGISTRY_UTIL.getTexture(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType)), REGISTRY_UTIL.getXML(REGISTRY_UTIL.getFile(FileRegistryType.XML, gameType))));
+			REGISTRY_UTIL.setAtlas(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_anim"), TextureUtil.getTextureAtlasXML(REGISTRY_UTIL.getTexture(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_anim")), REGISTRY_UTIL.getXML(REGISTRY_UTIL.getFile(FileRegistryType.XML, "anim"))));
+			REGISTRY_UTIL.setTexture(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType + "_background"), TextureUtil.getTexture(REGISTRY_UTIL.getBitmapData(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType + "_background"))));
 		}
 	}
 }

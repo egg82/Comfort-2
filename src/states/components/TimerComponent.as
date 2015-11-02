@@ -20,6 +20,7 @@ package states.components {
 	import objects.RemedyStar;
 	import objects.ShieldedStressBall;
 	import objects.StressBall;
+	import starling.display.Stage;
 	
 	/**
 	 * ...
@@ -35,6 +36,7 @@ package states.components {
 		private var poolComponent:PoolComponent;
 		private var registryComponent:RegistryComponent;
 		private var spawnCallback:Function = null;
+		private var stage:Stage;
 		
 		private var _fireRateMultiplier:Number = 1;
 		
@@ -53,10 +55,11 @@ package states.components {
 		private var nemesisImpulseTimer:Timer;
 		
 		//constructor
-		public function TimerComponent(spawnCallback:Function, poolComponent:PoolComponent, registryComponent:RegistryComponent) {
+		public function TimerComponent(spawnCallback:Function, poolComponent:PoolComponent, registryComponent:RegistryComponent, stage:Stage) {
 			this.poolComponent = poolComponent;
 			this.registryComponent = registryComponent;
 			this.spawnCallback = spawnCallback;
+			this.stage = stage;
 		}
 		
 		//public
@@ -74,18 +77,21 @@ package states.components {
 			reinforceTimer = new Timer(registryComponent.reinforceSpawnRate);
 			reinforceTimer.addEventListener(TimerEvent.TIMER, onReinforceTimer);
 			reinforceTimer.start();
-			reliefTimer = new Timer(registryComponent.reliefSpawnRate);
-			reliefTimer.addEventListener(TimerEvent.TIMER, onReliefTimer);
-			reliefTimer.start();
 			stressTimer = new Timer(registryComponent.stressSpawnRate);
 			stressTimer.addEventListener(TimerEvent.TIMER, onStressTimer);
 			stressTimer.start();
-			shieldedStressTimer = new Timer(registryComponent.shieldedStressSpawnRate);
-			shieldedStressTimer.addEventListener(TimerEvent.TIMER, onShieldedStressTimer);
-			shieldedStressTimer.start();
-			explosiveStressTimer = new Timer(registryComponent.explosiveStressSpawnRate);
-			explosiveStressTimer.addEventListener(TimerEvent.TIMER, onExplosiveStressTimer);
-			explosiveStressTimer.start();
+			
+			if (registryComponent.gameType != GameType.NEMESIS) {
+				reliefTimer = new Timer(registryComponent.reliefSpawnRate);
+				reliefTimer.addEventListener(TimerEvent.TIMER, onReliefTimer);
+				reliefTimer.start();
+				shieldedStressTimer = new Timer(registryComponent.shieldedStressSpawnRate);
+				shieldedStressTimer.addEventListener(TimerEvent.TIMER, onShieldedStressTimer);
+				shieldedStressTimer.start();
+				explosiveStressTimer = new Timer(registryComponent.explosiveStressSpawnRate);
+				explosiveStressTimer.addEventListener(TimerEvent.TIMER, onExplosiveStressTimer);
+				explosiveStressTimer.start();
+			}
 			
 			if (registryComponent.gameType == GameType.HORDE) {
 				fireTimer = new Timer(registryComponent.fireRate * _fireRateMultiplier, 1);
@@ -109,14 +115,17 @@ package states.components {
 			remedyTimer.removeEventListener(TimerEvent.TIMER, onRemedyTimer);
 			reinforceTimer.stop();
 			reinforceTimer.removeEventListener(TimerEvent.TIMER, onReinforceTimer);
-			reliefTimer.stop();
-			reliefTimer.removeEventListener(TimerEvent.TIMER, onReliefTimer);
 			stressTimer.stop();
 			stressTimer.removeEventListener(TimerEvent.TIMER, onStressTimer);
-			shieldedStressTimer.stop();
-			shieldedStressTimer.removeEventListener(TimerEvent.TIMER, onShieldedStressTimer);
-			explosiveStressTimer.stop();
-			explosiveStressTimer.removeEventListener(TimerEvent.TIMER, onExplosiveStressTimer);
+			
+			if (registryComponent.gameType != GameType.NEMESIS) {
+				reliefTimer.stop();
+				reliefTimer.removeEventListener(TimerEvent.TIMER, onReliefTimer);
+				shieldedStressTimer.stop();
+				shieldedStressTimer.removeEventListener(TimerEvent.TIMER, onShieldedStressTimer);
+				explosiveStressTimer.stop();
+				explosiveStressTimer.removeEventListener(TimerEvent.TIMER, onExplosiveStressTimer);
+			}
 			
 			if (registryComponent.gameType == GameType.HORDE) {
 				fireTimer.stop();
@@ -154,16 +163,16 @@ package states.components {
 				} else if (check == 1 && registryComponent.reinforceSpawnChance && Math.random() <= registryComponent.reinforceSpawnChance) {
 					spawnCallback.apply(null, [ReinforcementStar]);
 					num--;
-				} else if (check == 2 && registryComponent.reliefSpawnChance && Math.random() <= registryComponent.reliefSpawnChance) {
+				} else if (check == 2 && registryComponent.gameType != GameType.NEMESIS && registryComponent.reliefSpawnChance && Math.random() <= registryComponent.reliefSpawnChance) {
 					spawnCallback.apply(null, [ReliefStar]);
 					num--;
 				} else if (check == 3 && registryComponent.stressSpawnChance && Math.random() <= registryComponent.stressSpawnChance) {
 					spawnCallback.apply(null, [StressBall]);
 					num--;
-				} else if (check == 4 && registryComponent.shieldedStressSpawnChance && Math.random() <= registryComponent.shieldedStressSpawnChance) {
+				} else if (check == 4 && registryComponent.gameType != GameType.NEMESIS && registryComponent.shieldedStressSpawnChance && Math.random() <= registryComponent.shieldedStressSpawnChance) {
 					spawnCallback.apply(null, [ShieldedStressBall]);
 					num--;
-				} else if (check == 5 && registryComponent.explosiveStressSpawnChance && Math.random() <= registryComponent.explosiveStressSpawnChance) {
+				} else if (check == 5 && registryComponent.gameType != GameType.NEMESIS && registryComponent.explosiveStressSpawnChance && Math.random() <= registryComponent.explosiveStressSpawnChance) {
 					spawnCallback.apply(null, [ExplosiveStressBall]);
 					num--;
 				}
@@ -213,7 +222,7 @@ package states.components {
 				return;
 			}
 			
-			for (var j:uint = 0; j < physicsEngine.numBodies; j++) {
+			for (var i:uint = 0; i < physicsEngine.numBodies; i++) {
 				var body:Body = physicsEngine.getBody(i);
 				if (body.type == BodyType.DYNAMIC) {
 					var impulse:Vec2 = Vec2.get(stage.stageWidth / 2 - body.worldCOM.x, stage.stageHeight / 2 - body.worldCOM.y);

@@ -1,18 +1,18 @@
-package objects.physics {
-	import egg82.patterns.interfaces.IComponent;
+package objects.components {
 	import egg82.utils.MathUtil;
 	import nape.geom.Vec2;
 	import nape.phys.Body;
 	import nape.phys.BodyType;
 	import nape.phys.Material;
 	import nape.shape.Shape;
+	import objects.interfaces.IPhysicsComponent;
 	
 	/**
 	 * ...
 	 * @author Alex
 	 */
 	
-	public class PhysicsComponent implements IComponent {
+	public class PhysicsComponent implements IPhysicsComponent {
 		//vars
 		private var zeroMat:Material = new Material(1, 0, 0, MathUtil.betterRoundedRandom(80, 100) / 100, 0);
 		
@@ -32,6 +32,13 @@ package objects.physics {
 			
 		}
 		public function destroy():void {
+			
+		}
+		
+		public function update(deltaTime:Number):void {
+			
+		}
+		public function draw():void {
 			
 		}
 		
@@ -66,7 +73,11 @@ package objects.physics {
 			}
 			
 			_origScale = val;
-			_body.scaleShapes(_scale * val, _scale * val);
+			/*if (_scale != 0 && val != 0) {
+				_body.scaleShapes(_scale * val, _scale * val);
+			} else {
+				_body.scaleShapes(0.001, 0.001);
+			}*/
 		}
 		
 		public function get scale():Number {
@@ -82,11 +93,11 @@ package objects.physics {
 			}
 			
 			_scale = val;
-			if (_origScale != 0 && val != 0) {
+			/*if (_origScale != 0 && val != 0) {
 				_body.scaleShapes(_origScale * val, _origScale * val);
 			} else {
 				_body.scaleShapes(0.001, 0.001);
-			}
+			}*/
 		}
 		
 		//private

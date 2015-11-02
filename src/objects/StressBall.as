@@ -5,8 +5,8 @@ package objects {
 	import egg82.registry.RegistryUtil;
 	import nape.phys.BodyType;
 	import nape.shape.Circle;
-	import objects.graphics.GraphicsComponent;
-	import objects.physics.PhysicsComponent;
+	import objects.components.GraphicsComponent;
+	import objects.components.PhysicsComponent;
 	
 	/**
 	 * ...
@@ -51,7 +51,9 @@ package objects {
 		}
 		private function checkOptions(type:String, name:String, value:Object):void {
 			if (type == OptionsRegistryType.VIDEO && name == "textureQuality") {
-				graphicsComponent.resetTexture();
+				if (graphicsComponent["resetTexture"] && graphicsComponent["resetTexture"] is Function) {
+					(graphicsComponent["resetTexture"] as Function).call();
+				}
 			}
 		}
 	}

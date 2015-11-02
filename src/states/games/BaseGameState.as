@@ -2,43 +2,26 @@ package states.games {
 	import com.greensock.easing.Circ;
 	import com.greensock.easing.Elastic;
 	import com.greensock.easing.Expo;
-	import com.greensock.easing.Quart;
-	import com.greensock.easing.RoughEase;
 	import com.greensock.TweenMax;
 	import egg82.base.BaseState;
 	import egg82.custom.CustomImage;
+	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.engines.interfaces.IInputEngine;
 	import egg82.engines.interfaces.IPhysicsEngine;
-	import egg82.engines.interfaces.IAudioEngine;
-	import egg82.engines.PhysicsEngine;
 	import egg82.enums.FileRegistryType;
-	import egg82.enums.OptionsRegistryType;
 	import egg82.enums.ServiceType;
-	import egg82.enums.XboxButtonCodes;
-	import egg82.events.engines.PhysicsEngineEvent;
 	import egg82.math.FastMath;
-	import egg82.patterns.objectPool.DynamicObjectPool;
-	import egg82.patterns.objectPool.ObjectPool;
-	import egg82.patterns.Observer;
 	import egg82.patterns.prototype.interfaces.IPrototype;
 	import egg82.patterns.ServiceLocator;
-	import egg82.registry.RegistryUtil;
 	import egg82.utils.MathUtil;
-	import enums.CustomOptionsRegistryType;
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	import nape.geom.Geom;
 	import nape.geom.Vec2;
-	import nape.phys.Body;
-	import nape.phys.BodyType;
-	import objects.base.BasePhysicsObject;
 	import objects.BaseObject;
 	import objects.Border;
 	import objects.Bullet;
 	import objects.ClusterStressBall;
+	import objects.components.AnimatedGraphicsComponent;
 	import objects.Core;
 	import objects.ExplosiveStressBall;
-	import objects.interfaces.ITriggerable;
 	import objects.Paddle;
 	import objects.ReinforcementStar;
 	import objects.ReliefStar;
@@ -46,6 +29,7 @@ package states.games {
 	import objects.Sentry;
 	import objects.ShieldedStressBall;
 	import objects.StressBall;
+	import starling.display.DisplayObject;
 	import states.components.CollisionComponent;
 	import states.components.PoolComponent;
 	import states.components.RegistryComponent;
@@ -77,6 +61,8 @@ package states.games {
 		protected var paddle2:Paddle;
 		protected var sentry:Sentry;
 		
+		private var _screenAnimating:Boolean = false;
+		
 		//constructor
 		public function BaseGameState() {
 			
@@ -98,7 +84,7 @@ package states.games {
 			registryComponent.create();
 			poolComponent = new PoolComponent(gameType);
 			poolComponent.create();
-			timerComponent = new TimerComponent(spawn, poolComponent, registryComponent);
+			timerComponent = new TimerComponent(spawn, poolComponent, registryComponent, stage);
 			timerComponent.create();
 			collisionComponent = new CollisionComponent(onCollide);
 			collisionComponent.create();
@@ -109,8 +95,6 @@ package states.games {
 			background.create();
 			background.width = stage.stageWidth;
 			background.height = stage.stageHeight;
-			background.x = -168;
-			background.y = -168;
 			addChild(background);
 			
 			border = new Border(stage.stageWidth, stage.stageHeight);
@@ -137,11 +121,16 @@ package states.games {
 			audioEngine.playAudio(registryComponent.musicQuality + "_music_" + gameType);
 			
 			alignPivot();
-			x = stage.stageWidth / 2;
-			y = stage.stageHeight / 2;
 		}
 		
 		override public function update(deltaTime:Number):void {
+			if (!_screenAnimating) {
+				x = stage.stageWidth / 2;
+				y = stage.stageHeight / 2;
+				x -= 89;
+				y -= 79;
+			}
+			
 			if (poolComponent.getNumUsedObjects() < registryComponent.minObjects) {
 				timerComponent.spawnObjects(registryComponent.minObjects - poolComponent.getNumUsedObjects());
 			}
@@ -194,19 +183,19 @@ package states.games {
 		//private
 		private function onCollide(obj1:BaseObject, obj2:BaseObject):void {
 			if (obj2 is Core) {
-				obj2.tweenBrightness(((registryComponent.health - core.health + 1) / registryComponent.health) * 0.6);
+				obj2.tweenBrightness(0.6);
 				TweenMax.delayedCall(0.2, obj2.tweenBrightness, [0]);
 				if (obj1 is StressBall) {
-					shake((registryComponent.health - core.health + 1) / registryComponent.health, 1);
+					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 2, 1);
 					core.health -= registryComponent.stressPower;
 				} else if (obj1 is ShieldedStressBall) {
-					shake((registryComponent.health - core.health + 1) / registryComponent.health, 1);
+					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 2, 1);
 					core.health -= registryComponent.shieldedStressPower;
 				} else if (obj1 is ExplosiveStressBall) {
-					shake((registryComponent.health - core.health + 1) / registryComponent.health, 1);
+					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 2, 1);
 					core.health -= registryComponent.explosiveStressPower;
 				} else if (obj1 is ClusterStressBall) {
-					shake(((registryComponent.health - core.health + 1) / registryComponent.health) * 0.5, 1);
+					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 1, 1);
 					core.health -= registryComponent.clusterStressPower;
 				} else if (obj1 is ReliefStar) {
 					core.health += registryComponent.reliefPower;
@@ -274,7 +263,7 @@ package states.games {
 				if (!(obj2 is Border)) {
 					tweenDestroy(obj1);
 					if (!(obj2 is Core)) {
-						shake(2, 1.5);
+						shake(this, 4, 1.5);
 						for (var i:uint = 0; i < registryComponent.clusterStressNumber; i++) {
 							spawnClusterBall(obj1.body.position.x + FastMath.sin(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.y + FastMath.cos(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.x, obj1.body.position.y);
 						}
@@ -314,7 +303,7 @@ package states.games {
 			impulse.length = MathUtil.random(10, 20);
 			obj.body.applyImpulse(impulse);
 			if (obj.body.allowRotation) {
-				obj.body.applyAngularImpulse(MathUtil.random(200, 400));
+				obj.body.applyAngularImpulse(MathUtil.random(100, 200));
 			}
 		}
 		
@@ -357,7 +346,7 @@ package states.games {
 			if (core.health <= 0) {
 				timerComponent.destroy();
 				tweenDestroyAll();
-				shake(7, 4);
+				shake(this, 7, 4);
 				TweenMax.delayedCall(3, TweenMax.to, [
 					this,
 					1,
@@ -430,27 +419,34 @@ package states.games {
 			}
 		}
 		
-		private function shake(intensity:Number, duration:Number):void {
-			if (!registryComponent.screenShake) {
+		private function shake(object:DisplayObject, intensity:Number, duration:Number):void {
+			if (object === this && (!registryComponent.screenShake || _screenAnimating)) {
 				return;
 			}
 			
+			if (object === this) {
+				_screenAnimating = true;
+				TweenMax.delayedCall(duration, function():void {
+					_screenAnimating = false;
+				});
+			}
+			
 			TweenMax.delayedCall(duration, function():void {
-				x = stage.stageWidth / 2;
-				y = stage.stageHeight / 2;
-				rotation = 0;
+				object.x = object.x;
+				object.y = object.y;
+				object.rotation = object.rotation;
 			});
 			
 			var randDuration:Number = MathUtil.random(0.1, 0.2);
 			duration -= randDuration;
 			
 			TweenMax.delayedCall(duration, TweenMax.to, [
-				this,
+				object,
 				randDuration,
 				{
-					"x": stage.stageWidth / 2,
-					"y": stage.stageHeight / 2,
-					"rotation": 0,
+					"x": object.x,
+					"y": object.y,
+					"rotation": object.rotation,
 					"ease": Elastic.easeOut
 				}
 			]);
@@ -464,22 +460,22 @@ package states.games {
 				duration -= randDuration;
 				
 				TweenMax.delayedCall(duration, TweenMax.to, [
-					this,
+					object,
 					randDuration,
 					{
-						"x": x + (MathUtil.random(-2, 2) * intensity),
-						"y": y + (MathUtil.random(-2, 2) * intensity),
-						"rotation": MathUtil.random(-0.0174533, 0.0174533) * intensity,
+						"x": object.x + (MathUtil.random(-2, 2) * intensity),
+						"y": object.y + (MathUtil.random(-2, 2) * intensity),
+						"rotation": object.rotation + MathUtil.random(-0.0174533, 0.0174533) * intensity,
 						"ease": Elastic.easeOut
 					}
 				]);
 				TweenMax.delayedCall(duration, TweenMax.to, [
-					this,
+					object,
 					randDuration,
 					{
-						"x": x + (MathUtil.random(-2, 2) * intensity),
-						"y": y + (MathUtil.random(-2, 2) * intensity),
-						"rotation": MathUtil.random(-0.0174533, 0.0174533) * intensity,
+						"x": object.x + (MathUtil.random(-2, 2) * intensity),
+						"y": object.y + (MathUtil.random(-2, 2) * intensity),
+						"rotation": object.rotation + MathUtil.random(-0.0174533, 0.0174533) * intensity,
 						"ease": Elastic.easeOut
 					}
 				]);

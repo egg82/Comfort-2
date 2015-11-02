@@ -1,7 +1,7 @@
 package objects {
 	import nape.phys.BodyType;
 	import nape.shape.Polygon;
-	import objects.physics.PhysicsComponent;
+	import objects.components.PhysicsComponent;
 	
 	/**
 	 * ...

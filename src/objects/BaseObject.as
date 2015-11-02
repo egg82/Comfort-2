@@ -2,7 +2,6 @@ package objects {
 	import com.greensock.easing.Circ;
 	import com.greensock.easing.Elastic;
 	import com.greensock.TweenMax;
-	import egg82.custom.CustomAtlasImage;
 	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.engines.interfaces.IInputEngine;
 	import egg82.enums.ServiceType;
@@ -11,8 +10,11 @@ package objects {
 	import events.BaseObjectEvent;
 	import nape.geom.Vec2;
 	import nape.phys.Body;
-	import objects.graphics.GraphicsComponent;
-	import objects.physics.PhysicsComponent;
+	import objects.components.PhysicsComponent;
+	import objects.interfaces.IGraphicsComponent;
+	import objects.interfaces.IPhysicsComponent;
+	import starling.display.DisplayObject;
+	import starling.display.Sprite;
 	
 	/**
 	 * ...
@@ -23,8 +25,8 @@ package objects {
 		//vars
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
-		protected var physicsComponent:PhysicsComponent;
-		protected var graphicsComponent:GraphicsComponent;
+		protected var physicsComponent:IPhysicsComponent;
+		protected var graphicsComponent:IGraphicsComponent;
 		
 		protected var inputEngine:IInputEngine = ServiceLocator.getService(ServiceType.INPUT_ENGINE) as IInputEngine;
 		protected var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
@@ -41,8 +43,8 @@ package objects {
 		public function get body():Body {
 			return physicsComponent.body;
 		}
-		public function get graphics():CustomAtlasImage {
-			return graphicsComponent as CustomAtlasImage;
+		public function get graphics():DisplayObject {
+			return graphicsComponent as DisplayObject;
 		}
 		
 		public function create():void {
@@ -57,10 +59,15 @@ package objects {
 			dispatch(BaseObjectEvent.CREATE);
 		}
 		
+		public function update(deltaTime:Number):void {
+			physicsComponent.update(deltaTime);
+		}
 		public function draw():void {
+			physicsComponent.draw();
+			
 			if (graphicsComponent && physicsComponent) {
-				graphicsComponent.x = physicsComponent.body.worldCOM.x - 169;
-				graphicsComponent.y = physicsComponent.body.worldCOM.y - 169;
+				graphicsComponent.x = physicsComponent.body.worldCOM.x;
+				graphicsComponent.y = physicsComponent.body.worldCOM.y;
 				graphicsComponent.rotation = physicsComponent.body.rotation;
 			}
 		}
@@ -90,6 +97,9 @@ package objects {
 			}
 			
 			_scale = val;
+			if (physicsComponent) {
+				physicsComponent.scale = _scale;
+			}
 			if (graphicsComponent) {
 				graphicsComponent.scale = _scale;
 			}

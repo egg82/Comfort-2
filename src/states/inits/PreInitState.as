@@ -125,6 +125,7 @@ package states.inits {
 			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.HIGH);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "screenShake", true);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "animations", true);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "musicQuality", AudioQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "ambientQuality", AudioQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "sfxQuality", AudioQualityType.ULTRA);
@@ -134,7 +135,7 @@ package states.inits {
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty", DifficultyType.MEDIUM);
 			
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "health", 6);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "nemesisImpulseRate", 150);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "nemesisImpulseRate", 250);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "nemesisImpulseChance", 0.5);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "fireRate", 750);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "minObjects", 2);
@@ -145,7 +146,7 @@ package states.inits {
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceSpawnRate", 10000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceSpawnChance", 0.025);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforceTime", 6000);
-			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforcePower", 2);
+			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reinforcePower", 1.5);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefSpawnRate", 10000);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefSpawnChance", 0.05);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "reliefPower", 1);
@@ -174,9 +175,11 @@ package states.inits {
 			
 			methods = Util.getEnums(TextureQualityType);
 			for each (quality in methods) {
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_anim", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/anim.png");
 				for each (game in games) {
 					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/" + game + ".png");
 					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_" + game + ".jpg");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game + "_background_pause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_pause_" + game + ".jpg");
 				}
 			}
 			methods = Util.getEnums(AudioQualityType);
@@ -203,6 +206,7 @@ package states.inits {
 					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_game_over_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/game_over.wav");
 				}
 			}
+			REGISTRY_UTIL.setFile(FileRegistryType.XML, "anim", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/anim.xml");
 			for each (game in games) {
 				REGISTRY_UTIL.setFile(FileRegistryType.XML, game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + game + ".xml");
 			}

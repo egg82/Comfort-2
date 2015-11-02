@@ -67,7 +67,7 @@ package egg82.base {
 				
 				if ("destroy" in child && child["destroy"] is Function) {
 					(child["destroy"] as Function).call();
-				} else if ("dispose" in child && child["dispose"] is Function) {
+				} else {
 					child.dispose();
 				}
 			}
@@ -139,8 +139,6 @@ package egg82.base {
 		public function get graphics():Graphics {
 			return (_valid) ? _GRAPHICS : null;
 		}
-		
-		
 		
 		//private
 		protected function dispatch(event:String, data:Object = null):void {

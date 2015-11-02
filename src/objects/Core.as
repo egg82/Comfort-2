@@ -1,11 +1,18 @@
 package objects {
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.patterns.Observer;
+	import egg82.patterns.ServiceLocator;
+	import egg82.registry.interfaces.IRegistryUtil;
 	import egg82.registry.RegistryUtil;
 	import nape.phys.BodyType;
 	import nape.shape.Circle;
-	import objects.graphics.GraphicsComponent;
-	import objects.physics.PhysicsComponent;
+	import objects.components.AnimatedGraphicsComponent;
+	import objects.components.BlankGraphicsComponent;
+	import objects.components.custom.CoreGraphicsComponent;
+	import objects.components.GraphicsComponent;
+	import objects.components.MaskedGraphicsComponent;
+	import objects.components.PhysicsComponent;
 	
 	/**
 	 * ...
@@ -14,6 +21,8 @@ package objects {
 	
 	public class Core extends BaseObject {
 		//vars
+		private var registryUtil:IRegistryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
+		
 		private var registryUtilObserver:Observer = new Observer();
 		
 		private var _health:Number = 0;
@@ -22,11 +31,8 @@ package objects {
 		public function Core(gameType:String, health:Number) {
 			_health = health;
 			
-			registryUtilObserver.add(onRegistryUtilObserverNotify);
-			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
-			
 			physicsComponent = new PhysicsComponent(BodyType.STATIC);
-			graphicsComponent = new GraphicsComponent(gameType, "core", 0.6);
+			graphicsComponent = new CoreGraphicsComponent(gameType, 98);
 			
 			physicsComponent.setShapes([new Circle(98)]);
 			
@@ -47,6 +53,12 @@ package objects {
 			_health = val;
 		}
 		
+		override public function create():void {
+			registryUtilObserver.add(onRegistryUtilObserverNotify);
+			Observer.add(RegistryUtil.OBSERVERS, registryUtilObserver);
+			
+			super.create();
+		}
 		override public function destroy():void {
 			Observer.remove(RegistryUtil.OBSERVERS, registryUtilObserver);
 			
@@ -61,7 +73,9 @@ package objects {
 		}
 		private function checkOptions(type:String, name:String, value:Object):void {
 			if (type == OptionsRegistryType.VIDEO && name == "textureQuality") {
-				graphicsComponent.resetTexture();
+				if (graphicsComponent["resetTexture"] && graphicsComponent["resetTexture"] is Function) {
+					(graphicsComponent["resetTexture"] as Function).call();
+				}
 			}
 		}
 	}

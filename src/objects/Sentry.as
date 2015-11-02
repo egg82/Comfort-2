@@ -10,8 +10,8 @@ package objects {
 	import enums.CustomServiceType;
 	import nape.geom.Vec2;
 	import nape.phys.BodyType;
-	import objects.graphics.GraphicsComponent;
-	import objects.physics.PhysicsComponent;
+	import objects.components.GraphicsComponent;
+	import objects.components.PhysicsComponent;
 	import physics.IPhysicsData;
 	
 	/**
@@ -64,7 +64,9 @@ package objects {
 			if (type == OptionsRegistryType.PHYSICS && name == "shapeQuality") {
 				physicsComponent.setShapes(Util.toArray((physicsRegistry.getRegister("sentry_" + (value as String)) as IPhysicsData).getPolygons()));
 			} else if (type == OptionsRegistryType.VIDEO && name == "textureQuality") {
-				graphicsComponent.resetTexture();
+				if (graphicsComponent["resetTexture"] && graphicsComponent["resetTexture"] is Function) {
+					(graphicsComponent["resetTexture"] as Function).call();
+				}
 			}
 		}
 	}

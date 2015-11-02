@@ -1,13 +1,8 @@
-package objects.graphics {
+package objects.components {
 	import egg82.custom.CustomAtlasImage;
-	import egg82.enums.FileRegistryType;
-	import egg82.enums.OptionsRegistryType;
-	import egg82.enums.ServiceType;
 	import egg82.events.custom.CustomAtlasImageEvent;
-	import egg82.patterns.interfaces.IComponent;
 	import egg82.patterns.Observer;
-	import egg82.patterns.ServiceLocator;
-	import egg82.registry.interfaces.IRegistryUtil;
+	import objects.interfaces.IGraphicsComponent;
 	import starling.filters.ColorMatrixFilter;
 	
 	/**
@@ -15,44 +10,54 @@ package objects.graphics {
 	 * @author Alex
 	 */
 	
-	public class GraphicsComponent extends CustomAtlasImage implements IComponent {
+	public class BaseGraphicsComponent extends CustomAtlasImage implements IGraphicsComponent {
 		//vars
-		private var registryUtil:IRegistryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
-		
 		private var customAtlasImageObserver:Observer = new Observer();
 		
-		private var gameType:String;
+		private var textureUrl:String;
+		private var xmlUrl:String;
 		private var textureName:String;
 		private var _origScale:Number = 1;
 		private var _scale:Number = 1;
 		private var _adjustX:Number = 0;
-		private var _adjustY:Number = 0;
+		private var _adjustY:Number = 0
+		private var _adjustRotation:Number = 0;
 		
-		private var brightnessFilter:ColorMatrixFilter = new ColorMatrixFilter();
+		private var colorFilter:ColorMatrixFilter = new ColorMatrixFilter();
 		private var _brightness:Number = 0;
+		private var _contrast:Number = 0;
+		private var _saturation:Number = 0;
 		
 		//constructor
-		public function GraphicsComponent(gameType:String, textureName:String, origScale:Number = 1, adjustX:Number = 0, adjustY:Number = 0) {
-			this.gameType = gameType;
+		public function BaseGraphicsComponent(textureUrl:String, xmlUrl:String, textureName:String, origScale:Number = 1, adjustX:Number = 0, adjustY:Number = 0, adjustRotation:Number = 0) {
+			this.textureUrl = textureUrl;
+			this.xmlUrl = xmlUrl;
 			this.textureName = textureName;
 			_origScale = origScale;
 			_adjustX = adjustX;
 			_adjustY = adjustY;
+			_adjustRotation = adjustRotation;
 			
 			customAtlasImageObserver.add(onCustomAtlasImageObserverNotify);
 			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
 			
-			super(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType));
+			super(textureUrl, xmlUrl);
 		}
 		
 		//public
 		override public function create():void {
-			brightnessFilter.adjustBrightness(_brightness);
-			filter = brightnessFilter;
-			
+			resetFilter();
 			super.create();
+			realign();
 		}
 		override public function destroy():void {
+		
+		}
+		
+		public function update(deltaTime:Number):void {
+			
+		}
+		public function draw():void {
 			
 		}
 		
@@ -89,9 +94,31 @@ package objects.graphics {
 			}
 			
 			_brightness = val;
-			brightnessFilter.reset();
-			brightnessFilter.adjustBrightness(_brightness);
-			filter = brightnessFilter;
+			resetFilter();
+		}
+		
+		public function get contrast():Number {
+			return _contrast;
+		}
+		public function set contrast(val:Number):void {
+			if (isNaN(val)) {
+				return;
+			}
+			
+			_contrast = val;
+			resetFilter();
+		}
+		
+		public function get saturation():Number {
+			return _saturation;
+		}
+		public function set saturation(val:Number):void {
+			if (isNaN(val)) {
+				return;
+			}
+			
+			_saturation = val;
+			resetFilter();
 		}
 		
 		public function setTextureName(textureName:String):void {
@@ -102,7 +129,7 @@ package objects.graphics {
 		}
 		public function resetTexture():void {
 			Observer.add(CustomAtlasImage.OBSERVERS, customAtlasImageObserver);
-			load(registryUtil.getFile(FileRegistryType.TEXTURE, registryUtil.getOption(OptionsRegistryType.VIDEO, "textureQuality") + "_" + gameType), registryUtil.getFile(FileRegistryType.XML, gameType));
+			load(textureUrl, xmlUrl);
 		}
 		
 		public function get adjustX():Number {
@@ -114,6 +141,7 @@ package objects.graphics {
 			}
 			
 			_adjustX = val;
+			realign();
 		}
 		
 		public function get adjustY():Number {
@@ -125,6 +153,19 @@ package objects.graphics {
 			}
 			
 			_adjustY = val;
+			realign();
+		}
+		
+		public function get adjustRotation():Number {
+			return _adjustRotation;
+		}
+		public function set adjustRotation(val:Number):void {
+			if (isNaN(val)) {
+				return;
+			}
+			
+			_adjustRotation = val;
+			realign();
 		}
 		
 		//private
@@ -144,11 +185,19 @@ package objects.graphics {
 			realign();
 		}
 		
-		public function realign():void {
+		protected function realign():void {
 			alignPivot();
 			scaleX = scaleY = _scale * _origScale;
 			pivotX += _adjustX;
 			pivotY += _adjustY;
+			rotation = _adjustRotation;
+		}
+		protected function resetFilter():void {
+			colorFilter.reset();
+			colorFilter.adjustBrightness(_brightness);
+			colorFilter.adjustContrast(_contrast);
+			colorFilter.adjustSaturation(_saturation);
+			filter = colorFilter;
 		}
 	}
 }
