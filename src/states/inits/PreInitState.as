@@ -122,7 +122,7 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
 			
 			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
-			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.HIGH);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.LOW);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "screenShake", true);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "animations", true);
@@ -176,6 +176,13 @@ package states.inits {
 			methods = Util.getEnums(TextureQualityType);
 			for each (quality in methods) {
 				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_anim", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/anim.png");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_credits", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_credits.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_options", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_options.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_horde", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_horde.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_mask", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_mask.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_nemesis", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_nemesis.jpg");
+				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_unity", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_unity.jpg");
 				for each (game in games) {
 					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/" + game + ".png");
 					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_" + game + ".jpg");

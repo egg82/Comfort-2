@@ -14,6 +14,7 @@ package states.inits {
 	import flash.utils.ByteArray;
 	import states.AdState;
 	import states.LoadingState;
+	import states.MenuState;
 	
 	/**
 	 * ...
@@ -42,10 +43,11 @@ package states.inits {
 			trace("postInit");
 			
 			//_nextState = AdState;
-			_nextState = LoadingState;
+			/*_nextState = LoadingState;
 			_nextStateParams = [{
 				"gameType": gameType
-			}];
+			}];*/
+			_nextState = MenuState;
 			
 			musicQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "musicQuality");
 			sfxQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "sfxQuality");
@@ -55,6 +57,15 @@ package states.inits {
 			Observer.add(BaseLoadingState.OBSERVERS, baseLoadingStateObserver);
 			
 			var fileArr:Array = new Array();
+			
+			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_background_menu"));
+			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_background_menu_credits"));
+			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_background_menu_options"));
+			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_background_menu_horde"));
+			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_background_menu_mask"));
+			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_background_menu_nemesis"));
+			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_background_menu_unity"));
+			
 			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, musicQuality + "_music_main"));
 			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, musicQuality + "_music_jazz"));
 			fileArr.push(REGISTRY_UTIL.getFile(FileRegistryType.AUDIO, sfxQuality + "_select"));
