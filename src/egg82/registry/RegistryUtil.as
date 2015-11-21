@@ -21,6 +21,7 @@
  */
 
 package egg82.registry {
+	import egg82.enums.ServiceType;
 	import egg82.events.registry.RegistryUtilEvent;
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
@@ -41,6 +42,8 @@ package egg82.registry {
 		//vars
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
+		private var initialized:Boolean = false;
+		
 		private var fileRegistry:IRegistry;
 		private var fontRegistry:IRegistry;
 		private var optionsRegistry:IRegistry;
@@ -53,10 +56,15 @@ package egg82.registry {
 		
 		//public
 		public function initialize():void {
-			fileRegistry = ServiceLocator.getService("fileRegistry") as IRegistry;
-			fontRegistry = ServiceLocator.getService("fontRegistry") as IRegistry;
-			optionsRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
-			textureRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
+			if (initialized) {
+				return;
+			}
+			initialized = true;
+			
+			fileRegistry = ServiceLocator.getService(ServiceType.FILE_REGISTRY) as IRegistry;
+			fontRegistry = ServiceLocator.getService(ServiceType.FONT_REGISTRY) as IRegistry;
+			optionsRegistry = ServiceLocator.getService(ServiceType.OPTIONS_REGISTRY) as IRegistry;
+			textureRegistry = ServiceLocator.getService(ServiceType.TEXTURE_REGISTRY) as IRegistry;
 			
 			fileRegistry.initialize();
 			fontRegistry.initialize();

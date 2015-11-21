@@ -44,6 +44,11 @@ package egg82.startup.reg {
 		
 		//public
 		override public function initialize():void {
+			if (initialized) {
+				return;
+			}
+			super.initialize();
+			
 			optionsRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
 		}
 		

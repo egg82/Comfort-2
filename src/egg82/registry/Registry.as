@@ -34,6 +34,8 @@ package egg82.registry {
 		//vars
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
+		protected var initialized:Boolean = false;
+		
 		protected var registry:Array = new Array();
 		
 		//constructor
@@ -43,7 +45,7 @@ package egg82.registry {
 		
 		//public
 		public function initialize():void {
-			
+			initialized = true;
 		}
 		
 		public function setRegister(type:String, data:*):void {

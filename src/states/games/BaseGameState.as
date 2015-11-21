@@ -35,6 +35,7 @@ package states.games {
 	import states.components.RegistryComponent;
 	import states.components.TimerComponent;
 	import states.LoseState;
+	import states.UnloadingState;
 	
 	/**
 	 * ...
@@ -70,7 +71,10 @@ package states.games {
 		
 		//public
 		override public function create(...args):void {
-			_nextState = LoseState;
+			_nextState = UnloadingState;
+			_nextStateParams = [{
+				"nextState": LoseState
+			}];
 			
 			super.create();
 			
@@ -155,6 +159,8 @@ package states.games {
 				spawnBullet();
 				timerComponent.startFireTimer();
 			}
+			
+			super.update(deltaTime);
 		}
 		override public function draw():void {
 			core.draw();

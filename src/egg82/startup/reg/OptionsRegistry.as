@@ -45,6 +45,11 @@ package egg82.startup.reg {
 		
 		//public
 		override public function initialize():void {
+			if (initialized) {
+				return;
+			}
+			super.initialize();
+			
 			setRegister(OptionsRegistryType.VIDEO, {
 				"updateFps": 60,
 				"drawFps": 60,

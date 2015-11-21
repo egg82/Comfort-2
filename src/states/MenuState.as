@@ -1,8 +1,11 @@
 package states {
 	import egg82.base.BaseState;
 	import egg82.custom.CustomImage;
+	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.enums.FileRegistryType;
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
+	import egg82.patterns.ServiceLocator;
 	
 	/**
 	 * ...
@@ -11,6 +14,8 @@ package states {
 	
 	public class MenuState extends BaseState {
 		//vars
+		private var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
+		
 		private var background:CustomImage;
 		
 		private var gameType:String;
@@ -39,7 +44,16 @@ package states {
 			background.height = stage.stageHeight;
 			addChild(background);
 			
+			audioEngine.playAudio(musicQuality + "_music_main", true);
+			
 			super.create();
+		}
+		
+		override public function update(deltaTime:Number):void {
+			super.update(deltaTime);
+		}
+		override public function draw():void {
+			super.draw();
 		}
 
 		//private

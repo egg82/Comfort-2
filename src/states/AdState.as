@@ -22,7 +22,7 @@ package states {
 		override public function create():void {
 			super.create();
 			
-			_nextState = MenuState;
+			_nextState = MenuLoadingState;
 			
 			ad.adType = ad.VIDEO_ADS;
 			ad.showBorder = false;

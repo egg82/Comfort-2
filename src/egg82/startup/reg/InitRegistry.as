@@ -44,6 +44,11 @@ package egg82.startup.reg {
 		
 		//public
 		override public function initialize():void {
+			if (initialized) {
+				return;
+			}
+			super.initialize();
+			
 			setRegister("preInitState", null);
 			setRegister("postInitState", null);
 			setRegister("logging", false);

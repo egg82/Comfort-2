@@ -41,6 +41,11 @@ package egg82.startup.reg {
 		
 		//public
 		override public function initialize():void {
+			if (initialized) {
+				return;
+			}
+			super.initialize();
+			
 			Font.registerFont(VISITOR);
 			setRegister("visitor", VISITOR);
 		}

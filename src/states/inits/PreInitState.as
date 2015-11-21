@@ -126,6 +126,7 @@ package states.inits {
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "screenShake", true);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "animations", true);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "compressTextures", true);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "musicQuality", AudioQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "ambientQuality", AudioQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.AUDIO, "sfxQuality", AudioQualityType.ULTRA);

@@ -1,6 +1,5 @@
 package states {
 	import egg82.base.BaseLoadingState;
-	import egg82.custom.CustomImage;
 	import egg82.engines.interfaces.IAudioEngine;
 	import egg82.enums.AudioFileType;
 	import egg82.enums.AudioType;
@@ -11,14 +10,8 @@ package states {
 	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.utils.TextureUtil;
-	import enums.CustomOptionsRegistryType;
-	import enums.GameType;
 	import flash.display.BitmapData;
 	import flash.utils.ByteArray;
-	import states.games.HordeGameState;
-	import states.games.MaskGameState;
-	import states.games.NemesisGameState;
-	import states.games.UnityGameState;
 	import util.CompressionUtil;
 	
 	/**
@@ -26,94 +19,54 @@ package states {
 	 * @author Alex
 	 */
 	
-	public class LoadingState extends BaseLoadingState {
+	public class MenuLoadingState extends BaseLoadingState {
 		//vars
 		private var audioEngine:IAudioEngine = ServiceLocator.getService(ServiceType.AUDIO_ENGINE) as IAudioEngine;
 		
 		private var baseLoadingStateObserver:Observer = new Observer();
 		
-		private var background:CustomImage;
-		
-		private var gameType:String;
 		private var musicQuality:String;
 		private var ambientQuality:String;
 		private var sfxQuality:String;
 		private var textureQuality:String;
 		private var compressTextures:Boolean;
-		private var animations:Boolean;
 		
-		private var bmdArr:Vector.<String> = new <String>[];
+		private var bmdArr:Vector.<String> = new <String>[
+			"background_menu",
+			"background_menu_credits",
+			"background_menu_options",
+			"background_menu_horde",
+			"background_menu_mask",
+			"background_menu_nemesis",
+			"background_menu_unity"
+		];
 		private var xmlArr:Vector.<String> = new <String>[];
 		private var ambientArr:Vector.<String> = new <String>[];
-		private var musicArr:Vector.<String> = new <String>[];
-		private var sfxArr:Vector.<String> = new <String>[];
+		private var musicArr:Vector.<String> = new <String>[
+			"music_main",
+			"music_jazz"
+		];
+		private var sfxArr:Vector.<String> = new <String>[
+			"select"
+		];
 		
 		//constructor
-		public function LoadingState() {
+		public function MenuLoadingState() {
 			
 		}
 		
 		//public
 		override public function create(...args):void {
-			throwErrorOnArgsNull(args);
-			
-			gameType = getArg(args, "gameType") as String;
-			if (!gameType) {
-				throw new Error("gameType cannot be null.");
-			}
-			
-			if (gameType == GameType.HORDE) {
-				_nextState = HordeGameState;
-			} else if (gameType == GameType.MASK) {
-				_nextState = MaskGameState;
-			} else if (gameType == GameType.NEMESIS) {
-				_nextState = NemesisGameState;
-			} else {
-				_nextState = UnityGameState;
-			}
+			_nextState = MenuState;
 			
 			ambientQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "ambientQuality") as String;
 			musicQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "musicQuality") as String;
 			sfxQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "sfxQuality") as String;
 			textureQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.VIDEO, "textureQuality") as String;
 			compressTextures = REGISTRY_UTIL.getOption(OptionsRegistryType.VIDEO, "compressTextures") as Boolean;
-			animations = REGISTRY_UTIL.getOption(OptionsRegistryType.VIDEO, "animations") as Boolean;
-			
-			background = new CustomImage(REGISTRY_UTIL.getFile(FileRegistryType.TEXTURE, textureQuality + "_" + gameType + "_background"));
-			background.create();
-			background.width = stage.stageWidth;
-			background.height = stage.stageHeight;
-			addChild(background);
 			
 			baseLoadingStateObserver.add(onBaseLoadingStateObserverNotify);
 			Observer.add(BaseLoadingState.OBSERVERS, baseLoadingStateObserver);
-			
-			bmdArr.push(gameType + "_background");
-			bmdArr.push(gameType + "_background_pause");
-			bmdArr.push(gameType);
-			xmlArr.push(gameType);
-			if (animations) {
-				bmdArr.push("anim");
-				xmlArr.push("anim");
-			}
-			ambientArr.push("stress_" + gameType);
-			musicArr.push("music_" + gameType);
-			sfxArr.push("ball_hit_critical_" + gameType);
-			sfxArr.push("ball_hit_insecure_" + gameType);
-			sfxArr.push("ball_hit_normal_" + gameType);
-			sfxArr.push("ball_miss_1_" + gameType);
-			sfxArr.push("ball_miss_2_" + gameType);
-			sfxArr.push("game_over_" + gameType);
-			sfxArr.push("clock");
-			sfxArr.push("explosion");
-			sfxArr.push("pause");
-			sfxArr.push("unpause");
-			sfxArr.push("star_appearance");
-			sfxArr.push("star_activation");
-			sfxArr.push("star_deactivation");
-			if (gameType == GameType.HORDE) {
-				sfxArr.push("sentry_shoot");
-			}
 			
 			var fileArr:Array = new Array();
 			var i:uint;
@@ -148,18 +101,10 @@ package states {
 				}
 			}
 			
-			audioEngine.playAudio(musicQuality + "_music_jazz", true);
-			
 			super.create({
 				"fileArr": fileArr,
 				"font": "note"
 			});
-		}
-		
-		override public function destroy():void {
-			audioEngine.pauseAudio(musicQuality + "_music_jazz");
-			
-			super.destroy();
 		}
 		
 		//private
