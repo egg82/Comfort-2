@@ -77,14 +77,13 @@ package states.inits {
 		override public function create(...args):void {
 			super.create();
 			
-			//INIT_REGISTRY.setRegister("debug", false);
-			/*INIT_REGISTRY.setRegister("memoryHandicap", null);
+			/*INIT_REGISTRY.setRegister("debug", false);
+			INIT_REGISTRY.setRegister("memoryHandicap", null);
 			(INIT_REGISTRY.getRegister("cpuHandicap") as Timer).stop();*/
 			ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, NullAudioEngine);
 			
 			ServiceLocator.provideService(CustomServiceType.GAME_OPTIONS_REGISTRY, Registry);
 			
-			NetUtil.loadExactPolicyFile("https://egg82.ninja/crossdomain.xml");
 			API.debugMode = (INIT_REGISTRY.getRegister("debug") as Boolean) ? API.DEBUG_MODE_LOGGED_OUT : API.RELEASE_MODE;
 			API.addEventListener(APIEvent.ERROR_TIMED_OUT, onConnectError);
 			API.connect(Starling.all[0].nativeOverlay, id, key);
@@ -121,7 +120,9 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.MEDIUM, new BulletMediumData());
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
 			
+			NetUtil.loadExactPolicyFile("https://egg82.ninja/crossdomain.xml");
 			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
+			
 			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.LOW);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "screenShake", true);

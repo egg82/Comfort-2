@@ -84,8 +84,10 @@ package egg82.startup {
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
 			Starling.handleLostContext = true;
+			Starling.multitouchEnabled = true;
 			starling = new Starling(BaseSprite, stage, null, null, "auto", "auto");
 			starling.showStats = initRegistry.getRegister("debug");
+			starling.simulateMultitouch = true;
 			
 			ServiceLocator.provideService(ServiceType.LOGGER, Logger);
 			

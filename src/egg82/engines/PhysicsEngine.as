@@ -145,9 +145,11 @@ package egg82.engines {
 			_space.step(deltaTime * _speed, 20 * _velocityAccuracy, 20 * _positionAccuracy);
 		}
 		public function draw():void {
-			debug.clear();
-			debug.draw(_space);
-			debug.flush();
+			if (_initialized && initRegistry.getRegister("debug") as Boolean) {
+				debug.clear();
+				debug.draw(_space);
+				debug.flush();
+			}
 		}
 		public function resize():void {
 			if (_initialized && initRegistry.getRegister("debug") as Boolean) {

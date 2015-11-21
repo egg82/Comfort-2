@@ -22,6 +22,7 @@
 
 package egg82.custom {
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.events.custom.CustomTiledImageEvent;
 	import egg82.events.ImageDecoderEvent;
 	import egg82.patterns.Observer;
@@ -66,8 +67,8 @@ package egg82.custom {
 		
 		private var imageDecoderObserver:Observer = new Observer();
 		
-		private var optionsRegistry:IRegistry = ServiceLocator.getService("optionsRegistry") as IRegistry;
-		private var textureRegistry:IRegistry = ServiceLocator.getService("textureRegistry") as IRegistry;
+		private var optionsRegistry:IRegistry = ServiceLocator.getService(ServiceType.OPTIONS_REGISTRY) as IRegistry;
+		private var textureRegistry:IRegistry = ServiceLocator.getService(ServiceType.TEXTURE_REGISTRY) as IRegistry;
 		
 		//constructor
 		public function CustomTiledImage(url:String, atlasRows:uint, atlasCols:uint, rows:uint, cols:uint, tileWidth:uint, tileHeight:uint) {

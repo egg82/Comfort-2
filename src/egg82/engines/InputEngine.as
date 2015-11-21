@@ -46,6 +46,7 @@ package egg82.engines {
 		private var xboxControllers:Vector.<Xbox360Controller> = new Vector.<Xbox360Controller>();
 		
 		private var _mouseLocation:Point = new Point();
+		private var _mouseLocation2:Point = new Point();
 		private var _stickProperties:Point = new Point();
 		private var _stickPosition:Point = new Point();
 		private var _mouseWheel:int = 0;
@@ -194,7 +195,7 @@ package egg82.engines {
 		}
 		
 		public function get mousePosition():Point {
-			return _mouseLocation.clone();
+			return _mouseLocation2;
 		}
 		public function get mouseWheelPosition():int {
 			return _mouseWheel;
@@ -530,15 +531,15 @@ package egg82.engines {
 		private function onMouseMove(e:MouseEvent):void {
 			_lastUsingController = false;
 			
-			var oldPoint:Point = new Point(_mouseLocation.x, _mouseLocation.y);
+			var oldPoint:Point = _mouseLocation.clone();
 			
-			_mouseLocation.x = e.stageX;
-			_mouseLocation.y = e.stageY;
+			_mouseLocation2.x = _mouseLocation.x = e.stageX;
+			_mouseLocation2.y = _mouseLocation.y = e.stageY;
 			
 			dispatch(InputEngineEvent.MOUSE_MOVE, {
 				"stage": Starling.all[0].nativeStage,
 				"oldPoint": oldPoint,
-				"newPoint": new Point(e.stageX, e.stageY)
+				"newPoint": _mouseLocation2
 			});
 		}
 		private function onMouseWheel(e:MouseEvent):void {

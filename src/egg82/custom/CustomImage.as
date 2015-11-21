@@ -22,6 +22,7 @@
 
 package egg82.custom {
 	import egg82.enums.OptionsRegistryType;
+	import egg82.enums.ServiceType;
 	import egg82.events.custom.CustomImageEvent;
 	import egg82.events.ImageDecoderEvent;
 	import egg82.patterns.Observer;
@@ -51,7 +52,7 @@ package egg82.custom {
 		private var imageDecoderObserver:Observer = new Observer();
 		private var registryUtilObserver:Observer = new Observer();
 		
-		private var registryUtil:IRegistryUtil = ServiceLocator.getService("registryUtil") as IRegistryUtil;
+		private var registryUtil:IRegistryUtil = ServiceLocator.getService(ServiceType.REGISTRY_UTIL) as IRegistryUtil;
 		
 		//constructor
 		public function CustomImage(url:String) {
