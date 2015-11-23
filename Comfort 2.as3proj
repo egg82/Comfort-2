@@ -5,11 +5,11 @@
     <movie outputType="Application" />
     <movie input="" />
     <movie path="bin\Comfort2.swf" />
-    <movie fps="30" />
+    <movie fps="60" />
     <movie width="1024" />
     <movie height="576" />
-    <movie version="18" />
-    <movie minorVersion="0" />
+    <movie version="11" />
+    <movie minorVersion="7" />
     <movie platform="Flash Player" />
     <movie background="#FFFFFF" />
   </output>

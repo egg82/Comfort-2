@@ -36,6 +36,7 @@ package states.games {
 	import states.components.TimerComponent;
 	import states.LoseState;
 	import states.UnloadingState;
+	import util.Shake;
 	
 	/**
 	 * ...
@@ -63,6 +64,10 @@ package states.games {
 		protected var sentry:Sentry;
 		
 		private var _screenAnimating:Boolean = false;
+		private var smallShake:Shake = new Shake(0.5, 15, 2);
+		private var mediumShake:Shake = new Shake(0.75, 30, 4);
+		private var largeShake:Shake = new Shake(1.5, 60, 16);
+		private var deathShake:Shake = new Shake(4.0, 120, 64);
 		
 		//constructor
 		public function BaseGameState() {
@@ -125,14 +130,20 @@ package states.games {
 			audioEngine.playAudio(registryComponent.musicQuality + "_music_" + gameType);
 			
 			alignPivot();
+			x = (stage.stageWidth / 2) - 89;
+			y = (stage.stageHeight / 2) - 79;
+			rotation = 0;
 		}
 		
 		override public function update(deltaTime:Number):void {
-			if (!_screenAnimating) {
-				x = stage.stageWidth / 2;
-				y = stage.stageHeight / 2;
-				x -= 89;
-				y -= 79;
+			if (deathShake.shaking) {
+				deathShake.update();
+			} else if (largeShake.shaking) {
+				largeShake.update();
+			} else if (mediumShake.shaking) {
+				mediumShake.update();
+			} else if (smallShake.shaking) {
+				smallShake.update();
 			}
 			
 			if (poolComponent.getNumUsedObjects() < registryComponent.minObjects) {
@@ -192,16 +203,16 @@ package states.games {
 				obj2.tweenBrightness(0.6);
 				TweenMax.delayedCall(0.2, obj2.tweenBrightness, [0]);
 				if (obj1 is StressBall) {
-					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 2, 1);
+					mediumShake.start(this);
 					core.health -= registryComponent.stressPower;
 				} else if (obj1 is ShieldedStressBall) {
-					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 2, 1);
+					mediumShake.start(this);
 					core.health -= registryComponent.shieldedStressPower;
 				} else if (obj1 is ExplosiveStressBall) {
-					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 2, 1);
+					mediumShake.start(this);
 					core.health -= registryComponent.explosiveStressPower;
 				} else if (obj1 is ClusterStressBall) {
-					shake(this, ((registryComponent.health - core.health + 1) / registryComponent.health) * 1, 1);
+					smallShake.start(this);
 					core.health -= registryComponent.clusterStressPower;
 				} else if (obj1 is ReliefStar) {
 					core.health += registryComponent.reliefPower;
@@ -269,7 +280,7 @@ package states.games {
 				if (!(obj2 is Border)) {
 					tweenDestroy(obj1);
 					if (!(obj2 is Core)) {
-						shake(this, 4, 1.5);
+						largeShake.start(this);
 						for (var i:uint = 0; i < registryComponent.clusterStressNumber; i++) {
 							spawnClusterBall(obj1.body.position.x + FastMath.sin(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.y + FastMath.cos(FastMath.toRadians((i / registryComponent.clusterStressNumber) * 360), true) * 15, obj1.body.position.x, obj1.body.position.y);
 						}
@@ -352,7 +363,7 @@ package states.games {
 			if (core.health <= 0) {
 				timerComponent.destroy();
 				tweenDestroyAll();
-				shake(this, 7, 4);
+				deathShake.start(this);
 				TweenMax.delayedCall(3, TweenMax.to, [
 					this,
 					1,
@@ -422,69 +433,6 @@ package states.games {
 		private function destroyPool(objs:Vector.<IPrototype>):void {
 			for (var i:uint = 0; i < objs.length; i++) {
 				tweenDestroy(objs[i] as BaseObject, 2);
-			}
-		}
-		
-		private function shake(object:DisplayObject, intensity:Number, duration:Number):void {
-			if (object === this && (!registryComponent.screenShake || _screenAnimating)) {
-				return;
-			}
-			
-			if (object === this) {
-				_screenAnimating = true;
-				TweenMax.delayedCall(duration, function():void {
-					_screenAnimating = false;
-				});
-			}
-			
-			TweenMax.delayedCall(duration, function():void {
-				object.x = object.x;
-				object.y = object.y;
-				object.rotation = object.rotation;
-			});
-			
-			var randDuration:Number = MathUtil.random(0.1, 0.2);
-			duration -= randDuration;
-			
-			TweenMax.delayedCall(duration, TweenMax.to, [
-				object,
-				randDuration,
-				{
-					"x": object.x,
-					"y": object.y,
-					"rotation": object.rotation,
-					"ease": Elastic.easeOut
-				}
-			]);
-			
-			while (duration > 0) {
-				if (duration <= 0.2) {
-					randDuration = duration;
-				} else {
-					randDuration = MathUtil.random(0.1, 0.2);
-				}
-				duration -= randDuration;
-				
-				TweenMax.delayedCall(duration, TweenMax.to, [
-					object,
-					randDuration,
-					{
-						"x": object.x + (MathUtil.random(-2, 2) * intensity),
-						"y": object.y + (MathUtil.random(-2, 2) * intensity),
-						"rotation": object.rotation + MathUtil.random(-0.0174533, 0.0174533) * intensity,
-						"ease": Elastic.easeOut
-					}
-				]);
-				TweenMax.delayedCall(duration, TweenMax.to, [
-					object,
-					randDuration,
-					{
-						"x": object.x + (MathUtil.random(-2, 2) * intensity),
-						"y": object.y + (MathUtil.random(-2, 2) * intensity),
-						"rotation": object.rotation + MathUtil.random(-0.0174533, 0.0174533) * intensity,
-						"ease": Elastic.easeOut
-					}
-				]);
 			}
 		}
 	}
