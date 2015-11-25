@@ -51,7 +51,7 @@ package egg82.base {
 			return _valid;
 		}
 		
-		public function create(...args):void {
+		public function create(args:Array = null):void {
 			dispatch(BaseSpriteEvent.CREATE);
 		}
 		public function destroy():void {

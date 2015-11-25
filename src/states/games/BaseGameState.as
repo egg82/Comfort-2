@@ -75,13 +75,13 @@ package states.games {
 		}
 		
 		//public
-		override public function create(...args):void {
+		override public function create(args:Array = null):void {
 			_nextState = UnloadingState;
 			_nextStateParams = [{
 				"nextState": LoseState
 			}];
 			
-			super.create();
+			super.create(args);
 			
 			throwErrorOnArgsNull(args);
 			gameType = getArg(args, "gameType");

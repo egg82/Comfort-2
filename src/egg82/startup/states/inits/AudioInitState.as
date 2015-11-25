@@ -44,7 +44,7 @@ package egg82.startup.states.inits {
 		}
 		
 		//public
-		override public function create(...args):void {
+		override public function create(args:Array = null):void {
 			_nextState = initRegistry.getRegister("postInitState") as Class;
 			
 			if (!REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "preloadAudio") as Boolean || (fileRegistry.getRegister(FileRegistryType.AUDIO) as Array).length == 0) {
@@ -52,9 +52,10 @@ package egg82.startup.states.inits {
 				return;
 			}
 			
-			super.create({
+			args = addArg(args, {
 				"fileArr": fileRegistry.getRegister(FileRegistryType.AUDIO) as Array
 			});
+			super.create(args);
 		}
 		
 		//private

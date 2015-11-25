@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="unity.png" width="527" height="812">
+    <SubTexture name="core" x="2" y="2" width="523" height="523"/>
+    <SubTexture name="explosion" x="263" y="724" width="87" height="86" frameX="0" frameY="-1" frameWidth="88" frameHeight="88"/>
+    <SubTexture name="ball_explosive" x="352" y="724" width="85" height="83" frameX="-2" frameY="-2" frameWidth="88" frameHeight="88"/>
+    <SubTexture name="ball_explosive_cluster" x="459" y="527" width="24" height="24" frameX="-3" frameY="-3" frameWidth="30" frameHeight="30"/>
+    <SubTexture name="paddle" x="2" y="527" width="259" height="101" frameX="-3" frameY="0" frameWidth="265" frameHeight="101"/>
+    <SubTexture name="paddle2" x="2" y="630" width="259" height="101" frameX="-3" frameY="0" frameWidth="265" frameHeight="101"/>
+    <SubTexture name="star_reinforcement" x="439" y="724" width="80" height="77"/>
+    <SubTexture name="star_relief" x="2" y="733" width="80" height="77"/>
+    <SubTexture name="star_remedy" x="84" y="733" width="80" height="77"/>
+    <SubTexture name="ball_shielded" x="263" y="527" rotated="true" width="194" height="195"/>
+    <SubTexture name="ball_standard" x="166" y="733" width="76" height="76" frameX="-3" frameY="-3" frameWidth="82" frameHeight="82"/>
+</TextureAtlas>

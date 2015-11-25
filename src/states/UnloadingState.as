@@ -26,8 +26,8 @@ package states {
 		}
 		
 		//public
-		override public function create(...args):void {
-			super.create();
+		override public function create(args:Array = null):void {
+			super.create(args);
 			
 			throwErrorOnArgsNull(args);
 			

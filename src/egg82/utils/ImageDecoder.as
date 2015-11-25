@@ -23,6 +23,8 @@
 package egg82.utils {
 	import egg82.events.ImageDecoderEvent;
 	import egg82.patterns.Observer;
+	import egg82.patterns.prototype.interfaces.IPrototype;
+	import egg82.utils.interfaces.IImageDecoder;
 	import flash.display.Bitmap;
 	import flash.display.Loader;
 	import flash.events.AsyncErrorEvent;
@@ -40,7 +42,7 @@ package egg82.utils {
 	 * @author egg82
 	 */
 	
-	public class ImageDecoder {
+	public class ImageDecoder implements IImageDecoder, IPrototype {
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
 		private var loader:Loader;
@@ -132,6 +134,10 @@ package egg82.utils {
 			loader.close();
 			
 			_isLoading = false;
+		}
+		
+		public function clone():IPrototype {
+			return new ImageDecoder();
 		}
 		
 		//private

@@ -10,9 +10,12 @@ package states.inits {
 	import egg82.enums.OptionsRegistryType;
 	import egg82.enums.ServiceType;
 	import egg82.enums.XboxButtonCodes;
+	import egg82.events.util.FileDataUtilEvent;
+	import egg82.patterns.Observer;
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.registry.Registry;
+	import egg82.utils.FileDataUtil;
 	import egg82.utils.MathUtil;
 	import egg82.utils.NetUtil;
 	import egg82.utils.Util;
@@ -63,10 +66,17 @@ package states.inits {
 		[Embed(source = "../../../res/font/speech.ttf", fontName = "speech", mimeType = "application/x-font", fontWeight = "normal", fontStyle = "normal", unicodeRange = "U+0020-U+007e", advancedAntiAliasing = "true", embedAsCFF = "false")]
 		private static var SPEECH:Class;
 		
+		private var part:uint = 0;
+		private var totalParts:uint = 3;
+		private var checked:uint = 0;
 		private var retry:uint = 0;
 		
 		private var id:String = "36550:7oMQaUng";
 		private var key:String = "6eJ8M5kiQGj9mZIDIXs2C1i3ouERVw23";
+		
+		private var fileDataUtil:FileDataUtil = new FileDataUtil();
+		
+		private var fileDataUtilObserver:Observer = new Observer();
 		
 		//constructor
 		public function PreInitState() {
@@ -74,18 +84,30 @@ package states.inits {
 		}
 		
 		//public
-		override public function create(...args):void {
-			super.create();
+		override public function create(args:Array = null):void {
+			super.create(args);
 			
+			INIT_REGISTRY.setRegister("version", "0.1a");
 			/*INIT_REGISTRY.setRegister("debug", false);
 			INIT_REGISTRY.setRegister("memoryHandicap", null);
 			(INIT_REGISTRY.getRegister("cpuHandicap") as Timer).stop();*/
 			ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, NullAudioEngine);
 			
+			fileDataUtilObserver.add(onFileDataUtilObserverNotify);
+			Observer.add(FileDataUtil.OBSERVERS, fileDataUtilObserver);
+			
 			ServiceLocator.provideService(CustomServiceType.GAME_OPTIONS_REGISTRY, Registry);
 			
 			API.debugMode = (INIT_REGISTRY.getRegister("debug") as Boolean) ? API.DEBUG_MODE_LOGGED_OUT : API.RELEASE_MODE;
-			API.addEventListener(APIEvent.ERROR_TIMED_OUT, onConnectError);
+			API.addEventListener(APIEvent.API_CONNECTED, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_UNKNOWN, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_TIMED_OUT, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_SENDING_COMMAND, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_COMMAND_FAILED, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_BAD_RESPONSE, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_HOST_BLOCKED, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_NOT_CONNECTED, onConnectEvent);
+			API.addEventListener(APIEvent.ERROR_NONE, onConnectEvent);
 			API.connect(Starling.all[0].nativeOverlay, id, key);
 			
 			stateEngine.skipMultiplePhysicsUpdate = true;
@@ -119,9 +141,6 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.HIGH, new BulletHighData());
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.MEDIUM, new BulletMediumData());
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
-			
-			NetUtil.loadExactPolicyFile("https://egg82.ninja/crossdomain.xml");
-			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", ["https://egg82.ninja/hosted/Comfort%202"]);
 			
 			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.LOW);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
@@ -164,80 +183,158 @@ package states.inits {
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "clusterStressNumber", 8);
 			REGISTRY_UTIL.setOption(CustomOptionsRegistryType.SETUP, "clusterStressPower", 0.25);
 			
-			var fileHosts:Array = REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "fileHosts");
-			var length:uint = fileHosts.length - 1;
+			NetUtil.loadExactPolicyFile("https://egg82.ninja/crossdomain.xml");
+			REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", [
+				"https://egg82.ninja/hosted/Comfort%202"
+			]);
 			
-			//TODO: Check fileHosts for hosts that are down and remove them from the array - except the first one
-			
-			var methods:Array;
-			var quality:String;
-			
-			var games:Array = Util.getEnums(GameType);
-			var game:String;
-			
-			methods = Util.getEnums(TextureQualityType);
-			for each (quality in methods) {
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_anim", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/anim.png");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_credits", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_credits.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_options", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_options.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_horde", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_horde.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_mask", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_mask.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_nemesis", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_nemesis.jpg");
-				REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_unity", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_unity.jpg");
-				for each (game in games) {
-					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/" + game + ".png");
-					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_" + game + ".jpg");
-					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game + "_background_pause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_pause_" + game + ".jpg");
-				}
-			}
-			methods = Util.getEnums(AudioQualityType);
-			for each (quality in methods) {
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_music_main", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/main.mp3");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_music_jazz", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/jazz.mp3");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_clock", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/clock.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_explosion", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/explosion.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_pause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/pause.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_unpause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/unpause.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_select", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/select.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_activation", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_activation.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_appearance", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_appearance.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_deactivation", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_deactivation.wav");
-				REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_sentry_shoot", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/horde/sentry_shoot.wav");
-				for each (game in games) {
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_music_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/" + game + ".mp3");
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_stress_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/ambient/" + quality + "/" + game + "_stress.wav");
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_hit_critical_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_critical.wav");
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_hit_insecure_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_insecure.wav");
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_hit_normal_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_normal.wav");
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_miss_1_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_miss_1.wav");
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_miss_2_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_miss_2.wav");
-					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_game_over_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/game_over.wav");
-				}
-			}
-			REGISTRY_UTIL.setFile(FileRegistryType.XML, "anim", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/anim.xml");
-			for each (game in games) {
-				REGISTRY_UTIL.setFile(FileRegistryType.XML, game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + game + ".xml");
-			}
+			fileDataUtil.create();
+			checkHosts(part);
 			
 			REGISTRY_UTIL.setFont("note", NOTE);
 			REGISTRY_UTIL.setFont("speech", SPEECH);
 			
 			trace("preInit");
+		}
+		override public function destroy():void {
+			Observer.remove(FileDataUtil.OBSERVERS, fileDataUtilObserver);
 			
-			nextState();
+			fileDataUtil.destroy();
+			
+			super.destroy();
 		}
 		
 		//private
-		private function onConnectError(e:APIEvent):void {
-			if (e.success || retry >= REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "maxRetry")) {
-				trace("removed");
-				API.removeEventListener(APIEvent.ERROR_TIMED_OUT, onConnectError);
+		private function onConnectEvent(e:APIEvent):void {
+			if (API.connected || retry >= REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "maxRetry")) {
+				API.removeEventListener(APIEvent.API_CONNECTED, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_UNKNOWN, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_TIMED_OUT, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_SENDING_COMMAND, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_COMMAND_FAILED, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_BAD_RESPONSE, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_HOST_BLOCKED, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_NOT_CONNECTED, onConnectEvent);
+				API.removeEventListener(APIEvent.ERROR_NONE, onConnectEvent);
 			} else {
-				trace("retry");
 				retry++;
 				API.disconnect();
-				API.connect(Starling.all[0].nativeOverlay, id, key);
+				Util.timedFunction(3000, API.connect, [Starling.all[0].nativeOverlay, id, key]);
+			}
+		}
+		
+		private function onFileDataUtilObserverNotify(sender:Object, event:String, data:Object):void {
+			if (sender !== fileDataUtil) {
+				return;
+			}
+			
+			checkHosts(part, event);
+		}
+		
+		private function checkHosts(part:uint, event:String = null):void {
+			this.part = part;
+			setLoaded(part, totalParts);
+			
+			var localDir:String = INIT_REGISTRY.getRegister("url") as String;
+			if (part == 0) {
+				if (localDir && localDir.indexOf("file://") == -1) {
+					localDir = null;
+				}
+				
+				this.part = part = part + 1;
+				setLoaded(part, totalParts);
+				
+				if (localDir) {
+					fileDataUtil.getFile(localDir + "/data/check.txt");
+					return;
+				}
+			}
+			
+			var fileHosts:Array = REGISTRY_UTIL.getOption(OptionsRegistryType.NETWORK, "fileHosts") as Array;
+			if (part == 1) {
+				if (event && event == FileDataUtilEvent.FILE_COMPLETE) {
+					fileHosts = [localDir + "/data"];
+					this.part = part = part + 2;
+				} else {
+					this.part = part = part + 1;
+				}
+				setLoaded(part, totalParts);
+			}
+			
+			if (part == 2) {
+				if (checked >= 1 && event == FileDataUtilEvent.FILE_ERROR) {
+					fileHosts.splice(checked, 1);
+					REGISTRY_UTIL.setOption(OptionsRegistryType.NETWORK, "fileHosts", fileHosts);
+				} else {
+					checked++;
+				}
+				
+				if (checked < fileHosts.length) {
+					fileDataUtil.getFile(fileHosts[checked] + "/check.txt");
+					return;
+				} else {
+					this.part = part = part + 1;
+					setLoaded(part, totalParts);
+				}
+			}
+			
+			if (part == totalParts) {
+				var length:uint = fileHosts.length - 1;
+				
+				var methods:Array;
+				var quality:String;
+				
+				var games:Array = Util.getEnums(GameType);
+				var game:String;
+				
+				methods = Util.getEnums(TextureQualityType);
+				for each (quality in methods) {
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_anim", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/anim.png");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu.jpg");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_credits", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_credits.jpg");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_options", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_options.jpg");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_horde", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_horde.jpg");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_mask", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_mask.jpg");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_nemesis", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_nemesis.jpg");
+					REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_background_menu_unity", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_menu_unity.jpg");
+					for each (game in games) {
+						REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/" + game + ".png");
+						REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game + "_background", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_" + game + ".jpg");
+						REGISTRY_UTIL.setFile(FileRegistryType.TEXTURE, quality + "_" + game + "_background_pause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + quality + "/background_pause_" + game + ".jpg");
+					}
+				}
+				
+				methods = Util.getEnums(AudioQualityType);
+				for each (quality in methods) {
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_music_main", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/main.mp3");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_music_jazz", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/jazz.mp3");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_clock", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/clock.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_explosion", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/explosion.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_pause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/pause.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_unpause", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/unpause.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_select", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/select.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_activation", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_activation.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_appearance", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_appearance.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_deactivation", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_deactivation.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_sentry_shoot", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/horde/sentry_shoot.wav");
+					for each (game in games) {
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_music_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/" + game + ".mp3");
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_stress_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/ambient/" + quality + "/" + game + "_stress.wav");
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_hit_critical_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_critical.wav");
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_hit_insecure_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_insecure.wav");
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_hit_normal_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_hit_normal.wav");
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_miss_1_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_miss_1.wav");
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_ball_miss_2_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/ball_miss_2.wav");
+						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_game_over_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/" + game + "/game_over.wav");
+					}
+				}
+				
+				REGISTRY_UTIL.setFile(FileRegistryType.XML, "anim", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/anim.xml");
+				for each (game in games) {
+					REGISTRY_UTIL.setFile(FileRegistryType.XML, game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/texture/" + game + ".xml");
+				}
+				
+				nextState();
 			}
 		}
 	}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="anim.png" width="383" height="275">
+    <SubTexture name="noise1" x="2" y="2" width="352" height="271"/>
+    <SubTexture name="spark1" x="365" y="177" width="6" height="31" frameX="-1" frameY="0" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark2" x="356" y="242" width="5" height="31" frameX="-1" frameY="0" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark3" x="356" y="205" width="6" height="31" frameX="0" frameY="0" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark4" x="356" y="18" width="7" height="31"/>
+    <SubTexture name="spark5" x="365" y="18" width="7" height="31"/>
+    <SubTexture name="spark6" x="374" y="18" width="7" height="31"/>
+    <SubTexture name="spark7" x="356" y="51" width="7" height="31"/>
+    <SubTexture name="spark8" x="365" y="51" width="7" height="31"/>
+    <SubTexture name="spark9" x="374" y="51" width="7" height="31"/>
+    <SubTexture name="spark10" x="356" y="84" width="7" height="31"/>
+    <SubTexture name="spark11" x="373" y="205" width="6" height="30" frameX="0" frameY="-1" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark12" x="364" y="210" width="6" height="30" frameX="0" frameY="-1" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark13" x="365" y="84" width="7" height="30" frameX="0" frameY="-1" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark14" x="374" y="84" width="7" height="30" frameX="0" frameY="-1" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark15" x="365" y="116" width="7" height="30" frameX="0" frameY="-1" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark16" x="374" y="147" width="7" height="27" frameX="0" frameY="-3" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark17" x="356" y="2" rotated="true" width="24" height="6" frameX="-1" frameY="-4" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark18" x="356" y="10" rotated="true" width="24" height="6" frameX="-1" frameY="-4" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark19" x="356" y="177" width="7" height="26" frameX="0" frameY="-3" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark20" x="356" y="148" width="7" height="27" frameX="0" frameY="-2" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark21" x="365" y="148" width="7" height="27" frameX="0" frameY="-2" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark22" x="374" y="176" width="7" height="27" frameX="0" frameY="-2" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark23" x="356" y="117" width="7" height="29" frameX="0" frameY="-1" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark24" x="374" y="116" width="7" height="29" frameX="0" frameY="-1" frameWidth="7" frameHeight="31"/>
+    <SubTexture name="spark25" x="365" y="177" width="6" height="31" frameX="-1" frameY="0" frameWidth="7" frameHeight="31"/>
+</TextureAtlas>

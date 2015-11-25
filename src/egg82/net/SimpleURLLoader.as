@@ -24,6 +24,7 @@ package egg82.net {
 	import egg82.events.net.SimpleURLLoaderEvent;
 	import egg82.net.interfaces.ISimpleURLLoader;
 	import egg82.patterns.Observer;
+	import egg82.patterns.prototype.interfaces.IPrototype;
 	import flash.events.Event;
 	import flash.events.HTTPStatusEvent;
 	import flash.events.IOErrorEvent;
@@ -38,7 +39,7 @@ package egg82.net {
 	 * @author egg82
 	 */
 	
-	public class SimpleURLLoader implements ISimpleURLLoader {
+	public class SimpleURLLoader implements ISimpleURLLoader, IPrototype {
 		//vars
 		public static const OBSERVERS:Vector.<Observer> = new Vector.<Observer>();
 		
@@ -107,6 +108,10 @@ package egg82.net {
 		}
 		public function get totalBytes():Number {
 			return _totalBytes;
+		}
+		
+		public function clone():IPrototype {
+			return new SimpleURLLoader();
 		}
 		
 		//private

@@ -25,6 +25,9 @@ package egg82.base {
 	import egg82.patterns.ServiceLocator;
 	import egg82.registry.interfaces.IRegistry;
 	import egg82.startup.states.inits.InitState;
+	import starling.text.TextField;
+	import starling.utils.HAlign;
+	import starling.utils.VAlign;
 	
 	/**
 	 * ...
@@ -33,6 +36,11 @@ package egg82.base {
 	
 	public class BasePreInitState extends BaseState {
 		//vars
+		private var font:String = "visitor";
+		private var loadingString:String = "Loading..";
+		
+		private var centerText:TextField;
+		
 		protected const INIT_REGISTRY:IRegistry = ServiceLocator.getService(ServiceType.INIT_REGISTRY) as IRegistry;
 		
 		//constructor
@@ -41,13 +49,32 @@ package egg82.base {
 		}
 		
 		//public
-		override public function create(...args):void {
-			super.create();
+		override public function create(args:Array = null):void {
+			super.create(args);
+			
+			throwErrorOnArgsNull(args);
+			INIT_REGISTRY.setRegister("url", getArg(args, "url") as String);
+			
+			centerText = new TextField(0, 0, loadingString + "\n0/0\n0.00%", font, 22, 0x000000, false);
+			centerText.hAlign = HAlign.CENTER;
+			centerText.vAlign = VAlign.CENTER;
+			addChild(centerText);
 			
 			_nextState = InitState;
 		}
 		
-		//private
+		override public function resize():void {
+			super.resize();
+			
+			if (centerText) {
+				centerText.width = stage.stageWidth;
+				centerText.height = stage.stageHeight;
+			}
+		}
 		
+		//private
+		protected function setLoaded(loaded:uint, total:uint):void {
+			centerText.text = loadingString + "\n" + loaded + "/" + total + "\n" + ((loaded / total) * 100).toFixed(2) + "%";
+		}
 	}
 }

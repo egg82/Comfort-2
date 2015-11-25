@@ -86,6 +86,19 @@ package egg82.base {
 			});
 		}
 		private function onComplete(e:Event):void {
+			var url:String = loaderInfo.url;
+			
+			if (url.indexOf("file://") > -1) {
+				url = url.substring(0, url.lastIndexOf("/"));
+			}
+			
+			if (!_preInitStateArgs) {
+				_preInitStateArgs = new Array();
+			}
+			_preInitStateArgs.push({
+				"url": url
+			});
+			
 			dispatch(BasePreloaderEvent.COMPLETE);
 		}
 		

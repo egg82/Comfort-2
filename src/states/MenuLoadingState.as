@@ -56,7 +56,7 @@ package states {
 		}
 		
 		//public
-		override public function create(...args):void {
+		override public function create(args:Array = null):void {
 			_nextState = MenuState;
 			
 			ambientQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "ambientQuality") as String;
@@ -101,10 +101,11 @@ package states {
 				}
 			}
 			
-			super.create({
+			args = addArg(args, {
 				"fileArr": fileArr,
 				"font": "note"
 			});
+			super.create(args);
 		}
 		
 		//private

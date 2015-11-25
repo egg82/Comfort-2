@@ -19,7 +19,7 @@ package states.inits {
 		}
 		
 		//public
-		override public function create(...args):void {
+		override public function create(args:Array = null):void {
 			trace("postInit");
 			
 			//_nextState = AdState;
@@ -31,7 +31,7 @@ package states.inits {
 			
 			nextState();
 			
-			super.create();
+			super.create(args);
 		}
 		
 		//private

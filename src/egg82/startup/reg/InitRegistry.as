@@ -52,6 +52,7 @@ package egg82.startup.reg {
 			setRegister("preInitState", null);
 			setRegister("postInitState", null);
 			setRegister("logging", false);
+			setRegister("frameworkVersion", "0.1a");
 			setRegister("debug", Capabilities.isDebugger);
 			
 			if (Capabilities.isDebugger) {

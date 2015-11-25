@@ -167,7 +167,7 @@ package egg82.engines {
 			states.splice(addAt, 0, ns);
 			Starling.all[0].stage.addChild(ns);
 			
-			ns.create.apply(null, newStateArgs);
+			ns.create.apply(null, [newStateArgs]);
 			ns.resize();
 			
 			Starling.all[0].showStats = false;
@@ -208,7 +208,7 @@ package egg82.engines {
 			states.splice(swapAt, 0, ns);
 			Starling.all[0].stage.addChild(ns);
 			
-			ns.create.apply(null, newStateArgs);
+			ns.create.apply(null, [newStateArgs]);
 			ns.resize();
 			
 			Starling.all[0].showStats = false;

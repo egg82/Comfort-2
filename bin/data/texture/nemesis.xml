@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="nemesis.png" width="630" height="527">
+    <SubTexture name="core" x="2" y="2" width="523" height="523"/>
+    <SubTexture name="ball_standard" x="527" y="266" width="80" height="77" frameX="-2" frameY="-3" frameWidth="82" frameHeight="82"/>
+    <SubTexture name="paddle" x="527" y="2" rotated="true" width="101" height="262" frameX="-3" frameY="0" frameWidth="265" frameHeight="101"/>
+    <SubTexture name="star_reinforcement" x="527" y="345" width="78" height="76" frameX="-2" frameY="0" frameWidth="80" frameHeight="77"/>
+    <SubTexture name="star_remedy" x="527" y="423" width="76" height="75" frameX="-2" frameY="-1" frameWidth="80" frameHeight="77"/>
+</TextureAtlas>

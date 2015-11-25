@@ -18,7 +18,7 @@ package states.games {
 		}
 		
 		//public
-		override public function create(...args):void {
+		override public function create(args:Array = null):void {
 			difficulty = REGISTRY_UTIL.getOption(CustomOptionsRegistryType.GAMEPLAY, "difficulty") as String;
 			
 			if (difficulty == DifficultyType.EASY) {
@@ -31,9 +31,10 @@ package states.games {
 				
 			}
 			
-			super.create({
+			args = addArg(args, {
 				"gameType": GameType.MASK
 			});
+			super.create(args);
 			
 			physicsEngine.addBody(paddle1.body);
 			addChild(paddle1.graphics);

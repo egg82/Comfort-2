@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="horde.png" width="721" height="527">
+    <SubTexture name="core" x="2" y="2" width="523" height="523"/>
+    <SubTexture name="explosion" x="527" y="272" width="83" height="79" frameX="0" frameY="-4" frameWidth="88" frameHeight="88"/>
+    <SubTexture name="ball_explosive" x="612" y="272" width="81" height="80" frameX="-4" frameY="-4" frameWidth="88" frameHeight="88"/>
+    <SubTexture name="ball_explosive_cluster" x="656" y="197" rotated="true" width="28" height="26" frameX="-2" frameY="-1" frameWidth="30" frameHeight="30"/>
+    <SubTexture name="star_reinforcement" x="527" y="431" rotated="true" width="74" height="76" frameX="-3" frameY="-2" frameWidth="80" frameHeight="77"/>
+    <SubTexture name="star_relief" x="603" y="431" rotated="true" width="74" height="76" frameX="-3" frameY="-2" frameWidth="80" frameHeight="77"/>
+    <SubTexture name="star_remedy" x="605" y="354" width="76" height="74" frameX="-3" frameY="-2" frameWidth="80" frameHeight="77"/>
+    <SubTexture name="sentry" x="527" y="197" width="127" height="73" frameX="0" frameY="0" frameWidth="129" frameHeight="75"/>
+    <SubTexture name="bullet" x="686" y="197" width="25" height="67" frameX="-4" frameY="-3" frameWidth="33" frameHeight="73"/>
+    <SubTexture name="ball_shielded" x="527" y="2" width="192" height="193" frameX="-3" frameY="0" frameWidth="195" frameHeight="194"/>
+    <SubTexture name="ball_standard" x="527" y="353" width="76" height="76" frameX="-3" frameY="-3" frameWidth="82" frameHeight="82"/>
+</TextureAtlas>

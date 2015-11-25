@@ -54,7 +54,7 @@ package states {
 		}
 		
 		//public
-		override public function create(...args):void {
+		override public function create(args:Array = null):void {
 			throwErrorOnArgsNull(args);
 			
 			gameType = getArg(args, "gameType") as String;
@@ -150,10 +150,11 @@ package states {
 			
 			audioEngine.playAudio(musicQuality + "_music_jazz", true);
 			
-			super.create({
+			args = addArg(args, {
 				"fileArr": fileArr,
 				"font": "note"
 			});
+			super.create(args);
 		}
 		
 		override public function destroy():void {

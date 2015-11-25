@@ -62,8 +62,8 @@ package egg82.startup.states.inits {
 		}
 		
 		//public
-		override public function create(...args):void {
-			super.create();
+		override public function create(args:Array = null):void {
+			super.create(args);
 			
 			_nextState = AudioInitState;
 			

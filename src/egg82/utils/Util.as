@@ -224,6 +224,31 @@ package egg82.utils {
 			return retArr;
 		}
 		
+		public static function vectorPos(item:*, vector:*):int {
+			if (!(vector is Vector.<*>)) {
+				return -1;
+			}
+			
+			var vec:Vector.<*> = vector as Vector.<*>;
+			
+			for (var i:uint = 0; i < vec.length; i++) {
+				if (item === vec[i]) {
+					return i;
+				}
+			}
+			
+			return -1;
+		}
+		public static function arrayPos(item:*, array:Array):int {
+			for (var i:uint = 0; i < array.length; i++) {
+				if (item === array[i]) {
+					return i;
+				}
+			}
+			
+			return -1;
+		}
+		
 		//private
 		private static function onTimer(e:TimerEvent):void {
 			for (var i:uint = 0; i < timers.length; i++) {

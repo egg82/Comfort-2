@@ -21,6 +21,7 @@
  */
 
 package egg82.net.interfaces {
+	import flash.net.URLRequest;
 	
 	/**
 	 * ...
@@ -33,6 +34,16 @@ package egg82.net.interfaces {
 		//constructor
 		
 		//public
+		function load(url:String):void;
+		function loadRequest(request:URLRequest):void;
+		
+		function cancel():void;
+		
+		function get loading():Boolean
+		function get file():String;
+		
+		function get loadedBytes():Number;
+		function get totalBytes():Number;
 		
 		//private
 		

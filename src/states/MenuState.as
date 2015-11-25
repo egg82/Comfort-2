@@ -32,7 +32,7 @@ package states {
 		}
 		
 		//public
-		override public function create(...args):void {
+		override public function create(args:Array = null):void {
 			ambientQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "ambientQuality");
 			musicQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "musicQuality");
 			sfxQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "sfxQuality");
@@ -46,7 +46,7 @@ package states {
 			
 			audioEngine.playAudio(musicQuality + "_music_main", true);
 			
-			super.create();
+			super.create(args);
 		}
 		
 		override public function update(deltaTime:Number):void {

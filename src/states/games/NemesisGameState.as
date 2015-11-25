@@ -15,10 +15,11 @@ package states.games {
 		}
 		
 		//public
-		override public function create(...args):void {
-			super.create({
+		override public function create(args:Array = null):void {
+			args = addArg(args, {
 				"gameType": GameType.NEMESIS
 			});
+			super.create(args);
 			
 			physicsEngine.addBody(paddle1.body);
 			addChild(paddle1.graphics);
