@@ -64,6 +64,8 @@ package objects.components {
 			});
 		}
 		
+		//TODO Fix physics body scaling
+		
 		public function get origScale():Number {
 			return _origScale;
 		}

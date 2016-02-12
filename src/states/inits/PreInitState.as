@@ -142,7 +142,7 @@ package states.inits {
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.MEDIUM, new BulletMediumData());
 			physicsRegistry.setRegister("bullet_" + ShapeQualityType.LOW, new BulletLowData());
 			
-			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.LOW);
+			REGISTRY_UTIL.setOption(OptionsRegistryType.PHYSICS, "shapeQuality", ShapeQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "textureQuality", TextureQualityType.ULTRA);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "screenShake", true);
 			REGISTRY_UTIL.setOption(OptionsRegistryType.VIDEO, "animations", true);
@@ -317,6 +317,7 @@ package states.inits {
 					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_appearance", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_appearance.wav");
 					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_star_deactivation", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/star_deactivation.wav");
 					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_sentry_shoot", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/horde/sentry_shoot.wav");
+					REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_fanfare", fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/sfx/" + quality + "/fanfare.wav");
 					for each (game in games) {
 						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_music_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/music/" + quality + "/" + game + ".mp3");
 						REGISTRY_UTIL.setFile(FileRegistryType.AUDIO, quality + "_stress_" + game, fileHosts[MathUtil.betterRoundedRandom(0, length)] + "/ambient/" + quality + "/" + game + "_stress.wav");

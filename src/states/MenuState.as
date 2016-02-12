@@ -20,7 +20,6 @@ package states {
 		
 		private var gameType:String;
 		private var musicQuality:String;
-		private var ambientQuality:String;
 		private var sfxQuality:String;
 		private var textureQuality:String;
 		
@@ -33,7 +32,6 @@ package states {
 		
 		//public
 		override public function create(args:Array = null):void {
-			ambientQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "ambientQuality");
 			musicQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "musicQuality");
 			sfxQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.AUDIO, "sfxQuality");
 			textureQuality = REGISTRY_UTIL.getOption(OptionsRegistryType.VIDEO, "textureQuality");

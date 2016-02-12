@@ -8,15 +8,15 @@
   <compiler>
     <define append="true">
       <name>CONFIG::debug</name>
-      <value>false</value>
-    </define>
-    <define append="true">
-      <name>CONFIG::release</name>
       <value>true</value>
     </define>
     <define append="true">
+      <name>CONFIG::release</name>
+      <value>false</value>
+    </define>
+    <define append="true">
       <name>CONFIG::timeStamp</name>
-      <value>'11/25/2015'</value>
+      <value>'2/11/2016'</value>
     </define>
     <define append="true">
       <name>CONFIG::air</name>
@@ -30,25 +30,23 @@
       <name>CONFIG::desktop</name>
       <value>false</value>
     </define>
-    <optimize>true</optimize>
-    <omit-trace-statements>true</omit-trace-statements>
-    <verbose-stacktraces>false</verbose-stacktraces>
+    <verbose-stacktraces>true</verbose-stacktraces>
     <source-path append="true">
-      <path-element>C:\Users\Angel\Documents\Comfort-2\src</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\src</path-element>
       <path-element>C:\Program Files (x86)\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
     <library-path append="true">
-      <path-element>C:\Users\Angel\Documents\Comfort-2\lib\as3crypto.swc</path-element>
-      <path-element>C:\Users\Angel\Documents\Comfort-2\lib\asSQL-Beta2.8.swc</path-element>
-      <path-element>C:\Users\Angel\Documents\Comfort-2\lib\starling.swc</path-element>
-      <path-element>C:\Users\Angel\Documents\Comfort-2\lib\Starling-Extension-Graphics.swc</path-element>
-      <path-element>C:\Users\Angel\Documents\Comfort-2\lib\greensock.swc</path-element>
-      <path-element>C:\Users\Angel\Documents\Comfort-2\lib\nape-dev.swc</path-element>
-      <path-element>C:\Users\Angel\Documents\Comfort-2\lib\NewgroundsAPI.swc</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\lib\as3crypto.swc</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\lib\asSQL-Beta2.8.swc</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\lib\starling.swc</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\lib\Starling-Extension-Graphics.swc</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\lib\greensock.swc</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\lib\nape-dev.swc</path-element>
+      <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\lib\NewgroundsAPI.swc</path-element>
     </library-path>
   </compiler>
   <file-specs>
-    <path-element>C:\Users\Angel\Documents\Comfort-2\src\Main.as</path-element>
+    <path-element>C:\Users\Alex\Dropbox\Comfort 2-2\src\Main.as</path-element>
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>60</default-frame-rate>

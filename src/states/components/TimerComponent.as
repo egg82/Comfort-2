@@ -40,7 +40,7 @@ package states.components {
 		
 		private var _fireRateMultiplier:Number = 1;
 		
-		private var impulseTimer:Timer = new Timer(100);
+		private var impulseTimer:Timer = new Timer(50);
 		private var unstuckTimer:Timer = new Timer(1000);
 		private var speedTimer:Timer = new Timer(250);
 		
@@ -196,7 +196,7 @@ package states.components {
 						continue;
 					}
 					if (body2 is Border) {
-						return;
+						continue;
 					}
 					
 					try {

@@ -19,10 +19,10 @@ package states {
 		}
 		
 		//public
-		override public function create():void {
-			super.create();
+		override public function create(args:Array = null):void {
+			super.create(args);
 			
-			_nextState = MenuLoadingState;
+			_nextState = LogoState;
 			
 			ad.adType = ad.VIDEO_ADS;
 			ad.showBorder = false;

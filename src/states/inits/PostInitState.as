@@ -1,8 +1,10 @@
 package states.inits {
 	import egg82.base.BaseState;
 	import enums.GameType;
-	import states.LoadingState;
-	import states.MenuLoadingState;
+	import states.AdState;
+	import states.loading.GameLoadingState;
+	import states.loading.LogoLoadingState;
+	import states.loading.MenuLoadingState;
 	
 	/**
 	 * ...
@@ -23,11 +25,12 @@ package states.inits {
 			trace("postInit");
 			
 			//_nextState = AdState;
-			/*_nextState = LoadingState;
+			/*_nextState = GameLoadingState;
 			_nextStateParams = [{
 				"gameType": gameType
 			}];*/
 			_nextState = MenuLoadingState;
+			//_nextState = LogoLoadingState;
 			
 			nextState();
 			
