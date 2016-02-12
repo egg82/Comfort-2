@@ -31,7 +31,7 @@ package objects {
 			
 			physicsComponent.setShapes([new Circle(14)]);
 			
-			physicsComponent.body.allowRotation = true;
+			physicsComponent.body.allowRotation = false;
 			physicsComponent.body.allowMovement = true;
 			physicsComponent.body.isBullet = false;
 			

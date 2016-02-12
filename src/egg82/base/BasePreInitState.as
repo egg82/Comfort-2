@@ -66,7 +66,7 @@ package egg82.base {
 		override public function resize():void {
 			super.resize();
 			
-			if (centerText) {
+			if (centerText && stage) {
 				centerText.width = stage.stageWidth;
 				centerText.height = stage.stageHeight;
 			}

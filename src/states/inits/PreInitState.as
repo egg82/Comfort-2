@@ -91,7 +91,7 @@ package states.inits {
 			/*INIT_REGISTRY.setRegister("debug", false);
 			INIT_REGISTRY.setRegister("memoryHandicap", null);
 			(INIT_REGISTRY.getRegister("cpuHandicap") as Timer).stop();*/
-			ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, NullAudioEngine);
+			//ServiceLocator.provideService(ServiceType.AUDIO_ENGINE, NullAudioEngine);
 			
 			fileDataUtilObserver.add(onFileDataUtilObserverNotify);
 			Observer.add(FileDataUtil.OBSERVERS, fileDataUtilObserver);
@@ -202,6 +202,12 @@ package states.inits {
 			fileDataUtil.destroy();
 			
 			super.destroy();
+		}
+		
+		override public function update(deltaTime:Number):void {
+			super.update(deltaTime);
+			
+			resize();
 		}
 		
 		//private

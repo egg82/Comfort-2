@@ -25,11 +25,11 @@ package states.inits {
 			trace("postInit");
 			
 			//_nextState = AdState;
-			/*_nextState = GameLoadingState;
+			_nextState = GameLoadingState;
 			_nextStateParams = [{
 				"gameType": gameType
-			}];*/
-			_nextState = MenuLoadingState;
+			}];
+			//_nextState = MenuLoadingState;
 			//_nextState = LogoLoadingState;
 			
 			nextState();
